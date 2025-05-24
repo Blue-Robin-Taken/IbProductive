@@ -22,8 +22,7 @@ export default function RootLayout({
                     <Link href="/about">About</Link>
                     <Link href="/sign_in">Sign In</Link>
                 </div>
-
-                {children}
+                <div className="m-10">{children}</div>
             </body>
         </html>
     );
