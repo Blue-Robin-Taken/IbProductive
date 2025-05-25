@@ -1,12 +1,12 @@
 export default function SignIn() {
     return (
-        <div className="inline-flex border-indigo-500">
-            <form>
-                <label htmlFor="fname">First name:</label>
-                <input type="text" id="fname" name="fname" />
-                <label htmlFor="lname">Last name:</label>
-                <input type="text" id="lname" name="lname" />
-                <button>Sign in</button>
+        <div className="flex justify-center bg-red-500">
+            <form className="grid grid-rows-3 gap-5">
+                <label htmlFor="username">Username:</label>
+                <input type="text" id="username" name="username" />
+                <label htmlFor="passkey">Password:</label>
+                <input type="text" id="passkey" name="passkey" />
+                <input className="bg-lime-300 text-black" type="submit" value="Submit"/>
             </form>
         </div>
     );

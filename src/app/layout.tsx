@@ -20,6 +20,7 @@ export default function RootLayout({
                 <div className="p-5 m-0 space-x-10 text-4xl bg-gray-800">
                     <Link href="/">Home</Link>
                     <Link href="/about">About</Link>
+                    <Link href="/components/calendar">Scheduler</Link>
                     <Link href="/sign_in">Sign In</Link>
                 </div>
                 <div className="m-10">{children}</div>
