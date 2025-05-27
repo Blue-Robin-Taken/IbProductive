@@ -186,6 +186,9 @@ function daysInMonth(month: number, year: number) {
  * @param month
  * @param year
  * @returns
+ * @param month
+ * @param year
+ * @returns
  */
 function firstWeekOffset(month: number, year: number) {
   let tempDate = new Date(year, month, 1);

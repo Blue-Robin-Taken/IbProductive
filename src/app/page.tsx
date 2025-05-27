@@ -13,7 +13,7 @@ export default function Home() {
                     We have the solution for you.
                 </p>
             </div>
-            <div className="flex flex-grow text-center justify-center m-10 align-middle h-screen">
+            <div className="flex flex-grow text-center justify-center m-10 align-middle">
                 <Link
                     className="bg-slate-950 p-5 rounded-lg text-xl justify-center text-center align-middle"
                     href="/workspace"
