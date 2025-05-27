@@ -66,13 +66,13 @@ function CalendarBox(
     if (date <= 0) {
         return (
             <div key={date} className="text-black bg-slate-500">
-                {date + daysInMonth(month - 1, year)}
+                <p>{date + daysInMonth(month - 1, year)}</p>
             </div>
         );
     } else if (date > daysInThisMonth) {
         return (
             <div key={date} className="text-black bg-slate-500">
-                {date - daysInThisMonth}
+                <p>{date - daysInThisMonth}</p>
             </div>
         );
     } else {
@@ -81,7 +81,7 @@ function CalendarBox(
                 key={date}
                 className="pt-1 pb-16 px-2 text-black color-black bg-slate-400"
             >
-                {date}
+                <p>{date}</p>
             </div>
         );
     }
