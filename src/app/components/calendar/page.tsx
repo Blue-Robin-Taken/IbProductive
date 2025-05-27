@@ -50,11 +50,17 @@ function CalendarGrids(month: number, year: number, frontOffset: number, lastOff
 
 function CalendarBox(date: number, month: number, year: number, daysInThisMonth: number) {
     if (date <= 0) {
-        return <div key={date} className="text-black bg-slate-500">{date + daysInMonth(month - 1, year)}</div>
+        return (<div key={date} className="text-black bg-slate-500">
+            <p>{date + daysInMonth(month - 1, year)}</p>
+        </div>)
     } else if (date > daysInThisMonth) {
-        return <div key={date} className="text-black bg-slate-500">{date - daysInThisMonth}</div>
+        return (<div key={date} className="text-black bg-slate-500">
+            <p>{date - daysInThisMonth}</p>
+        </div>)
     } else {
-        return <div key={date} className="pt-1 pb-16 px-2 text-black color-black bg-slate-400">{date}</div>
+        return (<div key={date} className="pt-1 pb-16 px-2 text-black color-black bg-slate-400">
+            <p>{date}</p>
+        </div>)
     }
 }
 
