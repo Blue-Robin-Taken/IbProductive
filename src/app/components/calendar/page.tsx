@@ -48,11 +48,10 @@ function CalendarGrids(
   /* Initializing variables */
   let arr = [];
   let daysInThisMonth = daysInMonth(month, year);
-  const holidays = require("./holidays.json");
 
   /* Creating Boxes */
   for (let i = -frontOffset; i < daysInThisMonth + lastOffset; i++) {
-    arr.push(CalendarBox(i + 1, month, year, daysInThisMonth, holidays));
+    arr.push(CalendarBox(i + 1, month, year, daysInThisMonth));
   }
   return arr;
 }
@@ -69,8 +68,7 @@ function CalendarBox(
   date: number,
   month: number,
   year: number,
-  daysInThisMonth: number,
-  jsonData: String
+  daysInThisMonth: number
 ) {
   let keyValue = date;
 
@@ -143,14 +141,26 @@ function getTasks(date: number, month: number, year: number) {
   return <div></div>;
 }
 
+interface HolidayData {
+  date: number;
+  month: number;
+  holiday: string;
+}
+
 function getHolidays(date: number, month: number) {
+  let index;
+
   switch (month) {
     case 4:
-      if (dateHasHoliday(date, holidays.may))
-        if (holidays.may)
-          if (holidaysInMonth == "holiday") {
-            return <div>holiday!</div>;
-          }
+      index = holidayIndexOfDate(date, holidays.may);
+      console.log(date + ": " + index);
+      if (index !== -1) {
+        return (
+          <div>
+            <p>holidays.may[index]</p>
+          </div>
+        );
+      }
       break;
     default:
       break;
@@ -159,8 +169,14 @@ function getHolidays(date: number, month: number) {
   return <div></div>;
 }
 
-function dateHasHoliday(date: number, data: Array) {
-  return false;
+function holidayIndexOfDate(date: number, array: object[]) {
+  const dateAsString = date.toString();
+  for (let i = 0; i < array.length; i++) {
+    if (dateAsString === array[i].toString()) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 function daysInMonth(month: number, year: number) {
