@@ -1,0 +1,35 @@
+.holiday-label {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 1.5rem;
+  border-width: 4px;
+  border-style: double;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.green-green {
+  border-color: #10b981;
+  color: #000000;
+  background-color: #a7f3d0;
+}
+
+.yellow-indigo {
+  border-color: #3730a3;
+  color: #000000;
+  background-color: #fde68a;
+}
+
+.ap-event {
+  border-color: #93c5fd;
+  color: #ffffff;
+  background-color: #2563eb;
+}
+
+.ib-event {
+  border-color: #eff6ff;
+  color: #ffffff;
+  background-color: #3b82f6;
+}

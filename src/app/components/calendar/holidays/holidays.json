@@ -1,8 +1,8 @@
 {
   "holiday_css": {
-    "Summer Break": "bg-green-200 border-green-500 text-black",
-    "Start of School": "bg-yellow-200 border-indigo-800 text-black",
-    "SAT Day": "bg-yellow-200 border-indigo-800 text-black",
+    "Summer Break": "green-green",
+    "Start of School": "yellow-indigo",
+    "SAT Day": "yellow-indigo",
     "AP Scores Release": "bg-blue-600 border-blue-300 text-white",
     "IB Scores Release": "bg-blue-500 border-blue-50 text-white"
   },

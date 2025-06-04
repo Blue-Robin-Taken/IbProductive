@@ -1,24 +1,29 @@
 import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
-import holidays from "./holidays.json" assert { type: "json" };
+import { getHolidays } from "./holidays/HolidayBackEnd";
+import { getTasks } from "./tasks/TaskBackEnd";
+
 export default function CalendarPage() {
   return CalendarFrame();
 }
+
+let date = new Date();
+var month = date.getMonth();
+var year = date.getFullYear();
+let frontOffset = firstWeekOffset(month, year);
+let lastOffset = lastWeekOffset(month, year);
 
 //
 // Front End
 //
 function CalendarFrame() {
-  let date = new Date();
-  let month = date.getMonth();
-  let year = date.getFullYear();
-  let frontOffset = firstWeekOffset(month, year);
-  let lastOffset = lastWeekOffset(month, year);
-
   return (
     <div>
       <div className="text-black flex justify-center py-5 my-3 bg-red-300">
-        <h1 className="text-6xl">{getMonth(month)}</h1>
+        <h1 className="text-6xl">
+          {getMonth(month)} {year}
+        </h1>
+        <h1>Next</h1>
       </div>
       <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4">
         {/* Date Labels */}
@@ -138,59 +143,9 @@ function CalendarBox(
   }
 }
 
-function TaskLabel() {
-  return <div>getTaskInfo()</div>;
-}
-
-function HolidayLabel(holiday: String) {
-  const cssArray = holidays["holiday_css"];
-  const holidayCSS = cssArray[String(holiday) as keyof typeof cssArray];
-
-  return (
-    <div className="justify-left inline-block mb-1">
-      <p
-        className={`px-4 py-1 border-double border-4 rounded-3xl text-xs ${holidayCSS}`}
-      >
-        {String(holiday)}
-      </p>
-    </div>
-  );
-}
-
 //
 // Back End
 //
-/**
- * Gets the tasks in a given day.
- * @param day
- * @param month
- * @param year
- * @returns
- */
-function getTasks(day: number, month: number, year: number) {
-  // get tasks that match the date, number, and year, as well as the classes the user has
-  return <div></div>;
-}
-
-function getHolidays(day: number, month: number) {
-  if (!(String(month) in holidays)) {
-    return <div></div>;
-  }
-
-  const holidayArray = holidays[String(month) as keyof typeof holidays];
-  if (!(String(day) in holidayArray)) {
-    return <div></div>;
-  }
-  const holiday: String[] =
-    holidayArray[String(day) as keyof typeof holidayArray];
-
-  let arr = [];
-  for (let i = 0; i < holiday.length; i++) {
-    arr.push(HolidayLabel(holiday[i]));
-  }
-  return arr;
-}
-
 function daysInMonth(month: number, year: number) {
   switch (month) {
     case 1:
@@ -257,4 +212,12 @@ function getMonth(month: number) {
     "December",
   ];
   return monthArr[month];
+}
+
+function previousMonth() {
+  console.log("previous month");
+  month--;
+  if (month == -1) {
+    year--;
+  }
 }
