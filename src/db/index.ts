@@ -1,5 +1,3 @@
-import { config } from 'dotenv';
-import postgres from 'postgres';
-config({ path: '.env' });
+import { PrismaClient } from '../generated/prisma';
 
-console.log(process.env.DATABASE_URL);
+const prisma = new PrismaClient();

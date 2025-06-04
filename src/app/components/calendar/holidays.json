@@ -1,7 +1,7 @@
 {
-  "may": [
-    { "23": "final day of school" },
-    { "24": "summer break" },
-    { "25": "summer break" }
-  ]
+    "5": {
+        "23": "final day of school",
+        "24": "summer break",
+        "25": "summer break"
+    }
 }

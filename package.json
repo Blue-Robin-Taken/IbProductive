@@ -9,28 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "^15.3.2",
-    "pg": "^8.16.0",
+    "@prisma/client": "^6.8.2",
+    "dotenv": "^16.5.0",
+    "next": "^15.3.3",
+    "prisma": "^6.8.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@types/node": "^20.17.51",
+    "@types/node": "^20.17.54",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "eslint": "^9.27.0",
     "eslint-config-next": "15.1.8",
-<<<<<<< HEAD
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.4",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"
-=======
-    "json-loader": "^0.5.7",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
->>>>>>> 6cbe6b592a075461526abc72a6cf0b7a79b60b31
   },
   "packageManager": "pnpm@8.12.1+sha1.aa961ffce9b6eaa56307d9b5ff7e984f25b7eb58"
 }
