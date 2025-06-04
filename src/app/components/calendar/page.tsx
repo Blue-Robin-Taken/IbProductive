@@ -1,46 +1,100 @@
+"use client";
+
+import React from "react";
 import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import { getTasks } from "./tasks/TaskBackEnd";
 
-export default function CalendarPage() {
-  return CalendarFrame();
+type CalState = {
+  month: number;
+  year: number;
+  frontOffset: number;
+  lastOffset: number;
+};
+class Calendar extends React.Component<{}, CalState> {
+  constructor(props: {}) {
+    super(props);
+    let date = new Date();
+    this.state = {
+      month: date.getMonth(),
+      year: date.getFullYear(),
+      frontOffset: firstWeekOffset(date.getMonth(), date.getFullYear()),
+      lastOffset: lastWeekOffset(date.getMonth(), date.getFullYear()),
+    };
+  }
+
+  render() {
+    return (
+      <div>
+        <div className="text-black flex justify-center py-5 my-3 bg-red-300">
+          <button onClick={this.previousMonth.bind(this)}>Previous</button>
+          <h1 className="text-6xl">
+            {getMonth(this.state.month)} {this.state.year}
+          </h1>
+          <button onClick={this.nextMonth.bind(this)}>Next</button>
+        </div>
+        <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4">
+          {/* Date Labels */}
+          {Array.from({ length: 7 }).map((_, index) => (
+            <h2 className="flex bg-red-400 justify-center py-2" key={index}>
+              {getDay(index)}
+            </h2>
+          ))}
+        </div>
+        <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
+          {/* Spaces */}
+          {CalendarGrids(
+            this.state.month,
+            this.state.year,
+            this.state.frontOffset,
+            this.state.lastOffset
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  previousMonth() {
+    var newMonth: number = this.state.month - 1;
+    var newYear: number = this.state.year;
+
+    if (newMonth === -1) {
+      newMonth = 11;
+      newYear--;
+    }
+
+    this.setState({
+      month: newMonth,
+      year: newYear,
+      frontOffset: firstWeekOffset(newMonth, newYear),
+      lastOffset: lastWeekOffset(newMonth, newYear),
+    });
+  }
+
+  nextMonth() {
+    var newMonth: number = this.state.month + 1;
+    var newYear: number = this.state.year;
+
+    if (newMonth === 12) {
+      newMonth = 0;
+      newYear++;
+    }
+
+    this.setState({
+      month: newMonth,
+      year: newYear,
+      frontOffset: firstWeekOffset(newMonth, newYear),
+      lastOffset: lastWeekOffset(newMonth, newYear),
+    });
+  }
 }
 
-let date = new Date();
-var month = date.getMonth();
-var year = date.getFullYear();
-let frontOffset = firstWeekOffset(month, year);
-let lastOffset = lastWeekOffset(month, year);
+export default Calendar;
 
 //
 // Front End
 //
-function CalendarFrame() {
-  return (
-    <div>
-      <div className="text-black flex justify-center py-5 my-3 bg-red-300">
-        <h1 className="text-6xl">
-          {getMonth(month)} {year}
-        </h1>
-        <h1>Next</h1>
-      </div>
-      <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4">
-        {/* Date Labels */}
-        {Array.from({ length: 7 }).map((_, index) => (
-          <h2 className="flex bg-red-400 justify-center py-2" key={index}>
-            {getDay(index)}
-          </h2>
-        ))}
-      </div>
-      <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
-        {/* Spaces */}
-        {CalendarGrids(month, year, frontOffset, lastOffset)}
-      </div>
-    </div>
-  );
-}
-
 /* Inside the Calendar */
 function CalendarGrids(
   month: number,
@@ -212,12 +266,4 @@ function getMonth(month: number) {
     "December",
   ];
   return monthArr[month];
-}
-
-function previousMonth() {
-  console.log("previous month");
-  month--;
-  if (month == -1) {
-    year--;
-  }
 }

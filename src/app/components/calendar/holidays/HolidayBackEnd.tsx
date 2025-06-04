@@ -1,5 +1,4 @@
 import holidays from "./holidays.json" assert { type: "json" };
-// import React, { useState } from "react";
 import "./holiday.css";
 
 export function getHolidays(day: number, month: number) {
