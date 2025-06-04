@@ -17,18 +17,18 @@ function CalendarFrame() {
 
   return (
     <div>
-      <div className="text-black flex justify-center py-8 my-8 bg-red-300">
-        <h1 className="text-7xl">{getMonth(month)}</h1>
+      <div className="text-black flex justify-center py-5 my-3 bg-red-300">
+        <h1 className="text-6xl">{getMonth(month)}</h1>
       </div>
-      <div className="grid grid-rows-1 grid-cols-7 gap-x-10 pb-8">
+      <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4">
         {/* Date Labels */}
         {Array.from({ length: 7 }).map((_, index) => (
-          <h2 className="flex bg-red-400 justify-center py-5" key={index}>
+          <h2 className="flex bg-red-400 justify-center py-2" key={index}>
             {getDay(index)}
           </h2>
         ))}
       </div>
-      <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-10 gap-y-10">
+      <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
         {/* Spaces */}
         {CalendarGrids(month, year, frontOffset, lastOffset)}
       </div>
@@ -69,8 +69,12 @@ function CalendarBox(
   daysInThisMonth: number
 ) {
   let keyValue = day;
+  let date: Date = new Date();
+  let today: number = date.getDay() + 1;
+  let currentMonth: number = date.getMonth();
 
   if (day <= 0) {
+    // previous month
     /* Modify information */
     month--;
     if (month == -1) {
@@ -79,14 +83,23 @@ function CalendarBox(
     }
     day += daysInMonth(month, year);
 
+    /* CSS Info */
+    let todayCSS = "bg-slate-500";
+    if (day === today && month === currentMonth) {
+      todayCSS = "bg-red-400";
+    }
     return (
-      <div key={keyValue} className="pt-1 pb-16 px-2 text-black bg-slate-500">
-        <p>{day}</p>
+      <div
+        key={keyValue}
+        className={`pt-1 pb-16 px-2 text-black text-xm ${todayCSS}`}
+      >
+        <p className="inline-block px-1 mr-2 text-xm">{day}</p>
         {getHolidays(day, month)}
         {getTasks(day, month, year)}
       </div>
     );
   } else if (day > daysInThisMonth) {
+    // next month
     /* Modify information */
     month++;
     if (month == 12) {
@@ -95,20 +108,29 @@ function CalendarBox(
     }
     day -= daysInThisMonth;
 
+    /* CSS Info */
+    let todayCSS = "bg-slate-500";
+    if (day === today && month === currentMonth) {
+      todayCSS = "bg-red-400";
+    }
+
     return (
-      <div key={keyValue} className="pt-1 pb-16 px-2 text-black bg-slate-500">
-        <p>{day}</p>
+      <div key={keyValue} className={`pt-1 pb-16 px-2 text-black ${todayCSS}`}>
+        <p className="inline-block px-1 mr-2 text-xm">{day}</p>
         {getHolidays(day, month)}
         {getTasks(day, month, year)}
       </div>
     );
   } else {
+    // current month
+    let todayCSS = "bg-slate-400";
+    if (day === today && month === currentMonth) {
+      todayCSS = "bg-red-300";
+    }
+
     return (
-      <div
-        key={keyValue}
-        className="pt-1 pb-16 px-2 text-black color-black bg-slate-400"
-      >
-        <p>{day}</p>
+      <div key={keyValue} className={`pt-1 pb-16 px-2 text-black ${todayCSS}`}>
+        <p className="inline-block px-1 mr-2 text-xl">{day}</p>
         {getHolidays(day, month)}
         {getTasks(day, month, year)}
       </div>
@@ -118,6 +140,21 @@ function CalendarBox(
 
 function TaskLabel() {
   return <div>getTaskInfo()</div>;
+}
+
+function HolidayLabel(holiday: String) {
+  const cssArray = holidays["holiday_css"];
+  const holidayCSS = cssArray[String(holiday) as keyof typeof cssArray];
+
+  return (
+    <div className="justify-left inline-block mb-1">
+      <p
+        className={`px-4 py-1 border-double border-4 rounded-3xl text-xs ${holidayCSS}`}
+      >
+        {String(holiday)}
+      </p>
+    </div>
+  );
 }
 
 //
@@ -144,18 +181,14 @@ function getHolidays(day: number, month: number) {
   if (!(String(day) in holidayArray)) {
     return <div></div>;
   }
-  const holiday = holidayArray[String(day) as keyof typeof holidayArray];
-  const cssArray = holidays["holiday_css"];
-  const holidayCSS = cssArray[String(holiday) as keyof typeof cssArray];
-  return (
-    <div className="justify-left inline-block">
-      <p
-        className={` " px-4 py-1 border-double border-4 rounded-3xl " ${holidayCSS}`}
-      >
-        {String(holiday)}
-      </p>
-    </div>
-  );
+  const holiday: String[] =
+    holidayArray[String(day) as keyof typeof holidayArray];
+
+  let arr = [];
+  for (let i = 0; i < holiday.length; i++) {
+    arr.push(HolidayLabel(holiday[i]));
+  }
+  return arr;
 }
 
 function daysInMonth(month: number, year: number) {
@@ -187,7 +220,6 @@ function daysInMonth(month: number, year: number) {
  */
 function firstWeekOffset(month: number, year: number) {
   let tempDate = new Date(year, month, 1);
-  console.log(tempDate.getDay());
   return tempDate.getDay(); // how many offsets are needed in the first week.
 }
 
