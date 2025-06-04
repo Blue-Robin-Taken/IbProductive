@@ -5,6 +5,7 @@ import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import { getTasks } from "./tasks/TaskBackEnd";
+import "./calendar.css";
 
 type CalState = {
   month: number;
@@ -27,14 +28,19 @@ class Calendar extends React.Component<{}, CalState> {
   render() {
     return (
       <div>
-        <div className="text-black flex justify-center py-5 my-3 bg-red-300">
-          <button onClick={this.previousMonth.bind(this)}>Previous</button>
-          <h1 className="text-6xl">
+        {this.todayButton()}
+        <div className="text-black flex justify-between px-5 py-5 my-3 bg-red-300">
+          <button onClick={this.previousMonth.bind(this)} className="w-24 h-12">
+            Previous
+          </button>
+          <h1 className="text-6xl flex-start">
             {getMonth(this.state.month)} {this.state.year}
           </h1>
-          <button onClick={this.nextMonth.bind(this)}>Next</button>
+          <button onClick={this.nextMonth.bind(this)} className="w-24 h-12">
+            Next
+          </button>
         </div>
-        <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4">
+        <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4 sticky">
           {/* Date Labels */}
           {Array.from({ length: 7 }).map((_, index) => (
             <h2 className="flex bg-red-400 justify-center py-2" key={index}>
@@ -53,6 +59,32 @@ class Calendar extends React.Component<{}, CalState> {
         </div>
       </div>
     );
+  }
+
+  todayButton() {
+    let date = new Date();
+    let currentMonth = date.getMonth();
+    let currentYear = date.getFullYear();
+
+    if (currentMonth === this.state.month && currentYear === this.state.year) {
+      return <div></div>;
+    }
+
+    return (
+      <div className="text-black flex justify-between px-5 py-5 my-3 bg-red-300">
+        <button onClick={this.currentMonth.bind(this)}>Today</button>
+      </div>
+    );
+  }
+
+  currentMonth() {
+    let date = new Date();
+    this.setState({
+      month: date.getMonth(),
+      year: date.getFullYear(),
+      frontOffset: firstWeekOffset(date.getMonth(), date.getFullYear()),
+      lastOffset: lastWeekOffset(date.getMonth(), date.getFullYear()),
+    });
   }
 
   previousMonth() {
@@ -131,6 +163,8 @@ function CalendarBox(
   let date: Date = new Date();
   let today: number = date.getDay() + 1;
   let currentMonth: number = date.getMonth();
+  let currentYear: number = date.getFullYear();
+  let todayCSS = "";
 
   if (day <= 0) {
     // previous month
@@ -143,20 +177,7 @@ function CalendarBox(
     day += daysInMonth(month, year);
 
     /* CSS Info */
-    let todayCSS = "bg-slate-500";
-    if (day === today && month === currentMonth) {
-      todayCSS = "bg-red-400";
-    }
-    return (
-      <div
-        key={keyValue}
-        className={`pt-1 pb-16 px-2 text-black text-xm ${todayCSS}`}
-      >
-        <p className="inline-block px-1 mr-2 text-xm">{day}</p>
-        {getHolidays(day, month)}
-        {getTasks(day, month, year)}
-      </div>
-    );
+    todayCSS = "other-month";
   } else if (day > daysInThisMonth) {
     // next month
     /* Modify information */
@@ -168,33 +189,23 @@ function CalendarBox(
     day -= daysInThisMonth;
 
     /* CSS Info */
-    let todayCSS = "bg-slate-500";
-    if (day === today && month === currentMonth) {
-      todayCSS = "bg-red-400";
-    }
-
-    return (
-      <div key={keyValue} className={`pt-1 pb-16 px-2 text-black ${todayCSS}`}>
-        <p className="inline-block px-1 mr-2 text-xm">{day}</p>
-        {getHolidays(day, month)}
-        {getTasks(day, month, year)}
-      </div>
-    );
+    todayCSS = "other-month";
   } else {
     // current month
-    let todayCSS = "bg-slate-400";
-    if (day === today && month === currentMonth) {
-      todayCSS = "bg-red-300";
-    }
-
-    return (
-      <div key={keyValue} className={`pt-1 pb-16 px-2 text-black ${todayCSS}`}>
-        <p className="inline-block px-1 mr-2 text-xl">{day}</p>
-        {getHolidays(day, month)}
-        {getTasks(day, month, year)}
-      </div>
-    );
+    todayCSS = "current-month";
   }
+
+  if (day === today && month === currentMonth && year === currentYear) {
+    todayCSS += "-today";
+  }
+
+  return (
+    <div key={keyValue} className={todayCSS}>
+      <p className="inline-block px-1 mr-2 text-xl">{day}</p>
+      {getHolidays(day, month, year)}
+      {getTasks(day, month, year)}
+    </div>
+  );
 }
 
 //

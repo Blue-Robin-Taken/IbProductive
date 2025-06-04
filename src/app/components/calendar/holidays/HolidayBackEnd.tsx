@@ -1,12 +1,17 @@
 import holidays from "./holidays.json" assert { type: "json" };
 import "./holiday.css";
 
-export function getHolidays(day: number, month: number) {
-  if (!(String(month) in holidays)) {
+export function getHolidays(day: number, month: number, year: number) {
+  if (!(String(year) in holidays)) {
+    return <div></div>;
+  }
+  const inYear = holidays[String(year) as keyof typeof holidays];
+
+  if (!(String(month) in inYear)) {
     return <div></div>;
   }
 
-  const holidayArray = holidays[String(month) as keyof typeof holidays];
+  const holidayArray = inYear[String(month) as keyof typeof inYear];
   if (!(String(day) in holidayArray)) {
     return <div></div>;
   }
