@@ -7,13 +7,13 @@ import { getHolidays } from "./holidays/HolidayBackEnd";
 import { getTasks } from "./tasks/TaskBackEnd";
 import "./calendar.css";
 
-type CalState = {
+type CalendarState = {
   month: number;
   year: number;
   frontOffset: number;
   lastOffset: number;
 };
-class Calendar extends React.Component<{}, CalState> {
+class Calendar extends React.Component<{}, CalendarState> {
   constructor(props: {}) {
     super(props);
     let date = new Date();
@@ -127,7 +127,6 @@ export default Calendar;
 //
 // Front End
 //
-/* Inside the Calendar */
 function CalendarGrids(
   month: number,
   year: number,
