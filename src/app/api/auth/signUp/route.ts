@@ -23,6 +23,9 @@ export async function POST(request: Request) {
 
   const res: responseType = await request.json();
 
+  /* Save the verification token for the account in the prisma database */
+  
+
   /* Send Email*/
   await resend.emails.send({
     from: "IBProductive <onboarding@resend.dev>",

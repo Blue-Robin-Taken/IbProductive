@@ -49,3 +49,13 @@ This is important for when the database schema changes. See [here](https://www.p
 # Email API
 
 https://resend.com/onboarding
+
+# Environment Variables
+
+File: `.env`
+Variables:
+
+```
+DATABASE_URL="PRISMA-DATABASE-URL-HERE"
+EMAIL_API_KEY="EMAIL-API-KEY-HERE"
+```
