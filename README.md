@@ -45,3 +45,7 @@ npx prisma db push
 ```
 
 This is important for when the database schema changes. See [here](https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases/install-prisma-client-typescript-postgresql)
+
+# Email API
+
+https://resend.com/onboarding
