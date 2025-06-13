@@ -42,3 +42,4 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+# Generated is for the client that's meant to be generated per server instance
