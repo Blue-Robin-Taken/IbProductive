@@ -7,7 +7,8 @@ function submitForm(e: FormEvent): void {
   e.preventDefault();
   const username = (e.target as HTMLFormElement).username.value;
   const email = (e.target as HTMLFormElement).email.value;
-  const password = (e.target as HTMLFormElement).password.value;
+  const password = (e.target as HTMLFormElement).passKey.value;
+  console.log(email, username, password);
   fetch("/api/auth/signUp", {
     method: "POST",
     body: JSON.stringify({
@@ -16,7 +17,7 @@ function submitForm(e: FormEvent): void {
       password: password,
     }),
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "Content-Type": "application/json",
     },
   });
 }
@@ -38,10 +39,10 @@ export default function SignIn() {
           id="username"
           name="username"
         />
-        <label className="text-center" htmlFor="passkey">
+        <label className="text-center" htmlFor="passKey">
           Password:
         </label>
-        <input className="text-black" type="text" id="passkey" name="passkey" />
+        <input className="text-black" type="text" id="passKey" name="passKey" />
         <input
           className="bg-lime-300 text-black"
           type="submit"
