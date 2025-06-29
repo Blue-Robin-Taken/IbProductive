@@ -1,0 +1,36 @@
+.current-month {
+  /*  */
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 4rem;
+  color: #000000;
+  background-color: #94a3b8;
+}
+
+.current-month-today {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 4rem;
+  color: #000000;
+  background-color: #fca5a5;
+}
+
+.other-month {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 4rem;
+  color: #000000;
+  background-color: #64748b;
+}
+
+.other-month-today {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 4rem;
+  color: #000000;
+  background-color: #f87171;
+}

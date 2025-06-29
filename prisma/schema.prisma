@@ -20,3 +20,11 @@ model User {
   name    String?
   passHash String?
 }
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
