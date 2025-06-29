@@ -154,13 +154,10 @@ function getHolidays(day: number, month: number) {
     if (String(month) in holidays) {
         const holidayArray = holidays[String(month) as keyof typeof holidays];
         if (String(day) in holidayArray) {
-            console.log(day);
             const holiday =
                 holidayArray[String(day) as keyof typeof holidayArray];
-            console.log(holiday);
             return <div>{String(holiday)}</div>;
         }
-        console.log(holidayArray);
         return <div></div>;
     } else {
         return <div></div>;
