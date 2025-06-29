@@ -61,6 +61,11 @@ class Calendar extends React.Component<{}, CalendarState> {
     );
   }
 
+  /**
+   * A useful button which sets the calendar to the current month.
+   *
+   * @returns a button if the month that the calendar shows is not the current month.
+   */
   todayButton() {
     let date = new Date();
     let currentMonth = date.getMonth();
@@ -77,6 +82,9 @@ class Calendar extends React.Component<{}, CalendarState> {
     );
   }
 
+  /**
+   * Sets the month that the calendar shows to the current month.
+   */
   currentMonth() {
     let date = new Date();
     this.setState({
@@ -87,6 +95,9 @@ class Calendar extends React.Component<{}, CalendarState> {
     });
   }
 
+  /**
+   * Moves the month that the calendar shows to the previous month.
+   */
   previousMonth() {
     var newMonth: number = this.state.month - 1;
     var newYear: number = this.state.year;
@@ -104,6 +115,9 @@ class Calendar extends React.Component<{}, CalendarState> {
     });
   }
 
+  /**
+   * Moves the month that the calendar showss to the next month.
+   */
   nextMonth() {
     var newMonth: number = this.state.month + 1;
     var newYear: number = this.state.year;
@@ -127,6 +141,14 @@ export default Calendar;
 //
 // Front End
 //
+/**
+ * Creates the grid of calendar boxes for the calendar
+ * @param month
+ * @param year
+ * @param frontOffset
+ * @param lastOffset
+ * @returns
+ */
 function CalendarGrids(
   month: number,
   year: number,
@@ -146,11 +168,11 @@ function CalendarGrids(
 
 /**
  * Creates a box for each date.
- * @param day the date which is being created
- * @param month the current month
- * @param year the current year
- * @param daysInThisMonth how many days are in the current month
- * @returns HTML component
+ * @param day               the date which is being created
+ * @param month             the current month
+ * @param year              the current year
+ * @param daysInThisMonth   how many days are in the current month
+ * @returns                 HTML component
  */
 function CalendarBox(
   day: number,
@@ -160,13 +182,14 @@ function CalendarBox(
 ) {
   let keyValue = day;
   let date: Date = new Date();
-  let today: number = date.getDay() + 1;
+  let today: number = date.getDate();
   let currentMonth: number = date.getMonth();
   let currentYear: number = date.getFullYear();
   let todayCSS = "";
 
   if (day <= 0) {
     // previous month
+
     /* Modify information */
     month--;
     if (month == -1) {
@@ -179,6 +202,7 @@ function CalendarBox(
     todayCSS = "other-month";
   } else if (day > daysInThisMonth) {
     // next month
+
     /* Modify information */
     month++;
     if (month == 12) {
@@ -191,6 +215,8 @@ function CalendarBox(
     todayCSS = "other-month";
   } else {
     // current month
+
+    /* CSS Info */
     todayCSS = "current-month";
   }
 
@@ -207,9 +233,9 @@ function CalendarBox(
   );
 }
 
-//
-// Back End
-//
+///
+/// Back End
+///
 function daysInMonth(month: number, year: number) {
   switch (month) {
     case 1:
@@ -232,21 +258,28 @@ function daysInMonth(month: number, year: number) {
  * The number of boxes needed to make the first date appear on the correct day.
  * @param month
  * @param year
- * @returns
- * @param month
- * @param year
- * @returns
+ * @returns     the number of boxes needed in the first week.
  */
 function firstWeekOffset(month: number, year: number) {
   let tempDate = new Date(year, month, 1);
   return tempDate.getDay(); // how many offsets are needed in the first week.
 }
 
+/**
+ * @param month
+ * @param year
+ * @returns       the number of boxes needed in the last week
+ */
 function lastWeekOffset(month: number, year: number) {
   let tempDate = new Date(year, month, daysInMonth(month, year));
   return 6 - tempDate.getDay(); // how many offsets are needed in the first week.
 }
 
+/**
+ *
+ * @param index
+ * @returns       The day as a string
+ */
 function getDay(index: number) {
   let dayArray = [
     "Sunday",
@@ -260,6 +293,11 @@ function getDay(index: number) {
   return dayArray[index];
 }
 
+/**
+ *
+ * @param month
+ * @returns       The month as a string
+ */
 function getMonth(month: number) {
   let monthArr = [
     "January",

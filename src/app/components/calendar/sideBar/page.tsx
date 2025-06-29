@@ -1,10 +1,4 @@
-export type SideBarData = {
-  name: String;
-  description: String;
-  day: number;
-  month: number;
-  year: number;
-};
+
 
 export default function SideBar(data: SideBarData) {
   return (
