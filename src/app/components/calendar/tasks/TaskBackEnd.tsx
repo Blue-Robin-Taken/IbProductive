@@ -1,5 +1,5 @@
 import React from "react";
-import { SideBarData } from "../sideBar/page";
+import { SideBarData } from "../sideBar/SideBar";
 
 type TaskState = {
   taskData: SideBarData;
@@ -24,6 +24,16 @@ class TaskLabel extends React.Component<{}, TaskState> {
   }
 
   sideBar() {}
+
+  TaskButton() {
+    return (
+      <div>
+        <button onClick={this.sideBar.bind(this)}>
+          {this.state.taskData.name}
+        </button>
+      </div>
+    );
+  }
 }
 
 /**
