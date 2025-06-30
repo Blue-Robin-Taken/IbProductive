@@ -1,39 +1,78 @@
-import React from "react";
-import { SideBarData } from "../sideBar/SideBar";
+import React, { useState } from "react";
+import "./tasks.css";
+import TaskModal from "./TaskModal";
 
 type TaskState = {
-  taskData: SideBarData;
-  opened: boolean;
+  isOpen: Boolean;
+  data: TaskData;
 };
 
-class TaskLabel extends React.Component<{}, TaskState> {
-  constructor(props: {}, taskData: SideBarData) {
+export type TaskData = {
+  name: String;
+  description: String;
+  checkboxes: TaskCheckbox[];
+};
+
+export type TaskCheckbox = {
+  label: String;
+  bool: Boolean;
+};
+
+class Task extends React.Component<{}, TaskState> {
+  constructor(props: {}) {
     super(props);
+
     this.state = {
-      taskData: taskData,
-      opened: false,
+      isOpen: false,
+      data: {
+        name: "Test Task Name",
+        description: "Test Task Description",
+        checkboxes: [
+          { label: "a", bool: false },
+          { label: "b", bool: true },
+        ],
+      },
     };
   }
 
   render() {
     return (
       <div>
-        <button>{this.state.taskData.name}</button>
-      </div>
-    );
-  }
-
-  sideBar() {}
-
-  TaskButton() {
-    return (
-      <div>
-        <button onClick={this.sideBar.bind(this)}>
-          {this.state.taskData.name}
+        <button
+          onClick={() => {
+            this.toggleOpen();
+          }}
+        >
+          test
         </button>
+
+        <TaskModal
+          isOpen={this.state.isOpen}
+          onClose={this.toggleOpen.bind(this)}
+          data={{
+            name: "Test Task Name",
+            description: "Test Task Description",
+            checkboxes: [
+              { label: "a", bool: false },
+              { label: "b", bool: true },
+            ],
+          }}
+        />
       </div>
     );
   }
+
+  /**
+   * Toggles the state of the modal to be open or closed.
+   */
+  toggleOpen() {
+    this.setState({
+      isOpen: !this.state.isOpen,
+      data: this.state.data,
+    });
+  }
+
+  getFormData(event: React.FormEvent<HTMLFormElement>) {}
 }
 
 /**
@@ -45,5 +84,5 @@ class TaskLabel extends React.Component<{}, TaskState> {
  */
 export function getTasks(day: number, month: number, year: number) {
   // get tasks that match the date, number, and year, as well as the classes the user has
-  return <div></div>;
+  return <Task></Task>;
 }
