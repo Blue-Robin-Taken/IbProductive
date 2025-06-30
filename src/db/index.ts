@@ -1,33 +1,53 @@
-import { withAccelerate } from "@prisma/extension-accelerate";
-import { randomUUID } from "crypto";
-import { addMinutes } from "date-fns";
+import { withAccelerate } from '@prisma/extension-accelerate';
+import { randomUUID } from 'crypto';
+import { addMinutes } from 'date-fns';
 
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from '../generated/prisma';
 
 const prisma = new PrismaClient();
 
 async function createUser() {
-  // prisma.
+    // prisma.
 }
 
+export async function createAccount(
+    username: string,
+    email: string,
+    passwordHash: string
+) {}
+
 export async function createAccountVerificationToken(
-  token: string,
-  email: string,
-  username: string,
-  password: string
+    token: string,
+    email: string,
+    username: string,
+    password: string
 ) {
-  /* Used specifically to create
+    /* Used specifically to create
     a token in the prisma database so that the 
     account can be created after the user's verfification
     email is accepted. This is the token that will
     be referenced in that process. */
-  await prisma.verificationToken.create({
-    data: {
-      email,
-      token, // TODO: Implement password hashing here
-      expiresAt: addMinutes(new Date(), 15), // expires in 15 mins
-    },
-  });
+    await prisma.verificationToken.create({
+        data: {
+            email,
+            token, // TODO: Implement password hashing here
+            expiresAt: addMinutes(new Date(), 15), // expires in 15 mins
+        },
+    });
 
-  return token;
+    return token;
+}
+
+export async function handleVerifyEmail(sentToken: string) {
+    /* Used after the user clicked the verification link sent to their inbox */
+    const databaseEntry = await prisma.verificationToken.findUnique({
+        where: {
+            token: sentToken,
+        },
+    });
+
+    if (databaseEntry) {
+    } else {
+        return false;
+    }
 }
