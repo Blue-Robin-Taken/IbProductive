@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./tasks.css";
 import TaskModal from "./TaskModal";
+import "../calendar.css";
 
 type TaskState = {
   isOpen: Boolean;
@@ -9,6 +10,7 @@ type TaskState = {
 
 export type TaskData = {
   id: number;
+  dueDate: Date;
   name: String;
   description: String;
   checkboxes: TaskCheckbox[];
@@ -20,14 +22,15 @@ export type TaskCheckbox = {
   bool: Boolean;
 };
 
-class Task extends React.Component<{}, TaskState> {
-  constructor(props: {}) {
+class Task extends React.Component<{ dueDate: Date }, TaskState> {
+  constructor(props: { dueDate: Date }) {
     super(props);
 
     this.state = {
       isOpen: false,
       data: {
         id: 1,
+        dueDate: props.dueDate,
         name: "Test Task Name",
         description: "Test Task Description",
         checkboxes: [
@@ -40,8 +43,9 @@ class Task extends React.Component<{}, TaskState> {
 
   render() {
     return (
-      <div>
+      <div className="calendar-item">
         <button
+          className={"task-label" + this.getTaskCSS()}
           onClick={() => {
             this.toggleOpen();
           }}
@@ -53,11 +57,12 @@ class Task extends React.Component<{}, TaskState> {
           isOpen={this.state.isOpen}
           onClose={this.closeModal.bind(this)}
           data={this.state.data}
+          date={this.props.dueDate}
+          timeLeft={this.getTimeLeft()}
         />
       </div>
     );
   }
-
   /**
    * Toggles the state of the modal to be open or closed.
    */
@@ -73,22 +78,47 @@ class Task extends React.Component<{}, TaskState> {
       isOpen: false,
       data: {
         id: this.state.data.id,
+        dueDate: this.state.data.dueDate,
         name: this.state.data.name,
         description: description,
         checkboxes: checkboxes,
       },
     });
   }
+
+  getTimeLeft() {
+    let now: Date = new Date();
+    let diff: Date = new Date(
+      this.state.data.dueDate.getTime() - now.getTime()
+    );
+
+    return diff;
+  }
+
+  /**
+   * Returns addition CSS information based on time
+   * @returns
+   */
+  getTaskCSS() {
+    let timeLeft: Date = this.getTimeLeft();
+    if (timeLeft.getUTCFullYear() - 1970 < 0) {
+      return "-overdue";
+    }
+
+    return "";
+  }
 }
 
 /**
  * Gets the tasks in a given day.
- * @param day
+ * @param date
  * @param month
  * @param year
  * @returns
  */
-export function getTasks(day: number, month: number, year: number) {
+export function getTasks(date: number, month: number, year: number) {
   // get tasks that match the date, number, and year, as well as the classes the user has
-  return <Task></Task>;
+  // return <Task></Task>;
+  /* Testing */
+  return <Task dueDate={new Date(year, month, date, 17)} />;
 }

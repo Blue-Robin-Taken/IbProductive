@@ -1,4 +1,32 @@
 .task-label {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 1.5rem;
+  border-width: 4px;
+  border-style: double;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.task-label-overdue {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 1.5rem;
+  border-width: 4px;
+  border-style: double;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  background-color: #e69437;
+  border-color: #e64937;
+
+  position: relative;
+}
+
+.task-form-label {
   font-size: 1.75rem;
   color: white;
   margin-left: 1.25rem;

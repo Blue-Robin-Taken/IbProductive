@@ -34,3 +34,9 @@
   color: #000000;
   background-color: #f87171;
 }
+
+.calendar-item {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  margin-right: 0.25rem;
+}

@@ -168,26 +168,26 @@ function CalendarGrids(
 
 /**
  * Creates a box for each date.
- * @param day               the date which is being created
+ * @param date               the date which is being created
  * @param month             the current month
  * @param year              the current year
  * @param daysInThisMonth   how many days are in the current month
  * @returns                 HTML component
  */
 function CalendarBox(
-  day: number,
+  date: number,
   month: number,
   year: number,
   daysInThisMonth: number
 ) {
-  let keyValue = day;
-  let date: Date = new Date();
-  let today: number = date.getDate();
-  let currentMonth: number = date.getMonth();
-  let currentYear: number = date.getFullYear();
+  let keyValue = date;
+  let now: Date = new Date();
+  let today: number = now.getUTCDate();
+  let nowMonth: number = now.getUTCMonth();
+  let nowYear: number = now.getUTCFullYear();
   let todayCSS = "";
 
-  if (day <= 0) {
+  if (date <= 0) {
     // previous month
 
     /* Modify information */
@@ -196,11 +196,11 @@ function CalendarBox(
       month = 11;
       year--;
     }
-    day += daysInMonth(month, year);
+    date += daysInMonth(month, year);
 
     /* CSS Info */
     todayCSS = "other-month";
-  } else if (day > daysInThisMonth) {
+  } else if (date > daysInThisMonth) {
     // next month
 
     /* Modify information */
@@ -209,7 +209,7 @@ function CalendarBox(
       month = 0;
       year++;
     }
-    day -= daysInThisMonth;
+    date -= daysInThisMonth;
 
     /* CSS Info */
     todayCSS = "other-month";
@@ -220,15 +220,15 @@ function CalendarBox(
     todayCSS = "current-month";
   }
 
-  if (day === today && month === currentMonth && year === currentYear) {
+  if (date === today && month === nowMonth && year === nowYear) {
     todayCSS += "-today";
   }
 
   return (
     <div key={keyValue} className={todayCSS}>
-      <p className="inline-block px-1 mr-2 text-xl">{day}</p>
-      {getHolidays(day, month, year)}
-      {getTasks(day, month, year)}
+      <p className="inline-block px-1 mr-2 text-xl">{date}</p>
+      {getHolidays(date, month, year)}
+      {getTasks(date, month, year)}
     </div>
   );
 }

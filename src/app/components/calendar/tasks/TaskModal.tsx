@@ -5,6 +5,8 @@ export default function TaskModal(props: {
   isOpen: Boolean;
   onClose: Function;
   data: TaskData;
+  date: Date;
+  timeLeft: Date;
 }) {
   const [checkboxes, setCheckboxes] = useState(props.data.checkboxes);
   const [desc, setDesc] = useState(props.data.description);
@@ -12,6 +14,9 @@ export default function TaskModal(props: {
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1; // get the last used id and add one
 
   if (props.isOpen == false) return null;
+
+  console.log("givenDate: " + props.date);
+  console.log("dueDate: " + props.data.dueDate);
 
   return (
     <div className="flex-col fixed z-40 top-0 left-0 w-full h-full bg-gray-700 bg-opacity-85">
@@ -27,11 +32,11 @@ export default function TaskModal(props: {
           Close
         </button>
       </div>
-      {/* <div>{getTimeLeft()}</div> */}
+      <div>{getTimeLeft(props.timeLeft)}</div>
       {/* TODO: what if the checklist is too big so you need to scroll? */}
       <form id="taskForm" className="grid grid-cols-[10%_auto] gap-y-5">
         {/* Description */}
-        <label className="task-label">Description:</label>
+        <label className="task-form-label">Description:</label>
         <input
           className="task-input"
           type="text"
@@ -42,7 +47,7 @@ export default function TaskModal(props: {
         />
 
         {/* Checklist */}
-        <label className="task-label">Checklist:</label>
+        <label className="task-form-label">Checklist:</label>
         <div>
           {checkboxes.map((i) => (
             <div key={String(i.id)}>
@@ -91,4 +96,70 @@ export default function TaskModal(props: {
   );
 }
 
-function getTimeLeft(due: Date) {}
+function getTimeLeft(timeLeft: Date) {
+  let years: number = timeLeft.getUTCFullYear() - 1970; // 1970 needs to be subtracted for some reason
+  if (years < 0) {
+    // negative years
+    return (
+      <div>
+        <p>Overdue!</p>
+      </div>
+    );
+  }
+
+  let output: String = "Due in: ";
+  let months: number = timeLeft.getUTCMonth();
+  let days: number = timeLeft.getUTCDate() - 1;
+
+  if (months > 0) {
+    if (years !== 0) {
+      output += years + " years ";
+    }
+    output += months + " months " + days + " days";
+
+    return (
+      <div>
+        <p>{output}</p>
+      </div>
+    );
+  } else if (days > 3 && months === 0) {
+    return (
+      <div>
+        <p>{days + " days"}</p>
+      </div>
+    );
+  }
+
+  let hours: number = timeLeft.getUTCHours();
+
+  if (days > 0) {
+    output += days + " days ";
+    if (hours !== 0) {
+      output += hours + " hours";
+    }
+    return (
+      <div>
+        <p>{output}</p>
+      </div>
+    );
+  }
+
+  if (hours > 5 && days === 0) {
+    return (
+      <div>
+        <p>{hours + " hours"}</p>
+      </div>
+    );
+  }
+
+  let minutes: number = timeLeft.getUTCMinutes();
+  if (hours !== 0) {
+    output += hours + " hours ";
+  }
+  output += minutes + " minutes";
+  return (
+    <div>
+      <p>{output}</p>
+    </div>
+  );
+}
