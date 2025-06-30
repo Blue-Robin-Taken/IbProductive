@@ -121,6 +121,12 @@ function getTimeLeft(timeLeft: Date) {
         <p>Overdue!</p>
       </div>
     );
+  } else if (years >= 1) {
+    return (
+      <div>
+        <p>{"Due in: " + years + " years"}</p>
+      </div>
+    );
   }
 
   let output: String = "Due in: ";
@@ -128,9 +134,6 @@ function getTimeLeft(timeLeft: Date) {
   let days: number = timeLeft.getUTCDate() - 1;
 
   if (months > 0) {
-    if (years !== 0) {
-      output += years + " years ";
-    }
     output += months + " months " + days + " days";
 
     return (

@@ -13,6 +13,7 @@ type CalendarState = {
   frontOffset: number;
   lastOffset: number;
 };
+
 class Calendar extends React.Component<{}, CalendarState> {
   constructor(props: {}) {
     super(props);
@@ -161,7 +162,14 @@ function CalendarGrids(
 
   /* Creating Boxes */
   for (let i = -frontOffset; i < daysInThisMonth + lastOffset; i++) {
-    arr.push(CalendarBox(i + 1, month, year, daysInThisMonth));
+    arr.push(
+      <CalendarBox
+        date={i + 1}
+        month={month}
+        year={year}
+        daysInThisMonth={daysInThisMonth}
+      />
+    );
   }
   return arr;
 }
@@ -174,18 +182,23 @@ function CalendarGrids(
  * @param daysInThisMonth   how many days are in the current month
  * @returns                 HTML component
  */
-function CalendarBox(
-  date: number,
-  month: number,
-  year: number,
-  daysInThisMonth: number
-) {
-  let keyValue = date;
+function CalendarBox(props: {
+  date: number;
+  month: number;
+  year: number;
+  daysInThisMonth: number;
+}) {
+  let keyValue = props.date;
   let now: Date = new Date();
   let today: number = now.getUTCDate();
   let nowMonth: number = now.getUTCMonth();
   let nowYear: number = now.getUTCFullYear();
   let todayCSS = "";
+
+  let date: number = props.date;
+  let month: number = props.month;
+  let year: number = props.year;
+  let daysInThisMonth: number = props.daysInThisMonth;
 
   if (date <= 0) {
     // previous month
