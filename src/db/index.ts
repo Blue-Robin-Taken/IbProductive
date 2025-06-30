@@ -47,7 +47,27 @@ export async function handleVerifyEmail(sentToken: string) {
     });
 
     if (databaseEntry) {
+        // Check expiry
+        const now = new Date();
+        if (now > databaseEntry.expiresAt) {
+            // if expired delete token
+            await prisma.verificationToken.delete({
+                where: {
+                    token: sentToken,
+                },
+            });
+            return 'expired';
+        } else {
+            // await createAccount()
+            // todo
+            return 'account created';
+        }
     } else {
-        return false;
+        return 'No key';
     }
+}
+
+async function deleteUnusedVerificationKeys() {
+    // todo
+    /* This is used to delete keys that have expired periodically with a node cron job */
 }
