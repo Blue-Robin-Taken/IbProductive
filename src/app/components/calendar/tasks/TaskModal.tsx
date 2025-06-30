@@ -34,7 +34,16 @@ export default function TaskModal(props: {
       </div>
       <div>{getTimeLeft(props.timeLeft)}</div>
       {/* TODO: what if the checklist is too big so you need to scroll? */}
-      <form id="taskForm" className="grid grid-cols-[10%_auto] gap-y-5">
+      <form
+        id="taskForm"
+        className="grid grid-cols-[10%_auto] gap-y-5"
+        onKeyDown={(e) => {
+          if (e.key === "enter") {
+            e.preventDefault();
+            props.onClose(desc, checkboxes);
+          }
+        }}
+      >
         {/* Description */}
         <label className="task-form-label">Description:</label>
         <input
@@ -43,7 +52,10 @@ export default function TaskModal(props: {
           id="description"
           name="description"
           defaultValue={String(desc)}
-          onChange={(e) => setDesc(e.currentTarget.value)}
+          onChange={(e) => {
+            e.preventDefault();
+            setDesc(e.currentTarget.value);
+          }}
         />
 
         {/* Checklist */}
@@ -62,10 +74,14 @@ export default function TaskModal(props: {
                 className="mx-4"
                 type="text"
                 defaultValue={String(i.label)}
-                onChange={(e) => (i.label = e.currentTarget.value)}
+                onChange={(e) => {
+                  // e.preventDefault();
+                  i.label = e.currentTarget.value;
+                }}
               />
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setCheckboxes(checkboxes.filter((j) => j.id !== i.id));
                   // filters the checkboxes to add all that do not have the same label
                 }}
@@ -105,6 +121,12 @@ function getTimeLeft(timeLeft: Date) {
         <p>Overdue!</p>
       </div>
     );
+  } else if (years >= 1) {
+    return (
+      <div>
+        <p>{"Due in: " + years + " years"}</p>
+      </div>
+    );
   }
 
   let output: String = "Due in: ";
@@ -112,9 +134,6 @@ function getTimeLeft(timeLeft: Date) {
   let days: number = timeLeft.getUTCDate() - 1;
 
   if (months > 0) {
-    if (years !== 0) {
-      output += years + " years ";
-    }
     output += months + " months " + days + " days";
 
     return (
