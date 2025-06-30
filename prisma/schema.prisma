@@ -30,3 +30,15 @@ model VerificationToken {
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
+
+// quesiton mark means optional value
+model Task {
+  id                String    @id @default(cuid())
+  userId            Int
+  class             String
+  name              String
+  description       String?
+  dueDate           DateTime
+  checkboxLabels    String[]
+  checkboxBools     Boolean[]
+}

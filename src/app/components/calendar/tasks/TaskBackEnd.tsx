@@ -8,12 +8,14 @@ type TaskState = {
 };
 
 export type TaskData = {
+  id: number;
   name: String;
   description: String;
   checkboxes: TaskCheckbox[];
 };
 
 export type TaskCheckbox = {
+  id: number;
   label: String;
   bool: Boolean;
 };
@@ -25,11 +27,12 @@ class Task extends React.Component<{}, TaskState> {
     this.state = {
       isOpen: false,
       data: {
+        id: 1,
         name: "Test Task Name",
         description: "Test Task Description",
         checkboxes: [
-          { label: "a", bool: false },
-          { label: "b", bool: true },
+          { id: 0, label: "a", bool: false },
+          { id: 1, label: "b", bool: true },
         ],
       },
     };
@@ -48,15 +51,8 @@ class Task extends React.Component<{}, TaskState> {
 
         <TaskModal
           isOpen={this.state.isOpen}
-          onClose={this.toggleOpen.bind(this)}
-          data={{
-            name: "Test Task Name",
-            description: "Test Task Description",
-            checkboxes: [
-              { label: "a", bool: false },
-              { label: "b", bool: true },
-            ],
-          }}
+          onClose={this.closeModal.bind(this)}
+          data={this.state.data}
         />
       </div>
     );
@@ -72,7 +68,17 @@ class Task extends React.Component<{}, TaskState> {
     });
   }
 
-  getFormData(event: React.FormEvent<HTMLFormElement>) {}
+  closeModal(description: String, checkboxes: TaskCheckbox[]) {
+    this.setState({
+      isOpen: false,
+      data: {
+        id: this.state.data.id,
+        name: this.state.data.name,
+        description: description,
+        checkboxes: checkboxes,
+      },
+    });
+  }
 }
 
 /**
