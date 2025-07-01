@@ -5,8 +5,13 @@ import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { getTasksFromPrisma } from "@/db";
-import { getTasks, taskComps, TaskData } from "./tasks/TaskFrontEnd";
+import {
+  AddTask,
+  getTasks,
+  TaskCheckbox,
+  taskComps,
+  TaskData,
+} from "./tasks/TaskFrontEnd";
 
 type CalendarState = {
   month: number;
@@ -15,7 +20,7 @@ type CalendarState = {
   lastOffset: number;
 };
 
-class Calendar extends React.Component<{}, CalendarState> {
+export default class Calendar extends React.Component<{}, CalendarState> {
   constructor(props: {}) {
     super(props);
     let date = new Date();
@@ -59,7 +64,8 @@ class Calendar extends React.Component<{}, CalendarState> {
             this.state.lastOffset
           )}
         </div>
-        <button className="z-10">Add Task</button>
+
+        <AddTask />
       </div>
     );
   }
@@ -138,12 +144,9 @@ class Calendar extends React.Component<{}, CalendarState> {
     });
   }
 }
-
-export default Calendar;
-
-//
-// Front End
-//
+///
+/// Front End
+///
 /**
  * Creates the grid of calendar boxes for the calendar
  * @param month
@@ -163,10 +166,10 @@ function CalendarGrids(
   let daysInThisMonth = daysInMonth(month, year);
   let taskArr: TaskData[] = [];
 
-  getTasks(new Date(year, month, 15)).then((val) => {
-    taskArr = val;
-    console.log("taskArr: " + taskArr);
-  });
+  // getTasks(new Date(year, 6, 1)).then((val) => {
+  //   taskArr = val;
+  //   console.log("taskArr: " + taskArr);
+  // });
 
   /* Creating Boxes */
   for (let i = -frontOffset; i < daysInThisMonth + lastOffset; i++) {
@@ -253,8 +256,6 @@ function CalendarBox(props: {
       <p className="inline-block px-1 mr-2 text-xl">{date}</p>
       {getHolidays(date, month, year)}
       {taskComps(props.taskData, new Date(year, month, date))}
-      {/* {getTasks(new Date(year, month, date))} */}
-      {/* {ClientTasks(new Date(year, month, date))} */}
     </div>
   );
 }

@@ -79,6 +79,18 @@ async function deleteUnusedVerificationKeys() {
 ///
 /// Tasks
 ///
+export async function addClientTask(
+  name: string,
+  description: string,
+  dueDate: Date,
+  labels: string[],
+  bools: boolean[]
+) {
+  await prisma.clientTask.create({
+    data: { name, description, dueDate, labels, bools },
+  });
+}
+
 export async function getTasksFromPrisma(date: Date) {
   const tasks = await prisma.clientTask.findMany({
     where: {

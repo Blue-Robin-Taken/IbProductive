@@ -2,6 +2,9 @@ import React from "react";
 import "./tasks.css";
 import ViewTaskModal from "./ViewTaskModal";
 import "../calendar.css";
+import AddTaskModal from "./AddTaskModal";
+import { addClientTask } from "@/db";
+import { createTask } from "./TaskBackEnd";
 
 type TaskState = {
   isOpen: Boolean;
@@ -9,18 +12,54 @@ type TaskState = {
 };
 
 export type TaskData = {
-  id: String;
+  id: string;
   dueDate: Date;
-  name: String;
-  description: String;
+  name: string;
+  description: string;
   checkboxes: TaskCheckbox[];
 };
 
 export type TaskCheckbox = {
   id: number;
-  label: String;
-  bool: Boolean;
+  label: string;
+  bool: boolean;
 };
+
+export class AddTask extends React.Component<{}, { isOpen: Boolean }> {
+  constructor(props: {}) {
+    super(props);
+    this.state = { isOpen: false };
+  }
+
+  render() {
+    return (
+      <div>
+        <button onClick={() => this.toggleOpen()}>Add Task</button>
+        <AddTaskModal
+          isOpen={this.state.isOpen}
+          onClose={this.toggleOpen.bind(this)}
+          onCreate={this.addTask.bind(this)}
+        />
+      </div>
+    );
+  }
+
+  toggleOpen() {
+    this.setState({
+      isOpen: !this.state.isOpen,
+    });
+  }
+
+  addTask(
+    name: string,
+    description: string,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[]
+  ) {
+    createTask(name, description, dueDate, checkboxes);
+    this.toggleOpen();
+  }
+}
 
 class Task extends React.Component<{ data: TaskData }, TaskState> {
   constructor(props: { data: TaskData }) {
@@ -63,7 +102,7 @@ class Task extends React.Component<{ data: TaskData }, TaskState> {
     });
   }
 
-  closeModal(description: String, checkboxes: TaskCheckbox[]) {
+  closeModal(description: string, checkboxes: TaskCheckbox[]) {
     this.setState({
       isOpen: false,
       data: {
@@ -114,7 +153,7 @@ export function getTasks(date: Date) {
     });
 }
 
-export function taskComps(data: TaskData[], date: Date) {
+export async function taskComps(data: TaskData[], date: Date) {
   let taskArr = data.filter(
     (task) =>
       task.dueDate.getFullYear() === date.getFullYear() &&

@@ -1,5 +1,8 @@
-import { TaskData } from "@/app/components/calendar/tasks/TaskFrontEnd";
-import { getTasksFromPrisma } from "@/db";
+import {
+  TaskCheckbox,
+  TaskData,
+} from "@/app/components/calendar/tasks/TaskFrontEnd";
+import { addClientTask, getTasksFromPrisma } from "@/db";
 import { NextRequest } from "next/server";
 
 export async function GET(request: Request) {
@@ -12,4 +15,25 @@ export async function GET(request: Request) {
   return new Response(JSON.stringify({ tasks: tasks }));
 }
 
-export async function POST(request: Request) {}
+interface PostRequest {
+  name: string;
+  description: string;
+  dueDate: Date;
+  checkboxes: TaskCheckbox[];
+}
+
+export async function POST(request: Request) {
+  const json: PostRequest = await request.json();
+
+  let labels: string[] = [];
+  let bools: boolean[] = [];
+
+  for (const checkbox of json.checkboxes) {
+    labels.push(checkbox.label);
+    bools.push(checkbox.bool);
+  }
+
+  addClientTask(json.name, json.description, json.dueDate, labels, bools);
+
+  return new Response();
+}
