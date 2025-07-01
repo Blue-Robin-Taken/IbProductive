@@ -5,6 +5,7 @@ import "../calendar.css";
 import AddTaskModal from "./AddTaskModal";
 import { addClientTask } from "@/db";
 import { createTask } from "./TaskBackEnd";
+import assert from "assert";
 
 type TaskState = {
   isOpen: Boolean;
@@ -146,14 +147,14 @@ export function getTasks(date: Date) {
 
   return fetch("/api/calendar/tasks?" + params)
     .then((response) => response.json())
-    .then((json) => json["tasks" as keyof typeof json])
-    .then((data) => {
-      console.log("fetch: " + data);
+    .then((json) => json["taskArr" as keyof typeof json])
+    .then((data: TaskData[]) => {
+      console.log(data);
       return data;
     });
 }
 
-export async function taskComps(data: TaskData[], date: Date) {
+export function taskComps(data: TaskData[], date: Date) {
   let taskArr = data.filter(
     (task) =>
       task.dueDate.getFullYear() === date.getFullYear() &&

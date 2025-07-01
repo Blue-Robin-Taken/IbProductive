@@ -8,11 +8,10 @@ import { NextRequest } from "next/server";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   let params = new URLSearchParams(url.search);
-  // console.log(new Date(String(params.get("date"))));
 
-  let tasks = getTasksFromPrisma(new Date(String(params.get("date"))));
+  let tasks = await getTasksFromPrisma(new Date(String(params.get("date"))));
 
-  return new Response(JSON.stringify({ tasks: tasks }));
+  return new Response(JSON.stringify({ taskArr: tasks }));
 }
 
 interface PostRequest {

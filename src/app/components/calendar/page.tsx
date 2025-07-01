@@ -32,6 +32,12 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     };
   }
 
+  // runs when the component is added to the screen
+  componentDidMount(): void {
+    // getTasks(new Date(this.state.year, 5, 15)).then((val) => console.log(val));
+    // console.log(taskData);
+  }
+
   render() {
     return (
       <div>
@@ -166,10 +172,10 @@ function CalendarGrids(
   let daysInThisMonth = daysInMonth(month, year);
   let taskArr: TaskData[] = [];
 
-  // getTasks(new Date(year, 6, 1)).then((val) => {
-  //   taskArr = val;
-  //   console.log("taskArr: " + taskArr);
-  // });
+  getTasks(new Date(year, 5, 15)).then((val) => {
+    taskArr = val;
+    console.log(taskArr);
+  });
 
   /* Creating Boxes */
   for (let i = -frontOffset; i < daysInThisMonth + lastOffset; i++) {
