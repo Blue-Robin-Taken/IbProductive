@@ -86,15 +86,25 @@ export async function addClientTask(
   labels: string[],
   bools: boolean[]
 ) {
+  let year: number = dueDate.getFullYear();
+  let month: number = dueDate.getMonth();
+  let date: number = dueDate.getDate();
+
   await prisma.clientTask.create({
-    data: { name, description, dueDate, labels, bools },
+    data: { name, description, year, month, date, labels, bools },
   });
 }
 
-export async function getTasksFromPrisma(date: Date) {
+export async function getTasksFromPrisma(day: Date) {
+  let year: number = day.getFullYear();
+  let month: number = day.getMonth();
+  let date: number = day.getDate();
+
   const tasks = await prisma.clientTask.findMany({
     where: {
-      dueDate: date,
+      year: year,
+      month: month,
+      date: date,
     },
   });
 
@@ -112,7 +122,7 @@ export async function getTasksFromPrisma(date: Date) {
 
     let taskData: TaskData = {
       id: i.id,
-      dueDate: i.dueDate,
+      dueDate: new Date(i.year, i.month, i.date),
       name: i.name,
       description: i.description == null ? "" : i.description,
       checkboxes: checkboxes,
@@ -122,4 +132,22 @@ export async function getTasksFromPrisma(date: Date) {
   }
 
   return dataPlural;
+}
+
+export async function getMultipleTasksFromPrisma(start: Date, end: Date) {
+  let arr = [];
+
+  for (let i = start.getTime(); i < end.getTime(); i += 86400000) {
+    // 86,400,000 is the number of ms in a day
+
+    let date: Date = new Date(i);
+    console.log(date);
+    let addend = await getTasksFromPrisma(date);
+
+    for (const j of addend) {
+      arr.push(j);
+    }
+  }
+
+  return arr;
 }

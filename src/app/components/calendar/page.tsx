@@ -1,13 +1,12 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
 import {
   AddTask,
-  getTasks,
   TaskCheckbox,
   taskComps,
   TaskData,
@@ -61,14 +60,14 @@ export default class Calendar extends React.Component<{}, CalendarState> {
             </h2>
           ))}
         </div>
-        <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
+        <div className="justify-center">
           {/* Spaces */}
-          {CalendarGrids(
-            this.state.month,
-            this.state.year,
-            this.state.frontOffset,
-            this.state.lastOffset
-          )}
+          <CalendarGrid
+            month={this.state.month}
+            year={this.state.year}
+            frontOffset={this.state.frontOffset}
+            lastOffset={this.state.lastOffset}
+          />
         </div>
 
         <AddTask />
@@ -153,44 +152,69 @@ export default class Calendar extends React.Component<{}, CalendarState> {
 ///
 /// Front End
 ///
-/**
- * Creates the grid of calendar boxes for the calendar
- * @param month
- * @param year
- * @param frontOffset
- * @param lastOffset
- * @returns
- */
-function CalendarGrids(
-  month: number,
-  year: number,
-  frontOffset: number,
-  lastOffset: number
-) {
-  /* Initializing variables */
-  let arr = [];
-  let daysInThisMonth = daysInMonth(month, year);
-  let taskArr: TaskData[] = [];
 
-  getTasks(new Date(year, 5, 15)).then((val) => {
-    taskArr = val;
-    console.log(taskArr);
-  });
+function CalendarGrid(props: CalendarState) {
+  const [taskArr, setTaskArr] = useState<TaskData[]>([]);
+  const [boxes, setBoxes] = useState<React.JSX.Element[]>([]);
+  const [isLoading, setLoading] = useState(false);
 
-  /* Creating Boxes */
-  for (let i = -frontOffset; i < daysInThisMonth + lastOffset; i++) {
-    arr.push(
-      <CalendarBox
-        key={String(i)}
-        date={i + 1}
-        month={month}
-        year={year}
-        daysInThisMonth={daysInThisMonth}
-        taskData={taskArr}
-      />
-    );
-  }
-  return arr;
+  useEffect(() => {
+    setLoading(true);
+    let params = new URLSearchParams({
+      start:
+        // date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
+        "2025-6-15",
+      end: "2025-7-15",
+    });
+
+    const fetchData = async () => {
+      let res = await fetch("/api/calendar/tasks?" + params);
+      res
+        .json()
+        .then((json) => json["taskArr" as keyof typeof json])
+        .then((data: TaskData[]) => {
+          setTaskArr(data);
+          let daysInThisMonth = daysInMonth(props.month, props.year);
+          for (
+            let i = -props.frontOffset;
+            i < daysInThisMonth + props.lastOffset;
+            i++
+          ) {
+            setBoxes((prev) => [
+              ...prev,
+              <CalendarBox
+                key={String(i)}
+                date={i + 1}
+                month={props.month}
+                year={props.year}
+                daysInThisMonth={daysInThisMonth}
+                taskData={taskArr}
+              />,
+            ]);
+          }
+        });
+    };
+
+    try {
+      fetchData();
+    } catch (e: any) {
+    } finally {
+      setLoading(false);
+    }
+
+    return () => {
+      console.log("destroyed!");
+      setLoading(true);
+      setTaskArr([]);
+      setBoxes([]);
+    };
+  }, [props.month]);
+
+  return (
+    <div className="grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
+      {isLoading ? <p>Loading...</p> : boxes}
+    </div>
+  );
 }
 
 /**

@@ -41,7 +41,9 @@ model ClientTask {
 
   name        String
   description String?
-  dueDate     DateTime
+  year        Int
+  month       Int
+  date        Int
   labels      String[]
   bools       Boolean[]
 }

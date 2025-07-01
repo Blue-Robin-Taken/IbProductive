@@ -2,16 +2,32 @@ import {
   TaskCheckbox,
   TaskData,
 } from "@/app/components/calendar/tasks/TaskFrontEnd";
-import { addClientTask, getTasksFromPrisma } from "@/db";
-import { NextRequest } from "next/server";
+import {
+  addClientTask,
+  getMultipleTasksFromPrisma,
+  getTasksFromPrisma,
+} from "@/db";
 
 export async function GET(request: Request) {
+  // Simple
+  // const url = new URL(request.url);
+  // let params = new URLSearchParams(url.search);
+
+  // let res = await getTasksFromPrisma(new Date(String(params.get("date"))));
+
+  // return new Response(JSON.stringify({ taskArr: res }));
+
+  // Complex
   const url = new URL(request.url);
+  console.log("url: " + url);
   let params = new URLSearchParams(url.search);
 
-  let tasks = await getTasksFromPrisma(new Date(String(params.get("date"))));
+  let res = await getMultipleTasksFromPrisma(
+    new Date(String(params.get("start"))),
+    new Date(String(params.get("end")))
+  );
 
-  return new Response(JSON.stringify({ taskArr: tasks }));
+  return new Response(JSON.stringify({ taskArr: res }));
 }
 
 interface PostRequest {
@@ -32,7 +48,13 @@ export async function POST(request: Request) {
     bools.push(checkbox.bool);
   }
 
-  addClientTask(json.name, json.description, json.dueDate, labels, bools);
+  addClientTask(
+    json.name,
+    json.description,
+    new Date(json.dueDate),
+    labels,
+    bools
+  );
 
   return new Response();
 }

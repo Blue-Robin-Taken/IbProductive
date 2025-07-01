@@ -17,3 +17,19 @@ export function createTask(
     }),
   });
 }
+
+export function fetchTasks() {
+  let params = new URLSearchParams({
+    date:
+      // date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
+      "2025-6-15",
+  });
+
+  return fetch("/api/calendar/tasks?" + params)
+    .then((response) => response.json())
+    .then((json) => json["taskArr" as keyof typeof json])
+    .then((data: TaskData[]) => {
+      console.log(data);
+      return data;
+    });
+}

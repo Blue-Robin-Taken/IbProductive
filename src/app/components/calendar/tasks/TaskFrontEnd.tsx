@@ -119,7 +119,7 @@ class Task extends React.Component<{ data: TaskData }, TaskState> {
   getTimeLeft() {
     let now: Date = new Date();
     let diff: Date = new Date(
-      this.state.data.dueDate.getTime() - now.getTime()
+      new Date(this.state.data.dueDate).getTime() - now.getTime()
     );
 
     return diff;
@@ -138,33 +138,20 @@ class Task extends React.Component<{ data: TaskData }, TaskState> {
     return "";
   }
 }
-
-export function getTasks(date: Date) {
-  let params = new URLSearchParams({
-    date:
-      date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-  });
-
-  return fetch("/api/calendar/tasks?" + params)
-    .then((response) => response.json())
-    .then((json) => json["taskArr" as keyof typeof json])
-    .then((data: TaskData[]) => {
-      console.log(data);
-      return data;
-    });
-}
-
 export function taskComps(data: TaskData[], date: Date) {
-  let taskArr = data.filter(
-    (task) =>
-      task.dueDate.getFullYear() === date.getFullYear() &&
-      task.dueDate.getMonth() === date.getMonth() &&
-      task.dueDate.getDate() === date.getDate()
-  );
+  let taskArr = data.filter((task) => {
+    let due: Date = new Date(task.dueDate);
+
+    return (
+      due.getFullYear() == date.getFullYear() &&
+      due.getMonth() == date.getMonth() &&
+      due.getDate() == date.getDate()
+    );
+  });
 
   let compArr = [];
   for (const task of taskArr) {
-    compArr.push(<Task data={task} />);
+    compArr.push(<Task key={task.id} data={task} />);
   }
 
   return compArr;
