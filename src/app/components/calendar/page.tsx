@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { ReactNode } from "react";
 import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
-import { getTasks } from "./tasks/TaskBackEnd";
 import "./calendar.css";
+import { getTasksFromPrisma } from "@/db";
+import { getTasks, taskComps, TaskData } from "./tasks/TaskFrontEnd";
 
 type CalendarState = {
   month: number;
@@ -58,6 +59,7 @@ class Calendar extends React.Component<{}, CalendarState> {
             this.state.lastOffset
           )}
         </div>
+        <button className="z-10">Add Task</button>
       </div>
     );
   }
@@ -159,15 +161,23 @@ function CalendarGrids(
   /* Initializing variables */
   let arr = [];
   let daysInThisMonth = daysInMonth(month, year);
+  let taskArr: TaskData[] = [];
+
+  getTasks(new Date(year, month, 15)).then((val) => {
+    taskArr = val;
+    console.log("taskArr: " + taskArr);
+  });
 
   /* Creating Boxes */
   for (let i = -frontOffset; i < daysInThisMonth + lastOffset; i++) {
     arr.push(
       <CalendarBox
+        key={String(i)}
         date={i + 1}
         month={month}
         year={year}
         daysInThisMonth={daysInThisMonth}
+        taskData={taskArr}
       />
     );
   }
@@ -187,12 +197,13 @@ function CalendarBox(props: {
   month: number;
   year: number;
   daysInThisMonth: number;
+  taskData: TaskData[];
 }) {
   let keyValue = props.date;
   let now: Date = new Date();
-  let today: number = now.getUTCDate();
-  let nowMonth: number = now.getUTCMonth();
-  let nowYear: number = now.getUTCFullYear();
+  let today: number = now.getDate();
+  let nowMonth: number = now.getMonth();
+  let nowYear: number = now.getFullYear();
   let todayCSS = "";
 
   let date: number = props.date;
@@ -241,7 +252,9 @@ function CalendarBox(props: {
     <div key={keyValue} className={todayCSS}>
       <p className="inline-block px-1 mr-2 text-xl">{date}</p>
       {getHolidays(date, month, year)}
-      {getTasks(date, month, year)}
+      {taskComps(props.taskData, new Date(year, month, date))}
+      {/* {getTasks(new Date(year, month, date))} */}
+      {/* {ClientTasks(new Date(year, month, date))} */}
     </div>
   );
 }

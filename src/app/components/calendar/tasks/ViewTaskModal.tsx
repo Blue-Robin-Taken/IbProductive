@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { TaskCheckbox, TaskData } from "./TaskBackEnd";
+import { TaskCheckbox, TaskData } from "./TaskFrontEnd";
 
-export default function TaskModal(props: {
+export default function ViewTaskModal(props: {
   isOpen: Boolean;
   onClose: Function;
   data: TaskData;
-  date: Date;
   timeLeft: Date;
 }) {
   const [checkboxes, setCheckboxes] = useState(props.data.checkboxes);
@@ -14,9 +13,6 @@ export default function TaskModal(props: {
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1; // get the last used id and add one
 
   if (props.isOpen == false) return null;
-
-  console.log("givenDate: " + props.date);
-  console.log("dueDate: " + props.data.dueDate);
 
   return (
     <div className="flex-col fixed z-40 top-0 left-0 w-full h-full bg-gray-700 bg-opacity-85">
@@ -38,7 +34,7 @@ export default function TaskModal(props: {
         id="taskForm"
         className="grid grid-cols-[10%_auto] gap-y-5"
         onKeyDown={(e) => {
-          if (e.key === "enter") {
+          if (e.key === "enter" || e.key === "escape") {
             e.preventDefault();
             props.onClose(desc, checkboxes);
           }

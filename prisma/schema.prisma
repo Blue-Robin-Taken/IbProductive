@@ -15,10 +15,12 @@ datasource db {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  name     String?
   passHash String?
+
+  ClientTask ClientTask[]
 }
 
 model VerificationToken {
@@ -31,14 +33,15 @@ model VerificationToken {
   expiresAt DateTime
 }
 
-// quesiton mark means optional value
-model Task {
-  id                String    @id @default(cuid())
-  userId            Int
-  class             String
-  name              String
-  description       String?
-  dueDate           DateTime
-  checkboxLabels    String[]
-  checkboxBools     Boolean[]
+model ClientTask {
+  id String @id @default(cuid())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  name        String
+  description String?
+  dueDate     DateTime
+  labels      String[]
+  bools       Boolean[]
 }

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import "./tasks.css";
-import TaskModal from "./TaskModal";
+import ViewTaskModal from "./ViewTaskModal";
 import "../calendar.css";
 
 type TaskState = {
@@ -9,7 +9,7 @@ type TaskState = {
 };
 
 export type TaskData = {
-  id: number;
+  id: String;
   dueDate: Date;
   name: String;
   description: String;
@@ -22,22 +22,13 @@ export type TaskCheckbox = {
   bool: Boolean;
 };
 
-class Task extends React.Component<{ dueDate: Date }, TaskState> {
-  constructor(props: { dueDate: Date }) {
+class Task extends React.Component<{ data: TaskData }, TaskState> {
+  constructor(props: { data: TaskData }) {
     super(props);
 
     this.state = {
       isOpen: false,
-      data: {
-        id: 1,
-        dueDate: props.dueDate,
-        name: "Test Task Name",
-        description: "Test Task Description",
-        checkboxes: [
-          { id: 0, label: "a", bool: false },
-          { id: 1, label: "b", bool: true },
-        ],
-      },
+      data: props.data,
     };
   }
 
@@ -53,11 +44,10 @@ class Task extends React.Component<{ dueDate: Date }, TaskState> {
           test
         </button>
 
-        <TaskModal
+        <ViewTaskModal
           isOpen={this.state.isOpen}
           onClose={this.closeModal.bind(this)}
           data={this.state.data}
-          date={this.props.dueDate}
           timeLeft={this.getTimeLeft()}
         />
       </div>
@@ -109,16 +99,33 @@ class Task extends React.Component<{ dueDate: Date }, TaskState> {
   }
 }
 
-/**
- * Gets the tasks in a given day.
- * @param date
- * @param month
- * @param year
- * @returns
- */
-export function getTasks(date: number, month: number, year: number) {
-  // get tasks that match the date, number, and year, as well as the classes the user has
-  // return <Task></Task>;
-  /* Testing */
-  return <Task dueDate={new Date(year, month, date, 17)} />;
+export function getTasks(date: Date) {
+  let params = new URLSearchParams({
+    date:
+      date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
+  });
+
+  return fetch("/api/calendar/tasks?" + params)
+    .then((response) => response.json())
+    .then((json) => json["tasks" as keyof typeof json])
+    .then((data) => {
+      console.log("fetch: " + data);
+      return data;
+    });
+}
+
+export function taskComps(data: TaskData[], date: Date) {
+  let taskArr = data.filter(
+    (task) =>
+      task.dueDate.getFullYear() === date.getFullYear() &&
+      task.dueDate.getMonth() === date.getMonth() &&
+      task.dueDate.getDate() === date.getDate()
+  );
+
+  let compArr = [];
+  for (const task of taskArr) {
+    compArr.push(<Task data={task} />);
+  }
+
+  return compArr;
 }
