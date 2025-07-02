@@ -44,7 +44,7 @@ export async function createAccountVerificationToken(
             email: email,
             token: token,
             username: username,
-            passHash: passHash, // TODO: Implement password hashing here
+            passHash: passHash,
             createdAt: new Date(),
             expiresAt: addMinutes(new Date(), 15), // expires in 15 mins
         },
@@ -73,12 +73,6 @@ export async function handleVerifyEmail(sentToken: string) {
             });
             return 'expired';
         } else {
-            const del = await prisma.verificationToken.delete({
-                where: {
-                    token: sentToken,
-                },
-            }); // Delete the token
-
             // check if account already exists
             const user = await prisma.user.findFirst({
                 where: { email: databaseEntry.email },
@@ -88,11 +82,19 @@ export async function handleVerifyEmail(sentToken: string) {
                 return 'already exists';
             }
 
+            console.log(databaseEntry.username, 'monke');
+
             await createAccount(
                 databaseEntry.username,
                 databaseEntry.email,
                 databaseEntry.passHash
             ); // Create the account in the database
+
+            const del = await prisma.verificationToken.delete({
+                where: {
+                    token: sentToken,
+                },
+            }); // Delete the token
 
             return 'account created';
         }

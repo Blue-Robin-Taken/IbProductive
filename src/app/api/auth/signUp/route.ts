@@ -38,7 +38,12 @@ export async function POST(request: Request) {
         html: `<h1>Welcome To IBProductive!</h1> <p>Here is your verification link:${verification_link} <br> If you got this email without sending it yourself, please contact us.</p>`,
     });
 
-    createAccountVerificationToken(token, res.email, '', ''); // Todo, implement pass hashing
+    createAccountVerificationToken(
+        token,
+        res.email,
+        res.username,
+        res.password
+    );
 
     return new NextResponse(JSON.stringify({ error: 0 }));
 }
