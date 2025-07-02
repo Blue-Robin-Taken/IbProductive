@@ -10,6 +10,7 @@ import {
   TaskCheckbox,
   taskComps,
   TaskData,
+  TaskFromDataArr,
 } from "./tasks/TaskFrontEnd";
 
 type CalendarState = {
@@ -154,66 +155,26 @@ export default class Calendar extends React.Component<{}, CalendarState> {
 ///
 
 function CalendarGrid(props: CalendarState) {
-  const [taskArr, setTaskArr] = useState<TaskData[]>([]);
-  const [boxes, setBoxes] = useState<React.JSX.Element[]>([]);
-  const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    let params = new URLSearchParams({
-      start:
-        // date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-        "2025-6-15",
-      end: "2025-7-15",
-    });
-
-    const fetchData = async () => {
-      let res = await fetch("/api/calendar/tasks?" + params);
-      res
-        .json()
-        .then((json) => json["taskArr" as keyof typeof json])
-        .then((data: TaskData[]) => {
-          setTaskArr(data);
-          let daysInThisMonth = daysInMonth(props.month, props.year);
-          for (
-            let i = -props.frontOffset;
-            i < daysInThisMonth + props.lastOffset;
-            i++
-          ) {
-            setBoxes((prev) => [
-              ...prev,
-              <CalendarBox
-                key={String(i)}
-                date={i + 1}
-                month={props.month}
-                year={props.year}
-                daysInThisMonth={daysInThisMonth}
-                taskData={taskArr}
-              />,
-            ]);
-          }
-        });
-    };
-
-    try {
-      fetchData();
-    } catch (e: any) {
-    } finally {
-      setLoading(false);
-    }
-
-    return () => {
-      console.log("destroyed!");
-      setLoading(true);
-      setTaskArr([]);
-      setBoxes([]);
-    };
-  }, [props.month]);
+  let arr = [];
+  let daysInThisMonth = daysInMonth(props.month, props.year);
+  for (
+    let i = -props.frontOffset;
+    i < daysInThisMonth + props.lastOffset;
+    i++
+  ) {
+    arr.push(
+      <CalendarBox
+        key={String(i)}
+        date={i + 1}
+        month={props.month}
+        year={props.year}
+        daysInThisMonth={daysInThisMonth}
+      />
+    );
+  }
 
   return (
-    <div className="grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
-      {isLoading ? <p>Loading...</p> : boxes}
-    </div>
+    <div className="grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">{arr}</div>
   );
 }
 
@@ -230,7 +191,6 @@ function CalendarBox(props: {
   month: number;
   year: number;
   daysInThisMonth: number;
-  taskData: TaskData[];
 }) {
   let keyValue = props.date;
   let now: Date = new Date();
@@ -281,11 +241,31 @@ function CalendarBox(props: {
     todayCSS += "-today";
   }
 
+  const [tasks, setTasks] = useState<React.JSX.Element[]>([]);
+  useEffect(() => {
+    let params = new URLSearchParams({
+      start: year + "-" + (month + 1) + "-" + date,
+      end: "",
+    });
+
+    const fetchData = async () => {
+      let res = await fetch("/api/calendar/tasks?" + params);
+      res
+        .json()
+        .then((json) => json["taskArr" as keyof typeof json])
+        .then((data: TaskData[]) => {
+          setTasks(TaskFromDataArr(data));
+        });
+    };
+
+    fetchData();
+  }, [props.month]);
+
   return (
     <div key={keyValue} className={todayCSS}>
       <p className="inline-block px-1 mr-2 text-xl">{date}</p>
       {getHolidays(date, month, year)}
-      {taskComps(props.taskData, new Date(year, month, date))}
+      {tasks}
     </div>
   );
 }

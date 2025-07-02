@@ -3,9 +3,7 @@ import "./tasks.css";
 import ViewTaskModal from "./ViewTaskModal";
 import "../calendar.css";
 import AddTaskModal from "./AddTaskModal";
-import { addClientTask } from "@/db";
 import { createTask } from "./TaskBackEnd";
-import assert from "assert";
 
 type TaskState = {
   isOpen: Boolean;
@@ -81,7 +79,7 @@ class Task extends React.Component<{ data: TaskData }, TaskState> {
             this.toggleOpen();
           }}
         >
-          test
+          {this.state.data.name}
         </button>
 
         <ViewTaskModal
@@ -155,4 +153,12 @@ export function taskComps(data: TaskData[], date: Date) {
   }
 
   return compArr;
+}
+
+export function TaskFromDataArr(data: TaskData[]) {
+  let outArr = [];
+  for (const task of data) {
+    outArr.push(<Task key={task.id} data={task} />);
+  }
+  return outArr;
 }

@@ -9,19 +9,16 @@ import {
 } from "@/db";
 
 export async function GET(request: Request) {
-  // Simple
-  // const url = new URL(request.url);
-  // let params = new URLSearchParams(url.search);
-
-  // let res = await getTasksFromPrisma(new Date(String(params.get("date"))));
-
-  // return new Response(JSON.stringify({ taskArr: res }));
-
-  // Complex
   const url = new URL(request.url);
-  console.log("url: " + url);
   let params = new URLSearchParams(url.search);
 
+  if (String(params.get("end")) === "") {
+    // Simple
+    let res = await getTasksFromPrisma(new Date(String(params.get("start"))));
+    return new Response(JSON.stringify({ taskArr: res }));
+  }
+
+  // Complex
   let res = await getMultipleTasksFromPrisma(
     new Date(String(params.get("start"))),
     new Date(String(params.get("end")))
