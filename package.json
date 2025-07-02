@@ -11,8 +11,10 @@
   "dependencies": {
     "@prisma/client": "^6.10.1",
     "@prisma/extension-accelerate": "^2.0.1",
+    "check-password-strength": "^3.0.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
+    "email-validator": "^2.0.4",
     "next": "^15.3.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
