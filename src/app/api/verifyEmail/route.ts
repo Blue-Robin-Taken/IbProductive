@@ -17,6 +17,9 @@ export async function GET(req: Request) {
                     'Account created, you may close this window now'
                 );
                 break;
+            case 'already exists':
+                return new NextResponse('This account already exists.');
+                break;
             case 'expired':
                 return new NextResponse(
                     'This key is invalid because it has expired. Please make a new request.'

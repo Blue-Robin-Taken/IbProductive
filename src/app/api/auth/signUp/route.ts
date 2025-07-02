@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         from: 'IBProductive <onboarding@ibproductive.org>',
         to: [res.email],
         subject: 'IBProductive Verification Email',
-        html: `<h1>Welcome To IBProductive!</h1> <p>Here is your verification link:${verification_link} <br> <br> If you got this email without sending it yourself, please contact us.</p>`,
+        html: `<h1>Welcome To IBProductive!</h1> <p>Here is your verification link:${verification_link} <br> If you got this email without sending it yourself, please contact us.</p>`,
     });
 
     createAccountVerificationToken(token, res.email, '', ''); // Todo, implement pass hashing
