@@ -9,7 +9,11 @@ import "../calendar.css";
  * @param year    the year that needs to be checked
  * @returns       HTML components
  */
-export function getHolidays(date: number, month: number, year: number) {
+export function getHolidays(dateItem: Date) {
+  let year: number = dateItem.getFullYear();
+  let month: number = dateItem.getMonth();
+  let date: number = dateItem.getDate();
+
   // if the year is not present then there are no holidays that year
   if (!(String(year) in holidays)) {
     return null;

@@ -60,7 +60,7 @@ export class AddTask extends React.Component<{}, { isOpen: Boolean }> {
   }
 }
 
-class Task extends React.Component<{ data: TaskData }, TaskState> {
+export class Task extends React.Component<{ data: TaskData }, TaskState> {
   constructor(props: { data: TaskData }) {
     super(props);
 
@@ -135,24 +135,6 @@ class Task extends React.Component<{ data: TaskData }, TaskState> {
 
     return "";
   }
-}
-export function taskComps(data: TaskData[], date: Date) {
-  let taskArr = data.filter((task) => {
-    let due: Date = new Date(task.dueDate);
-
-    return (
-      due.getFullYear() == date.getFullYear() &&
-      due.getMonth() == date.getMonth() &&
-      due.getDate() == date.getDate()
-    );
-  });
-
-  let compArr = [];
-  for (const task of taskArr) {
-    compArr.push(<Task key={task.id} data={task} />);
-  }
-
-  return compArr;
 }
 
 export function TaskFromDataArr(data: TaskData[]) {

@@ -8,34 +8,48 @@ import "./calendar.css";
 import {
   AddTask,
   TaskCheckbox,
-  taskComps,
   TaskData,
   TaskFromDataArr,
 } from "./tasks/TaskFrontEnd";
+import { taskComps } from "./tasks/TaskBackEnd";
 
 type CalendarState = {
   month: number;
   year: number;
   frontOffset: number;
   lastOffset: number;
+  tasks: TaskData[];
 };
 
 export default class Calendar extends React.Component<{}, CalendarState> {
   constructor(props: {}) {
     super(props);
+
     let date = new Date();
     this.state = {
       month: date.getMonth(),
       year: date.getFullYear(),
       frontOffset: firstWeekOffset(date.getMonth(), date.getFullYear()),
       lastOffset: lastWeekOffset(date.getMonth(), date.getFullYear()),
+      tasks: [],
     };
   }
 
   // runs when the component is added to the screen
-  componentDidMount(): void {
-    // getTasks(new Date(this.state.year, 5, 15)).then((val) => console.log(val));
-    // console.log(taskData);
+  async componentDidMount() {
+    let tasks = await this.fetchTasks();
+    this.setState((prev) => ({ ...prev, tasks: tasks }));
+  }
+
+  async componentDidUpdate(
+    prevProps: Readonly<{}>,
+    prevState: Readonly<CalendarState>,
+    snapshot?: any
+  ) {
+    if (prevState.month !== this.state.month) {
+      let tasks = await this.fetchTasks();
+      this.setState((prev) => ({ ...prev, tasks: tasks }));
+    }
   }
 
   render() {
@@ -63,12 +77,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
         </div>
         <div className="justify-center">
           {/* Spaces */}
-          <CalendarGrid
-            month={this.state.month}
-            year={this.state.year}
-            frontOffset={this.state.frontOffset}
-            lastOffset={this.state.lastOffset}
-          />
+          <CalendarGrid state={this.state} />
         </div>
 
         <AddTask />
@@ -149,26 +158,37 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       lastOffset: lastWeekOffset(newMonth, newYear),
     });
   }
+
+  async fetchTasks() {
+    let params = new URLSearchParams({ start: "2025-7-2", end: "" });
+
+    let res = await fetch("/api/calendar/tasks?" + params);
+    let json = await res.json();
+    let data: TaskData[] = json["taskArr" as keyof typeof json];
+    console.log(data);
+    return data;
+  }
 }
 ///
 /// Front End
 ///
 
-function CalendarGrid(props: CalendarState) {
+function CalendarGrid(props: { state: CalendarState }) {
   let arr = [];
-  let daysInThisMonth = daysInMonth(props.month, props.year);
+  let daysInThisMonth = daysInMonth(props.state.month, props.state.year);
   for (
-    let i = -props.frontOffset;
-    i < daysInThisMonth + props.lastOffset;
+    let i = -props.state.frontOffset;
+    i < daysInThisMonth + props.state.lastOffset;
     i++
   ) {
     arr.push(
       <CalendarBox
         key={String(i)}
         date={i + 1}
-        month={props.month}
-        year={props.year}
+        month={props.state.month}
+        year={props.state.year}
         daysInThisMonth={daysInThisMonth}
+        tasks={props.state.tasks}
       />
     );
   }
@@ -178,6 +198,14 @@ function CalendarGrid(props: CalendarState) {
   );
 }
 
+type CalendarBoxProps = {
+  date: number;
+  month: number;
+  year: number;
+  daysInThisMonth: number;
+  tasks: TaskData[];
+};
+
 /**
  * Creates a box for each date.
  * @param date               the date which is being created
@@ -186,12 +214,7 @@ function CalendarGrid(props: CalendarState) {
  * @param daysInThisMonth   how many days are in the current month
  * @returns                 HTML component
  */
-function CalendarBox(props: {
-  date: number;
-  month: number;
-  year: number;
-  daysInThisMonth: number;
-}) {
+function CalendarBox(props: CalendarBoxProps) {
   let keyValue = props.date;
   let now: Date = new Date();
   let today: number = now.getDate();
@@ -241,31 +264,11 @@ function CalendarBox(props: {
     todayCSS += "-today";
   }
 
-  const [tasks, setTasks] = useState<React.JSX.Element[]>([]);
-  useEffect(() => {
-    let params = new URLSearchParams({
-      start: year + "-" + (month + 1) + "-" + date,
-      end: "",
-    });
-
-    const fetchData = async () => {
-      let res = await fetch("/api/calendar/tasks?" + params);
-      res
-        .json()
-        .then((json) => json["taskArr" as keyof typeof json])
-        .then((data: TaskData[]) => {
-          setTasks(TaskFromDataArr(data));
-        });
-    };
-
-    fetchData();
-  }, [props.month]);
-
   return (
     <div key={keyValue} className={todayCSS}>
       <p className="inline-block px-1 mr-2 text-xl">{date}</p>
-      {getHolidays(date, month, year)}
-      {tasks}
+      {getHolidays(new Date(year, month, date))}
+      {taskComps(props.tasks, new Date(year, month, date))}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { TaskCheckbox, TaskData } from "./TaskFrontEnd";
+import { Task, TaskCheckbox, TaskData } from "./TaskFrontEnd";
 
 export function createTask(
   name: string,
@@ -18,18 +18,21 @@ export function createTask(
   });
 }
 
-export function fetchTasks() {
-  let params = new URLSearchParams({
-    date:
-      // date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-      "2025-6-15",
+export function taskComps(data: TaskData[], date: Date) {
+  let taskArr = data.filter((task) => {
+    let due: Date = new Date(task.dueDate);
+
+    return (
+      due.getFullYear() == date.getFullYear() &&
+      due.getMonth() == date.getMonth() &&
+      due.getDate() == date.getDate()
+    );
   });
 
-  return fetch("/api/calendar/tasks?" + params)
-    .then((response) => response.json())
-    .then((json) => json["taskArr" as keyof typeof json])
-    .then((data: TaskData[]) => {
-      console.log(data);
-      return data;
-    });
+  let compArr = [];
+  for (const task of taskArr) {
+    compArr.push(<Task key={task.id} data={task} />);
+  }
+
+  return compArr;
 }
