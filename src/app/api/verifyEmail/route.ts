@@ -14,7 +14,7 @@ export async function GET(req: Request) {
                 break;
             case 'account created':
                 return new NextResponse(
-                    'Account created, you may close this window now'
+                    'Account created. Please log in, you may close this window now.'
                 );
                 break;
             case 'already exists':

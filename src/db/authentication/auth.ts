@@ -2,6 +2,7 @@ import prisma from '..';
 import { randomUUID } from 'crypto';
 import { addMinutes } from 'date-fns';
 import { scryptSync, randomBytes, timingSafeEqual } from 'crypto';
+import { passwordStrength } from 'check-password-strength';
 
 export async function createAccount(
     username: string,
@@ -25,6 +26,26 @@ export async function createAccountVerificationToken(
     email is accepted. This is the token that will
     be referenced in that process. */
 
+    // strip password of spaces: (commonly placed and may confuse users when their password doesn't work)
+    password = password.replace(' ', '');
+
+    // todo: Test database for same email
+    let test = await prisma.user.findFirst({ where: { email: email } });
+
+    if (test) {
+        return 'email exists';
+    }
+
+    // Test database for same username
+    test = await prisma.user.findFirst({ where: { username: username } });
+    if (test) {
+        return 'user exists';
+    }
+
+    // todo: test database for password length & other security measures
+    if (passwordStrength(password).id < 2) {
+        return 'pass too weak';
+    }
     // https://stackoverflow.com/a/67038052/15982771
     // the above post was used to determine how to hash passwords
 
@@ -50,7 +71,7 @@ export async function createAccountVerificationToken(
         },
     });
 
-    return token;
+    return 'sent';
 }
 
 export async function handleVerifyEmail(sentToken: string) {
