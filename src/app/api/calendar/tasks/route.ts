@@ -1,7 +1,4 @@
-import {
-  TaskCheckbox,
-  TaskData,
-} from "@/app/components/calendar/tasks/TaskFrontEnd";
+import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskFrontEnd";
 import {
   addClientTask,
   getMultipleTasksFromPrisma,
@@ -20,8 +17,8 @@ export async function GET(request: Request) {
 
   // Complex
   let res = await getMultipleTasksFromPrisma(
-    new Date(String(params.get("start"))),
-    new Date(String(params.get("end")))
+    Number.parseInt(String(params.get("start"))),
+    Number.parseInt(String(params.get("end")))
   );
 
   return new Response(JSON.stringify({ taskArr: res }));

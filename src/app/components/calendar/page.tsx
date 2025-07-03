@@ -165,7 +165,10 @@ export default class Calendar extends React.Component<{}, CalendarState> {
   }
 
   async fetchTasks() {
-    let params = new URLSearchParams({ start: "2025-7-2", end: "" });
+    let params = new URLSearchParams({
+      start: String(this.state.firstDay),
+      end: String(this.state.lastDay),
+    });
 
     let res = await fetch("/api/calendar/tasks?" + params);
     let json = await res.json();
