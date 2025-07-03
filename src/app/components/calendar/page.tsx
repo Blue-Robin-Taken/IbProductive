@@ -13,11 +13,13 @@ import {
 } from "./tasks/TaskFrontEnd";
 import { taskComps } from "./tasks/TaskBackEnd";
 
+const MS_IN_DAY: number = 86400000;
+
 type CalendarState = {
   month: number;
   year: number;
-  frontOffset: number;
-  lastOffset: number;
+  firstDay: number;
+  lastDay: number;
   tasks: TaskData[];
 };
 
@@ -29,8 +31,8 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     this.state = {
       month: date.getMonth(),
       year: date.getFullYear(),
-      frontOffset: firstWeekOffset(date.getMonth(), date.getFullYear()),
-      lastOffset: lastWeekOffset(date.getMonth(), date.getFullYear()),
+      firstDay: firstDayOnCal(date.getFullYear(), date.getMonth()),
+      lastDay: lastDayOnCal(date.getFullYear(), date.getMonth()),
       tasks: [],
     };
   }
@@ -111,12 +113,13 @@ export default class Calendar extends React.Component<{}, CalendarState> {
    */
   currentMonth() {
     let date = new Date();
-    this.setState({
+    this.setState((prev) => ({
+      ...prev,
       month: date.getMonth(),
       year: date.getFullYear(),
-      frontOffset: firstWeekOffset(date.getMonth(), date.getFullYear()),
-      lastOffset: lastWeekOffset(date.getMonth(), date.getFullYear()),
-    });
+      firstDay: firstDayOnCal(date.getFullYear(), date.getMonth()),
+      lastDay: lastDayOnCal(date.getFullYear(), date.getMonth()),
+    }));
   }
 
   /**
@@ -131,12 +134,13 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       newYear--;
     }
 
-    this.setState({
+    this.setState((prev) => ({
+      ...prev,
       month: newMonth,
       year: newYear,
-      frontOffset: firstWeekOffset(newMonth, newYear),
-      lastOffset: lastWeekOffset(newMonth, newYear),
-    });
+      firstDay: firstDayOnCal(newYear, newMonth),
+      lastDay: lastDayOnCal(newYear, newMonth),
+    }));
   }
 
   /**
@@ -151,12 +155,13 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       newYear++;
     }
 
-    this.setState({
+    this.setState((prev) => ({
+      ...prev,
       month: newMonth,
       year: newYear,
-      frontOffset: firstWeekOffset(newMonth, newYear),
-      lastOffset: lastWeekOffset(newMonth, newYear),
-    });
+      firstDay: firstDayOnCal(newYear, newMonth),
+      lastDay: lastDayOnCal(newYear, newMonth),
+    }));
   }
 
   async fetchTasks() {
@@ -175,19 +180,12 @@ export default class Calendar extends React.Component<{}, CalendarState> {
 
 function CalendarGrid(props: { state: CalendarState }) {
   let arr = [];
-  let daysInThisMonth = daysInMonth(props.state.month, props.state.year);
-  for (
-    let i = -props.state.frontOffset;
-    i < daysInThisMonth + props.state.lastOffset;
-    i++
-  ) {
+  for (let i = props.state.firstDay; i <= props.state.lastDay; i += MS_IN_DAY) {
     arr.push(
       <CalendarBox
         key={String(i)}
-        date={i + 1}
-        month={props.state.month}
-        year={props.state.year}
-        daysInThisMonth={daysInThisMonth}
+        time={i}
+        displayedMonth={props.state.month}
         tasks={props.state.tasks}
       />
     );
@@ -199,10 +197,8 @@ function CalendarGrid(props: { state: CalendarState }) {
 }
 
 type CalendarBoxProps = {
-  date: number;
-  month: number;
-  year: number;
-  daysInThisMonth: number;
+  time: number;
+  displayedMonth: number;
   tasks: TaskData[];
 };
 
@@ -215,60 +211,37 @@ type CalendarBoxProps = {
  * @returns                 HTML component
  */
 function CalendarBox(props: CalendarBoxProps) {
-  let keyValue = props.date;
+  let keyValue = props.time;
   let now: Date = new Date();
   let today: number = now.getDate();
   let nowMonth: number = now.getMonth();
   let nowYear: number = now.getFullYear();
   let todayCSS = "";
 
-  let date: number = props.date;
-  let month: number = props.month;
-  let year: number = props.year;
-  let daysInThisMonth: number = props.daysInThisMonth;
+  let timeAsDate: Date = new Date(props.time);
+  let date: number = timeAsDate.getDate();
 
-  if (date <= 0) {
+  if (timeAsDate.getMonth() !== props.displayedMonth) {
     // previous month
-
-    /* Modify information */
-    month--;
-    if (month == -1) {
-      month = 11;
-      year--;
-    }
-    date += daysInMonth(month, year);
-
-    /* CSS Info */
-    todayCSS = "other-month";
-  } else if (date > daysInThisMonth) {
-    // next month
-
-    /* Modify information */
-    month++;
-    if (month == 12) {
-      month = 0;
-      year++;
-    }
-    date -= daysInThisMonth;
-
-    /* CSS Info */
     todayCSS = "other-month";
   } else {
     // current month
-
-    /* CSS Info */
     todayCSS = "current-month";
   }
 
-  if (date === today && month === nowMonth && year === nowYear) {
+  if (
+    timeAsDate.getFullYear() === nowYear &&
+    timeAsDate.getMonth() === nowMonth &&
+    date === today
+  ) {
     todayCSS += "-today";
   }
 
   return (
     <div key={keyValue} className={todayCSS}>
       <p className="inline-block px-1 mr-2 text-xl">{date}</p>
-      {getHolidays(new Date(year, month, date))}
-      {taskComps(props.tasks, new Date(year, month, date))}
+      {getHolidays(timeAsDate)}
+      {taskComps(props.tasks, timeAsDate)}
     </div>
   );
 }
@@ -294,15 +267,18 @@ function daysInMonth(month: number, year: number) {
   }
 }
 
-/**
- * The number of boxes needed to make the first date appear on the correct day.
- * @param month
- * @param year
- * @returns     the number of boxes needed in the first week.
- */
-function firstWeekOffset(month: number, year: number) {
-  let tempDate = new Date(year, month, 1);
-  return tempDate.getDay(); // how many offsets are needed in the first week.
+function firstDayOnCal(year: number, month: number) {
+  let dateOfFirst: Date = new Date(year, month, 1);
+  let dayOfFirst: number = dateOfFirst.getDay(); // also doubles for how many offests are needed
+
+  return dateOfFirst.getTime() - dayOfFirst * MS_IN_DAY;
+}
+
+function lastDayOnCal(year: number, month: number) {
+  let dateOfLast: Date = new Date(year, month, daysInMonth(month, year));
+  let dayOfLast: number = dateOfLast.getDay();
+
+  return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY;
 }
 
 /**
