@@ -27,6 +27,24 @@ export async function addClientTask(
   });
 }
 
+export async function editClientTask(
+  id: string,
+  name: string,
+  description: string,
+  dueDate: Date,
+  labels: string[],
+  bools: boolean[]
+) {
+  let year: number = dueDate.getFullYear();
+  let month: number = dueDate.getMonth();
+  let date: number = dueDate.getDate();
+
+  await prisma.clientTask.update({
+    where: { id: id },
+    data: { name, description, year, month, date, labels, bools },
+  });
+}
+
 export async function getTasksFromPrisma(day: Date) {
   let year: number = day.getFullYear();
   let month: number = day.getMonth();

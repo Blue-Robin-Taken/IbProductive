@@ -9,6 +9,7 @@ export default function ViewTaskModal(props: {
 }) {
   const [checkboxes, setCheckboxes] = useState(props.data.checkboxes);
   const [desc, setDesc] = useState(props.data.description);
+  const [name, setName] = useState(props.data.name);
   let nextId: number =
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1; // get the last used id and add one
 
@@ -16,19 +17,15 @@ export default function ViewTaskModal(props: {
 
   return (
     <div className="flex-col fixed z-40 top-0 left-0 w-full h-full bg-gray-700 bg-opacity-85">
-      <div className="flex justify-between bg-slate-800">
-        <h1 className="m-5 py-3 px-4 bg-red-500 text-6xl">{props.data.name}</h1>
-        <button
-          // flex none prevents from growing/shrinking
-          className="m-5 px-4 text-3xl flex-none"
-          onClick={() => {
-            props.onClose(desc, checkboxes);
-          }}
-        >
-          Close
-        </button>
-      </div>
-      <div>{getTimeLeft(props.timeLeft)}</div>
+      <button
+        // flex none prevents from growing/shrinking
+        className="m-5 px-4 text-3xl flex-none"
+        onClick={() => {
+          props.onClose(desc, checkboxes);
+        }}
+      >
+        Close
+      </button>
       {/* TODO: what if the checklist is too big so you need to scroll? */}
       <form
         id="taskForm"
@@ -36,10 +33,25 @@ export default function ViewTaskModal(props: {
         onKeyDown={(e) => {
           if (e.key === "enter" || e.key === "escape") {
             e.preventDefault();
-            props.onClose(desc, checkboxes);
+            props.onClose(name, desc, checkboxes);
           }
         }}
       >
+        <div className="flex justify-between bg-slate-800">
+          <input
+            className="task-input"
+            type="text"
+            id="name"
+            name="name"
+            defaultValue={String(name)}
+            placeholder="New Task"
+            onChange={(e) => {
+              e.preventDefault();
+              setName(e.currentTarget.value);
+            }}
+          />
+        </div>
+        <div>{getTimeLeft(props.timeLeft)}</div>
         {/* Description */}
         <label className="task-form-label">Description:</label>
         <input
@@ -48,6 +60,7 @@ export default function ViewTaskModal(props: {
           id="description"
           name="description"
           defaultValue={String(desc)}
+          placeholder="No Description"
           onChange={(e) => {
             e.preventDefault();
             setDesc(e.currentTarget.value);
@@ -70,6 +83,7 @@ export default function ViewTaskModal(props: {
                 className="mx-4"
                 type="text"
                 defaultValue={String(i.label)}
+                placeholder="New Checkbox"
                 onChange={(e) => {
                   // e.preventDefault();
                   i.label = e.currentTarget.value;

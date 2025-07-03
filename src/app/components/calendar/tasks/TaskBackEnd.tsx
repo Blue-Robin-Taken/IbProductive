@@ -18,6 +18,19 @@ export function createTask(
   });
 }
 
+export function editTask(data: TaskData) {
+  fetch("/api/calendar/tasks", {
+    method: "POST",
+    body: JSON.stringify({
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      dueDate: data.dueDate,
+      checkboxes: data.checkboxes,
+    }), // would this work?
+  });
+}
+
 export function taskComps(data: TaskData[], date: Date) {
   let taskArr = data.filter((task) => {
     let due: Date = new Date(task.dueDate);

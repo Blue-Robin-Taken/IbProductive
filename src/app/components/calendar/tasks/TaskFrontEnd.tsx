@@ -3,7 +3,7 @@ import "./tasks.css";
 import ViewTaskModal from "./ViewTaskModal";
 import "../calendar.css";
 import AddTaskModal from "./AddTaskModal";
-import { createTask } from "./TaskBackEnd";
+import { createTask, editTask } from "./TaskBackEnd";
 
 type TaskState = {
   isOpen: Boolean;
@@ -70,6 +70,16 @@ export class Task extends React.Component<{ data: TaskData }, TaskState> {
     };
   }
 
+  async componentDidUpdate(
+    prevProps: Readonly<{ data: TaskData }>,
+    prevState: Readonly<TaskState>,
+    snapshot?: any
+  ) {
+    if (prevState.data != this.state.data) {
+      await editTask(this.state.data);
+    }
+  }
+
   render() {
     return (
       <div className="calendar-item">
@@ -101,13 +111,13 @@ export class Task extends React.Component<{ data: TaskData }, TaskState> {
     });
   }
 
-  closeModal(description: string, checkboxes: TaskCheckbox[]) {
+  closeModal(name: string, description: string, checkboxes: TaskCheckbox[]) {
     this.setState({
       isOpen: false,
       data: {
         id: this.state.data.id,
         dueDate: this.state.data.dueDate,
-        name: this.state.data.name,
+        name: name,
         description: description,
         checkboxes: checkboxes,
       },

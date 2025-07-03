@@ -1,6 +1,7 @@
 import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskFrontEnd";
 import {
   addClientTask,
+  editClientTask,
   getMultipleTasksFromPrisma,
   getTasksFromPrisma,
 } from "@/db";
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
 }
 
 interface PostRequest {
+  id: string;
   name: string;
   description: string;
   dueDate: Date;
@@ -42,13 +44,24 @@ export async function POST(request: Request) {
     bools.push(checkbox.bool);
   }
 
-  addClientTask(
-    json.name,
-    json.description,
-    new Date(json.dueDate),
-    labels,
-    bools
-  );
+  if (json.id === "") {
+    await addClientTask(
+      json.name,
+      json.description,
+      new Date(json.dueDate),
+      labels,
+      bools
+    );
+  } else {
+    await editClientTask(
+      json.id,
+      json.name,
+      json.description,
+      new Date(json.dueDate),
+      labels,
+      bools
+    );
+  }
 
   return new Response();
 }
