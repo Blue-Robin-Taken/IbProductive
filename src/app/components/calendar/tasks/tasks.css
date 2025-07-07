@@ -1,3 +1,4 @@
+/* Calendar */
 .task-label {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -26,6 +27,7 @@
   position: relative;
 }
 
+/* Modal */
 .task-form-label {
   font-size: 1.75rem;
   color: white;
@@ -36,6 +38,11 @@
   font-size: 1.25rem;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
+
+  color: white;
+  background-color: rgba(71, 83, 102, 1);
+  border-color: black;
+  border-width: 0.125rem;
 }
 
 .task-modal {
@@ -46,5 +53,12 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background-color: #374151;
+  background-color: rgba(55, 65, 81, 0.85);
+}
+
+.task-modal-header {
+  display: flex;
+  justify-content: space-between;
+
+  background-color: #1e293b;
 }

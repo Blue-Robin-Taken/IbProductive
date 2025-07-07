@@ -5,13 +5,8 @@ import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import {
-  AddTask,
-  TaskCheckbox,
-  TaskData,
-  TaskFromDataArr,
-} from "./tasks/TaskFrontEnd";
-import { taskComps } from "./tasks/TaskBackEnd";
+import { AddTask } from "./tasks/TaskFrontEnd";
+import { taskComps, TaskData } from "./tasks/TaskBackEnd";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -77,10 +72,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
             </h2>
           ))}
         </div>
-        <div className="justify-center">
-          {/* Spaces */}
-          <CalendarGrid state={this.state} />
-        </div>
+        <CalendarGrid state={this.state} />
 
         <AddTask />
       </div>
@@ -195,7 +187,9 @@ function CalendarGrid(props: { state: CalendarState }) {
   }
 
   return (
-    <div className="grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">{arr}</div>
+    <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
+      {arr}
+    </div>
   );
 }
 
@@ -282,16 +276,6 @@ function lastDayOnCal(year: number, month: number) {
   let dayOfLast: number = dateOfLast.getDay();
 
   return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY;
-}
-
-/**
- * @param month
- * @param year
- * @returns       the number of boxes needed in the last week
- */
-function lastWeekOffset(month: number, year: number) {
-  let tempDate = new Date(year, month, daysInMonth(month, year));
-  return 6 - tempDate.getDay(); // how many offsets are needed in the first week.
 }
 
 /**

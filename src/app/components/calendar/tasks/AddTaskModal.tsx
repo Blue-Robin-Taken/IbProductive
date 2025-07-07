@@ -1,33 +1,33 @@
 import { useState } from "react";
 import "./tasks.css";
+import { TaskCheckbox } from "./TaskBackEnd";
 
 export default function AddTaskModal(props: {
   isOpen: Boolean;
   onClose: Function;
   onCreate: Function;
 }) {
-  const [checkboxes, setCheckboxes] = useState([
-    { id: 0, label: "New Checkbox", bool: false },
-  ]);
+  const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>([]);
   const [desc, setDesc] = useState("");
   const [name, setName] = useState("New Task");
   const [dueDate, setDueDate] = useState(new Date());
-  let nextId: number = 1;
+  let nextId: number = 0;
+
+  const create = () => props.onCreate(name, desc, dueDate, checkboxes);
+  const close = () => props.onClose();
 
   if (props.isOpen == false) return null;
 
   return (
     <div className="task-modal bg-opacity-85">
-      <div className="flex justify-between bg-slate-800">
+      <div className="task-modal-header">
         <h1 className="m-5 py-3 px-4 bg-red-500 text-6xl">
           Create New Client Task
         </h1>
         <button
           // flex none prevents from growing/shrinking
           className="m-5 px-4 text-3xl flex-none"
-          onClick={() => {
-            props.onClose();
-          }}
+          onClick={close}
         >
           Close
         </button>
@@ -38,10 +38,10 @@ export default function AddTaskModal(props: {
         onKeyDown={(e) => {
           if (e.key === "escape") {
             e.preventDefault();
-            props.onClose();
+            close();
           } else if (e.key === "enter") {
             e.preventDefault();
-            props.onCreate(name, desc, dueDate, checkboxes);
+            create();
           }
         }}
       >
@@ -123,9 +123,7 @@ export default function AddTaskModal(props: {
           </button>
         </div>
       </form>
-      <button onClick={() => props.onCreate(name, desc, dueDate, checkboxes)}>
-        Create
-      </button>
+      <button onClick={create}>Create</button>
     </div>
   );
 }
