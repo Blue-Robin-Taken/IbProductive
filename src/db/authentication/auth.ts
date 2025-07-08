@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { addMinutes } from 'date-fns';
 import { scryptSync, randomBytes, timingSafeEqual } from 'crypto';
 import { passwordStrength } from 'check-password-strength';
+import cron from 'node-cron';
 
 export async function createAccount(
     username: string,
@@ -33,19 +34,15 @@ export async function createAccountVerificationToken(
     let test = await prisma.user.findFirst({ where: { email: email } });
 
     if (test) {
-        return 'email exists';
+        return 'Email already exists';
     }
 
     // Test database for same username
     test = await prisma.user.findFirst({ where: { username: username } });
     if (test) {
-        return 'user exists';
+        return 'Username already exists';
     }
 
-    // todo: test database for password length & other security measures
-    if (passwordStrength(password).id < 2) {
-        return 'pass too weak';
-    }
     // https://stackoverflow.com/a/67038052/15982771
     // the above post was used to determine how to hash passwords
 
@@ -102,8 +99,6 @@ export async function handleVerifyEmail(sentToken: string) {
             if (user) {
                 return 'already exists';
             }
-
-            console.log(databaseEntry.username, 'monke');
 
             await createAccount(
                 databaseEntry.username,

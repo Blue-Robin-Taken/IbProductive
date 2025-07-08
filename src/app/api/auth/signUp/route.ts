@@ -6,6 +6,10 @@ import { randomUUID } from 'crypto';
 
 import { createAccountVerificationToken } from '@/db/authentication/auth';
 
+import * as EmailValidator from 'email-validator';
+
+import { passwordStrength } from 'check-password-strength';
+
 config();
 
 const resend = new Resend(process.env['EMAIL_API_KEY']);
@@ -18,19 +22,32 @@ interface responseType {
 
 /* Implementation to authenticate the user*/
 export async function POST(request: Request) {
-    function hasUpperCase(str: String) {
-        return str !== str.toLowerCase();
-    }
-
     const res: responseType = await request.json();
 
-    /* Save the verification token for the account in the prisma database */
+    // Validate form data before sending:
+    if (EmailValidator.validate(res.email) != true) {
+        return new NextResponse(
+            'Email validation failed on backend. (If this happens please talk to the devs)'
+        );
+    } else if (passwordStrength(res.password).id < 2) {
+        return new NextResponse(
+            'Password policy failed on backend. (If this happens PLEASE talk to the devs)'
+        );
+    }
+
+    // Validate that there are no duplicates
 
     /* Send Email*/
     const token = randomUUID(); // or custom string
 
     const verification_link = `${process.env['WEBSITE_URL']}/api/verifyEmail?key=${token}`;
-
+    /* Save the verification token for the account in the prisma database */
+    createAccountVerificationToken(
+        token,
+        res.email,
+        res.username,
+        res.password
+    );
     await resend.emails.send({
         from: 'IBProductive <onboarding@ibproductive.org>',
         to: [res.email],
@@ -40,12 +57,5 @@ export async function POST(request: Request) {
          <p>If you got this email without sending it yourself, please contact us.</p>`,
     });
 
-    createAccountVerificationToken(
-        token,
-        res.email,
-        res.username,
-        res.password
-    );
-
-    return new NextResponse(JSON.stringify({ error: 0 }));
+    return new NextResponse('');
 }
