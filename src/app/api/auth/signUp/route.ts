@@ -8,7 +8,7 @@ import {
     createAccountVerificationToken,
     emailAccountExists,
     usernameExists,
-} from '@/db/authentication/auth';
+} from '@/db/authentication/signUp';
 
 import * as EmailValidator from 'email-validator';
 

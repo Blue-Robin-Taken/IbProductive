@@ -1,4 +1,4 @@
-import { handleVerifyEmail } from '@/db/authentication/auth';
+import { handleVerifyEmail } from '@/db/authentication/signUp';
 import { NextResponse } from 'next/server';
 export async function GET(req: Request) {
     const key = new URL(req.url).searchParams.get('key');

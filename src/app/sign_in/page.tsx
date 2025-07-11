@@ -4,8 +4,9 @@ import { FormEvent } from 'react';
 
 function submitForm(e: FormEvent): void {
     e.preventDefault();
+
     const username = (e.target as HTMLFormElement).username.value;
-    const password = (e.target as HTMLFormElement).passKey.value;
+    const password = (e.target as HTMLFormElement).passkey.value;
     console.log(username, password);
     fetch('/api/auth/signIn', {
         method: 'POST',
@@ -22,7 +23,7 @@ function submitForm(e: FormEvent): void {
 export default function SignIn() {
     return (
         <div className="flex justify-center ">
-            <form className="grid grid-rows-3 gap-5">
+            <form className="grid grid-rows-3 gap-5" onSubmit={submitForm}>
                 <label className="text-center" htmlFor="username">
                     Username:
                 </label>
