@@ -5,7 +5,10 @@ import { promisify } from 'util';
 // scrypt is callback based so with promisify we can await it
 const scryptAsync = promisify(scrypt);
 
-export default async function checkLogin(username: string, password: string) {
+export default async function checkLogin(
+    username: string,
+    password: string
+): Promise<boolean> {
     if (!username || !password) {
         return false;
     } // return blank
@@ -16,7 +19,7 @@ export default async function checkLogin(username: string, password: string) {
 
     if (!prismaFetch) {
         // Check username
-        return 'Unauthorized';
+        return false;
     }
     const [hashedPassword, salt] = prismaFetch.passHash.split('.');
 
@@ -30,8 +33,8 @@ export default async function checkLogin(username: string, password: string) {
     // https://stackoverflow.com/questions/62908969/password-hashing-in-nodejs-using-built-in-crypto/67038052#67038052
     if (!timingSafeEqual(hashedCheckPasswordBuf, hashedPasswordBuf)) {
         // Check timing safe & hashed password
-        return 'Unauthorized.';
+        return false;
     }
 
-    return 'You have logged in!';
+    return true;
 }
