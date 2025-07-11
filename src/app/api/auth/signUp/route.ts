@@ -4,11 +4,17 @@ import { Resend } from 'resend';
 import { config } from 'dotenv';
 import { randomUUID } from 'crypto';
 
-import { createAccountVerificationToken } from '@/db/authentication/auth';
+import {
+    createAccountVerificationToken,
+    emailAccountExists,
+    usernameExists,
+} from '@/db/authentication/auth';
 
 import * as EmailValidator from 'email-validator';
 
 import { passwordStrength } from 'check-password-strength';
+
+import prisma from '@/db';
 
 config();
 
@@ -24,10 +30,22 @@ interface responseType {
 export async function POST(request: Request) {
     const res: responseType = await request.json();
 
+    var hasAccount = await emailAccountExists(res.email);
+
+    if (hasAccount) {
+        return new NextResponse('This email already exists.');
+    }
+
+    hasAccount = await usernameExists(res.username);
+
+    if (hasAccount) {
+        return new NextResponse('This username already exists.');
+    }
+
     // Validate form data before sending:
     if (EmailValidator.validate(res.email) != true) {
         return new NextResponse(
-            'Email validation failed on backend. (If this happens please talk to the devs)'
+            'Email validation failed on backend. This email is a duplicate.'
         );
     } else if (passwordStrength(res.password).id < 2) {
         return new NextResponse(

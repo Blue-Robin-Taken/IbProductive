@@ -119,7 +119,34 @@ export async function handleVerifyEmail(sentToken: string) {
     }
 }
 
-async function deleteUnusedVerificationKeys() {
-    // todo
-    /* This is used to delete keys that have expired periodically with a node cron job */
+// Below are two helper functions to check an account's username and email for dupes
+export async function emailAccountExists(checkEmail: string) {
+    const user = await prisma.user.findFirst({
+        where: { email: checkEmail },
+    });
+
+    if (user) {
+        return true;
+    }
 }
+
+export async function usernameExists(checkUser: string) {
+    const user = await prisma.user.findFirst({
+        where: { username: checkUser },
+    });
+
+    if (user) {
+        return true;
+    }
+}
+
+// export async function deleteUnusedVerificationKeys() {
+//     /* This is used to delete keys that have expired periodically with a node cron job */
+//     await prisma.verificationToken.deleteMany({
+//         where: {
+//             expiresAt: {
+//                 lte: new Date(),
+//             },
+//         },
+//     });
+// }
