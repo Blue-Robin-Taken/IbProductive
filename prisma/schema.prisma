@@ -35,3 +35,11 @@ model VerificationToken {
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
+
+model Feedback {
+  // is an email requried? worst case scenario, link the feedback to the user
+  id          Int         @id @default(autoincrement())
+  name        String      // name of the feedback/issue
+  description String      // description of it
+  createdAt   DateTime    @default(now())
+}

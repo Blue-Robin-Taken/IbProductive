@@ -1,18 +1,27 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type TaskDueProps = {
   due: Date;
 };
 
-export default function TaskDue(props: TaskDueProps) {
-  const [dueStr, setDueStr] = useState<ReactElement>();
+type TaskDueState = {
+  str: string;
+  css: string;
+};
+
+export default function TaskDueCountdown(props: TaskDueProps) {
+  const [state, setState] = useState<TaskDueState>({
+    str: "Loading...",
+    css: "",
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
       const ms: number = props.due.getTime() - now.getTime();
 
-      setDueStr(getTimeLeft(new Date(ms)));
+      setState(getTimeLeft(new Date(ms)));
+      console.log("updated state");
     }, 1000);
 
     return () => {
@@ -20,28 +29,32 @@ export default function TaskDue(props: TaskDueProps) {
     };
   });
 
-  return <div>{dueStr}</div>;
+  return (
+    <div className={state.css}>
+      <p>{state.str}</p>
+    </div>
+  );
 }
 
-function getTimeLeft(timeLeft: Date) {
+function getTimeLeft(timeLeft: Date): TaskDueState {
   let years: number = timeLeft.getUTCFullYear() - 1970; // 1970 needs to be subtracted for some reason
   if (years < 0) {
     // negative years
-    return <p>Overdue!</p>;
+    return { str: "Overdue!", css: "" };
   } else if (years >= 1) {
-    return <p>{"Due in: " + years + " years"}</p>;
+    return { str: "Due in: " + years + " years", css: "" };
   }
 
-  let output: String = "Due in: ";
+  let output: string = "Due in: ";
   let months: number = timeLeft.getUTCMonth();
   let days: number = timeLeft.getUTCDate() - 1;
 
   if (months > 0) {
     output += months + " months " + days + " days";
 
-    return <p>{output}</p>;
+    return { str: output, css: "" };
   } else if (days > 3 && months === 0) {
-    return <p>{days + " days"}</p>;
+    return { str: "Due in: " + days + " days", css: "" };
   }
 
   let hours: number = timeLeft.getUTCHours();
@@ -51,11 +64,11 @@ function getTimeLeft(timeLeft: Date) {
     if (hours !== 0) {
       output += hours + " hours";
     }
-    return <p>{output}</p>;
+    return { str: output, css: "" };
   }
 
   if (hours > 5 && days === 0) {
-    return <p>{hours + " hours"}</p>;
+    return { str: "Due in: " + hours + " hours", css: "" };
   }
 
   let minutes: number = timeLeft.getUTCMinutes();
@@ -63,5 +76,5 @@ function getTimeLeft(timeLeft: Date) {
     output += hours + " hours ";
   }
   output += minutes + " minutes";
-  return <p>{output}</p>;
+  return { str: output, css: "" };
 }
