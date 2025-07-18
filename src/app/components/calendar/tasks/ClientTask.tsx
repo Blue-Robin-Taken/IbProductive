@@ -7,7 +7,7 @@ import {
   TaskModalProps,
 } from "./TaskBackEnd";
 import "./tasks.css";
-import TaskDue from "./TaskDueDate";
+import TaskDueCountdown from "./due/TaskDueDate";
 
 export default class ClientTask extends React.Component<
   { data: TaskData },
@@ -151,7 +151,7 @@ function ViewClientTaskModal(props: TaskModalProps) {
             Close
           </button>
         </div>
-        <TaskDue due={props.data.dueDate} />
+        <TaskDueCountdown due={props.data.dueDate} />
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Description */}
           <label className="task-form-label">Description:</label>

@@ -21,6 +21,7 @@ model VerificationToken {
   token     String   @unique
   passHash  String
   username  String
+  
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
@@ -34,4 +35,12 @@ model ClientTask {
   date        Int
   labels      String[]
   bools       Boolean[]
+}
+
+model Feedback {
+  // is an email requried? worst case scenario, link the feedback to the user
+  id          Int         @id @default(autoincrement())
+  name        String      // name of the feedback/issue
+  description String      // description of it
+  createdAt   DateTime    @default(now())
 }
