@@ -9,13 +9,18 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  passHash String
-  username String @unique
+  id          Int    @id @default(autoincrement())
+  email       String @unique
+  passHash    String
+  username    String @unique
+
+  clientTasks ClientTask[]
 }
 
 model ClientTask {
+  user        User      @relation(fields: [username], references: [username])
+  username    String
+
   id          String    @id @default(cuid())
   name        String
   description String?
