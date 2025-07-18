@@ -9,21 +9,10 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  username String  @unique
+  id       Int    @id @default(autoincrement())
+  email    String @unique
   passHash String
-}
-
-model VerificationToken {
-  id        String   @id @default(cuid())
-  email     String
-  token     String   @unique
-  passHash  String
-  username  String
-  
-  createdAt DateTime @default(now())
-  expiresAt DateTime
+  username String @unique
 }
 
 model ClientTask {
@@ -35,6 +24,16 @@ model ClientTask {
   date        Int
   labels      String[]
   bools       Boolean[]
+}
+
+model VerificationToken {
+  id        Int   @id @default(autoincrement())
+  email     String
+  token     String   @unique
+  passHash  String
+  username  String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 model Feedback {

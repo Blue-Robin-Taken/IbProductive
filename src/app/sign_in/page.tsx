@@ -2,12 +2,13 @@
 // Do not store anything sensitive here!!
 import { FormEvent } from 'react';
 
-function submitForm(e: FormEvent): void {
+async function submitForm(e: FormEvent) {
     e.preventDefault();
+
     const username = (e.target as HTMLFormElement).username.value;
-    const password = (e.target as HTMLFormElement).passKey.value;
-    console.log(username, password);
-    fetch('/api/auth/signIn', {
+    const password = (e.target as HTMLFormElement).passkey.value;
+
+    const req = await fetch('/api/auth/signIn', {
         method: 'POST',
         body: JSON.stringify({
             username: username,
@@ -22,7 +23,7 @@ function submitForm(e: FormEvent): void {
 export default function SignIn() {
     return (
         <div className="flex justify-center ">
-            <form className="grid grid-rows-3 gap-5">
+            <form className="grid grid-rows-3 gap-5" onSubmit={submitForm}>
                 <label className="text-center" htmlFor="username">
                     Username:
                 </label>
@@ -37,7 +38,7 @@ export default function SignIn() {
                 </label>
                 <input
                     className="text-black"
-                    type="text"
+                    type="password"
                     id="passkey"
                     name="passkey"
                 />
