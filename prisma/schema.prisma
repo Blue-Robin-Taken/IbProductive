@@ -9,10 +9,11 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  passHash String
-  username String @unique
+  id         Int          @id @default(autoincrement())
+  email      String       @unique
+  passHash   String
+  username   String       @unique
+  ClientTask ClientTask[]
 }
 
 model ClientTask {
@@ -24,10 +25,12 @@ model ClientTask {
   date        Int
   labels      String[]
   bools       Boolean[]
+  username    String
+  User        User      @relation(fields: [username], references: [username])
 }
 
 model VerificationToken {
-  id        Int   @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   email     String
   token     String   @unique
   passHash  String
@@ -37,9 +40,8 @@ model VerificationToken {
 }
 
 model Feedback {
-  // is an email requried? worst case scenario, link the feedback to the user
-  id          Int         @id @default(autoincrement())
-  name        String      // name of the feedback/issue
-  description String      // description of it
-  createdAt   DateTime    @default(now())
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime @default(now())
 }
