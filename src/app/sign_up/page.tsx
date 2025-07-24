@@ -1,12 +1,12 @@
-'use client';
+"use client";
 /* Form Validation should be handled on the API level for 
 security (but this is the client side part) */
-import { FormEvent, useState } from 'react';
-import * as EmailValidator from 'email-validator';
-import { passwordStrength } from 'check-password-strength';
+import { FormEvent, useState } from "react";
+import * as EmailValidator from "email-validator";
+import { passwordStrength } from "check-password-strength";
 
 export default function SignIn() {
-  const [formInvalid, setValidation] = useState('');
+  const [formInvalid, setValidation] = useState("");
 
   async function submitForm(e: FormEvent) {
     // Must be in the SignIn function because of the form validation hook
@@ -19,27 +19,27 @@ export default function SignIn() {
     // validate before sending a request
 
     if (EmailValidator.validate(email) != true) {
-      return setValidation('Email validation failed');
+      return setValidation("Email validation failed");
     } else if (checkSamePass != password) {
       return setValidation("Passwords aren't the same");
     } else if (passwordStrength(password).id < 2) {
       return setValidation(
-        'Password is too weak. Minimum length of 8. Consider adding at least two of the following: Uppercase/lowercase, symbols, a number.'
+        "Password is too weak. Minimum length of 8. Consider adding at least two of the following: Uppercase/lowercase, symbols, a number."
       );
     } else {
       // No issues
-      setValidation('');
+      setValidation("");
     }
 
-    const resp = await fetch('/api/auth/signUp', {
-      method: 'POST',
+    const resp = await fetch("/api/auth/signUp", {
+      method: "POST",
       body: JSON.stringify({
         email: email,
         username: username,
         password: password,
       }),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     setValidation(await resp.text());
@@ -91,7 +91,6 @@ export default function SignIn() {
       </form>
 
       {/* Handle response */}
-
       {formInvalid && <p className="font-bold text-red-600">{formInvalid}</p>}
     </div>
   );

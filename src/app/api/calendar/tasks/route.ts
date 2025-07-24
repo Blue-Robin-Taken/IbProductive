@@ -1,4 +1,5 @@
-import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskFrontEnd";
+import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskBackEnd";
+
 import {
   addClientTask,
   editClientTask,
