@@ -7,6 +7,7 @@ import {
   TaskModalProps,
 } from "./TaskBackEnd";
 import "./tasks.css";
+import "../calendar.css";
 import TaskDueCountdown from "./due/TaskDueDate";
 
 export default class ClientTask extends React.Component<
@@ -115,7 +116,7 @@ function ViewClientTaskModal(props: TaskModalProps) {
   if (props.isOpen == false) return null;
 
   return (
-    <div className="task-modal">
+    <div className="modal-bg">
       {/* TODO: what if the checklist is too big so you need to scroll? */}
       <form
         id="taskForm"

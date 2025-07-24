@@ -1,25 +1,24 @@
 import { useState } from "react";
 import "./tasks.css";
-import { TaskCheckbox } from "./TaskBackEnd";
+import "../calendar.css";
+import { createTask, TaskCheckbox } from "./TaskBackEnd";
+import React from "react";
 
-export default function AddTaskModal(props: {
-  isOpen: Boolean;
-  onClose: Function;
-  onCreate: Function;
-}) {
+export function AddTaskModal(props: { onClose: Function }) {
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>([]);
   const [desc, setDesc] = useState("");
   const [name, setName] = useState("New Task");
   const [dueDate, setDueDate] = useState(new Date());
   let nextId: number = 0;
 
-  const create = () => props.onCreate(name, desc, dueDate, checkboxes);
   const close = () => props.onClose();
-
-  if (props.isOpen == false) return null;
+  const create = () => {
+    createTask(name, desc, dueDate, checkboxes);
+    close();
+  };
 
   return (
-    <div className="task-modal bg-opacity-85">
+    <div className="modal-bg bg-opacity-85">
       <div className="task-modal-header">
         <h1 className="m-5 py-3 px-4 bg-red-500 text-6xl">
           Create New Client Task

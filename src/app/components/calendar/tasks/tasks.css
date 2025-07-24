@@ -45,17 +45,6 @@
   border-width: 0.125rem;
 }
 
-.task-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 40;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(55, 65, 81, 0.85);
-}
-
 .task-modal-header {
   display: flex;
   justify-content: space-between;

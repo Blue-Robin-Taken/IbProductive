@@ -1,12 +1,12 @@
 "use client";
 
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactElement, ReactNode, useEffect, useState } from "react";
 import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { AddTask } from "./tasks/TaskFrontEnd";
 import { taskComps, TaskData } from "./tasks/TaskBackEnd";
+import { AddTaskModal } from "./tasks/AddClientTask";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -16,6 +16,8 @@ type CalendarState = {
   firstDay: number;
   lastDay: number;
   tasks: TaskData[];
+  modal: React.ReactElement;
+  actionsUp: boolean;
 };
 
 export default class Calendar extends React.Component<{}, CalendarState> {
@@ -29,6 +31,8 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       firstDay: firstDayOnCal(date.getFullYear(), date.getMonth()),
       lastDay: lastDayOnCal(date.getFullYear(), date.getMonth()),
       tasks: [],
+      modal: <div></div>,
+      actionsUp: false,
     };
   }
 
@@ -52,15 +56,16 @@ export default class Calendar extends React.Component<{}, CalendarState> {
   render() {
     return (
       <div>
-        {this.todayButton()}
+        {this.state.modal}
+        {this.TodayButton()}
         <div className="text-black flex justify-between px-5 py-5 my-3 bg-red-300">
-          <button onClick={this.previousMonth.bind(this)} className="w-24 h-12">
+          <button onClick={this.PrevMonth.bind(this)} className="w-24 h-12">
             Previous
           </button>
           <h1 className="text-6xl flex-start">
             {getMonth(this.state.month)} {this.state.year}
           </h1>
-          <button onClick={this.nextMonth.bind(this)} className="w-24 h-12">
+          <button onClick={this.NextMonth.bind(this)} className="w-24 h-12">
             Next
           </button>
         </div>
@@ -74,7 +79,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
         </div>
         <CalendarGrid state={this.state} />
 
-        <AddTask />
+        {this.CalActions()}
       </div>
     );
   }
@@ -84,7 +89,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
    *
    * @returns a button if the month that the calendar shows is not the current month.
    */
-  todayButton() {
+  TodayButton() {
     let date = new Date();
     let currentMonth = date.getMonth();
     let currentYear = date.getFullYear();
@@ -95,7 +100,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
 
     return (
       <div className="text-black flex justify-between px-5 py-5 my-3 bg-red-300">
-        <button onClick={this.currentMonth.bind(this)}>Today</button>
+        <button onClick={this.CurrMonth.bind(this)}>Today</button>
       </div>
     );
   }
@@ -103,7 +108,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
   /**
    * Sets the month that the calendar shows to the current month.
    */
-  currentMonth() {
+  CurrMonth() {
     let date = new Date();
     this.setState((prev) => ({
       ...prev,
@@ -117,7 +122,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
   /**
    * Moves the month that the calendar shows to the previous month.
    */
-  previousMonth() {
+  PrevMonth() {
     var newMonth: number = this.state.month - 1;
     var newYear: number = this.state.year;
 
@@ -138,7 +143,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
   /**
    * Moves the month that the calendar showss to the next month.
    */
-  nextMonth() {
+  NextMonth() {
     var newMonth: number = this.state.month + 1;
     var newYear: number = this.state.year;
 
@@ -156,23 +161,67 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     }));
   }
 
+  CalActions() {
+    const toggleMenu = () => {
+      this.setState((prev) => ({ ...prev, actionsUp: !prev.actionsUp }));
+    };
+    const setModal = (elem: ReactElement) => {
+      toggleMenu();
+      this.setState((prev) => ({ ...prev, modal: elem }));
+    };
+    const clearModal = () => {
+      setModal(<div></div>);
+    };
+
+    return (
+      <div className="z-5 sticky bottom-10 left-10">
+        {!this.state.actionsUp ? null : (
+          <div className="relative">
+            <button
+              onClick={() => {
+                setModal(<AddTaskModal onClose={clearModal} />);
+              }}
+            >
+              {" Add Task "}
+            </button>
+          </div>
+        )}
+        <button onClick={toggleMenu}>+</button>
+      </div>
+    );
+  }
+
   async fetchTasks() {
     let params = new URLSearchParams({
       start: String(this.state.firstDay),
       end: String(this.state.lastDay),
     });
 
+    this.setState((prev) => ({ ...prev, modal: <LoadingModal /> }));
+
     let res = await fetch("/api/calendar/tasks?" + params);
     let json = await res.json();
     let data: TaskData[] = json["taskArr" as keyof typeof json];
-    console.log(data);
+    // console.log(data);
+
+    this.setState((prev) => ({ ...prev, modal: <div></div> }));
     return data;
   }
 }
-///
-/// Front End
-///
 
+function LoadingModal(props: {}) {
+  return (
+    <div className="modal-bg">
+      <p>Loading lol</p>
+    </div>
+  );
+}
+
+/**
+ * A function component for the grid of calendar boxes.
+ * @param props
+ * @returns
+ */
 function CalendarGrid(props: { state: CalendarState }) {
   let arr = [];
   for (let i = props.state.firstDay; i <= props.state.lastDay; i += MS_IN_DAY) {
@@ -200,7 +249,7 @@ type CalendarBoxProps = {
 };
 
 /**
- * Creates a box for each date.
+ * Creates a box for a given date.
  * @param date               the date which is being created
  * @param month             the current month
  * @param year              the current year
@@ -243,9 +292,12 @@ function CalendarBox(props: CalendarBoxProps) {
   );
 }
 
-///
-/// Back End
-///
+/**
+ * Gets the number of days in a month.
+ * @param month the number of month as an index in an array
+ * @param year
+ * @returns
+ */
 function daysInMonth(month: number, year: number) {
   switch (month) {
     case 1:
