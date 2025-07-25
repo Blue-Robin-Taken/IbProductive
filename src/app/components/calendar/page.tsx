@@ -5,8 +5,8 @@ import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { taskComps, TaskData } from "./tasks/TaskBackEnd";
-import { AddTaskModal } from "./tasks/AddClientTask";
+import { createTask, taskComps, TaskData } from "./tasks/TaskBackEnd";
+import { TaskForm } from "./tasks/TaskForm";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -173,13 +173,32 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       setModal(<div></div>);
     };
 
+    const AddTask: React.ReactElement = (
+      <TaskForm
+        data={{
+          id: "",
+          dueDate: new Date(),
+          name: "New Task",
+          description: "",
+          checkboxes: [],
+        }}
+        editable={{
+          nameEditable: true,
+          descEditable: true,
+          dueEditable: true,
+        }}
+        onClose={clearModal}
+        onSubmit={createTask}
+      />
+    );
+
     return (
       <div className="z-5 sticky bottom-10 left-10">
         {!this.state.actionsUp ? null : (
           <div className="relative">
             <button
               onClick={() => {
-                setModal(<AddTaskModal onClose={clearModal} />);
+                setModal(AddTask);
               }}
             >
               {" Add Task "}

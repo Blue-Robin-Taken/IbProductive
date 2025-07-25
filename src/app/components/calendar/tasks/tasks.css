@@ -44,10 +44,3 @@
   border-color: black;
   border-width: 0.125rem;
 }
-
-.task-modal-header {
-  display: flex;
-  justify-content: space-between;
-
-  background-color: #1e293b;
-}

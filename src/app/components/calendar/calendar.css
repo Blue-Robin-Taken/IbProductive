@@ -52,3 +52,10 @@
   background-color: rgba(55, 65, 81, 0.85);
   /* background-color: rgba(55, 65, 81); */
 }
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+
+  background-color: #1e293b;
+}
