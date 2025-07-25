@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Matangi:wght@300..900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -23,7 +25,22 @@ body {
 button {
   background-color: limegreen;
   padding-left: 10px;
-  padding-right:10px;
-  padding-top:5px;
-  padding-bottom:5px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+@layer utilities {
+  /* Raw families */
+  .font-inter {
+    font-family: var(--font-inter);
+  }
+  .font-lato {
+    font-family: var(--font-lato);
+  }
+  .font-matangi {
+    font-family: var(--font-matangi);
+  }
+  .font-rajdhani {
+    font-family: var(--font-rajdhani);
+  }
 }
