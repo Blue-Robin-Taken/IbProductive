@@ -132,7 +132,7 @@ export async function emailAccountExists(checkEmail: string) {
   }
 }
 
-export async function usernameExists(checkUser: string) {
+export async function usernameExists(checkUser: string): Promise<boolean> {
   const user = await prisma.user.findFirst({
     where: { username: checkUser },
   });
@@ -140,11 +140,10 @@ export async function usernameExists(checkUser: string) {
   if (user) {
     return true;
   }
+  return false;
 }
 
-export async function checkCookieUser(cookieJWT: string){
-    
-}
+export async function checkCookieUser(cookieJWT: string) {}
 
 // export async function deleteUnusedVerificationKeys() {
 //     /* This is used to delete keys that have expired periodically with a node cron job */
