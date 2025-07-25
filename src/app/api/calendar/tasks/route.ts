@@ -1,11 +1,6 @@
 import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskBackEnd";
 
-import {
-  addClientTask,
-  editClientTask,
-  getMultipleTasksFromPrisma,
-  getTasksFromPrisma,
-} from "@/db";
+import { addClientTask, editClientTask, getTasksFromPrisma } from "@/db";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -13,12 +8,16 @@ export async function GET(request: Request) {
 
   if (String(params.get("end")) === "") {
     // Simple
-    let res = await getTasksFromPrisma(new Date(String(params.get("start"))));
+    const start: string = String(params.get("start"));
+    let res = await getTasksFromPrisma(
+      Number.parseInt(start),
+      Number.parseInt(start)
+    );
     return new Response(JSON.stringify({ taskArr: res }));
   }
 
   // Complex
-  let res = await getMultipleTasksFromPrisma(
+  let res = await getTasksFromPrisma(
     Number.parseInt(String(params.get("start"))),
     Number.parseInt(String(params.get("end")))
   );

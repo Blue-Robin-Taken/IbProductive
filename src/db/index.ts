@@ -4,6 +4,7 @@ import {
   TaskCheckbox,
   TaskData,
 } from "@/app/components/calendar/tasks/TaskBackEnd";
+import { MS_IN_DAY } from "@/app/components/generic/time/time";
 
 let prisma = new PrismaClient();
 
@@ -19,9 +20,6 @@ export async function addClientTask(
   labels: string[],
   bools: boolean[]
 ) {
-  let year: number = dueDate.getFullYear();
-  let month: number = dueDate.getMonth();
-  let date: number = dueDate.getDate();
   //   const cookieStore = await cookies();
   //   const token = cookieStore.get("token");
   //   const username: string = token == null ? "null" : token?.value;
@@ -31,9 +29,7 @@ export async function addClientTask(
       username: "totallycoolperson",
       name,
       description,
-      year,
-      month,
-      date,
+      date: dueDate,
       labels,
       bools,
     },
@@ -48,27 +44,20 @@ export async function editClientTask(
   labels: string[],
   bools: boolean[]
 ) {
-  let year: number = dueDate.getFullYear();
-  let month: number = dueDate.getMonth();
-  let date: number = dueDate.getDate();
-
   await prisma.clientTask.update({
     where: { username: "totallycoolperson", id: id },
-    data: { name, description, year, month, date, labels, bools },
+    data: { name, description, date: dueDate, labels, bools },
   });
 }
 
-export async function getTasksFromPrisma(day: Date) {
-  let year: number = day.getFullYear();
-  let month: number = day.getMonth();
-  let date: number = day.getDate();
-
+export async function getTasksFromPrisma(firstDate: number, lastDate: number) {
   const tasks = await prisma.clientTask.findMany({
     where: {
       username: "totallycoolperson",
-      year: year,
-      month: month,
-      date: date,
+      date: {
+        gte: new Date(firstDate),
+        lte: new Date(lastDate + MS_IN_DAY - 1),
+      },
     },
   });
 
@@ -86,7 +75,7 @@ export async function getTasksFromPrisma(day: Date) {
 
     let taskData: TaskData = {
       id: i.id,
-      dueDate: new Date(i.year, i.month, i.date),
+      dueDate: i.date,
       name: i.name,
       description: i.description == null ? "" : i.description,
       checkboxes: checkboxes,
@@ -96,19 +85,4 @@ export async function getTasksFromPrisma(day: Date) {
   }
 
   return dataPlural;
-}
-
-export async function getMultipleTasksFromPrisma(start: number, end: number) {
-  let arr = [];
-
-  for (let i = start; i <= end; i += 86400000) {
-    // 86,400,000 is the number of ms in a day
-    let addend = await getTasksFromPrisma(new Date(i));
-
-    for (const j of addend) {
-      arr.push(j);
-    }
-  }
-
-  return arr;
 }
