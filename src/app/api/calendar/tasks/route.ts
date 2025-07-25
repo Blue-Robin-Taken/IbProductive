@@ -1,15 +1,30 @@
 import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskBackEnd";
 
 import { addClientTask, editClientTask, getTasksFromPrisma } from "@/db";
+import { getUsername } from "@/db/authentication/jwtAuth";
+import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
+  /* Search Params */
+  // throw errors when null instead?
+  // const startParam = request.nextUrl.searchParams.get("start");
+  // const start: string = startParam === null ? "" : startParam;
+  // const endParam = request.nextUrl.searchParams.get("end");
+  // const end: string = endParam === null ? "" : endParam;
+
   const url = new URL(request.url);
   let params = new URLSearchParams(url.search);
+  const start = String(params.get("start"));
+  const end = String(params.get("end"));
 
-  if (String(params.get("end")) === "") {
+  const cookieStore = await cookies();
+  const tokenCookie = cookieStore.get("token")?.value;
+  const username = await getUsername(String(tokenCookie));
+
+  if (end === "") {
     // Simple
-    const start: string = String(params.get("start"));
     let res = await getTasksFromPrisma(
+      username,
       Number.parseInt(start),
       Number.parseInt(start)
     );
@@ -18,8 +33,9 @@ export async function GET(request: Request) {
 
   // Complex
   let res = await getTasksFromPrisma(
-    Number.parseInt(String(params.get("start"))),
-    Number.parseInt(String(params.get("end")))
+    username,
+    Number.parseInt(start),
+    Number.parseInt(end)
   );
 
   return new Response(JSON.stringify({ taskArr: res }));
@@ -44,8 +60,13 @@ export async function POST(request: Request) {
     bools.push(checkbox.bool);
   }
 
+  const cookieStore = await cookies();
+  const tokenCookie = cookieStore.get("token")?.value;
+  const username = await getUsername(String(tokenCookie));
+
   if (json.id === "") {
     await addClientTask(
+      username,
       json.name,
       json.description,
       new Date(json.dueDate),
@@ -54,6 +75,7 @@ export async function POST(request: Request) {
     );
   } else {
     await editClientTask(
+      username,
       json.id,
       json.name,
       json.description,

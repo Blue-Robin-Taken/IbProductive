@@ -14,19 +14,16 @@ export default prisma;
 /// Tasks
 ///
 export async function addClientTask(
+  username: string,
   name: string,
   description: string,
   dueDate: Date,
   labels: string[],
   bools: boolean[]
 ) {
-  //   const cookieStore = await cookies();
-  //   const token = cookieStore.get("token");
-  //   const username: string = token == null ? "null" : token?.value;
-
   await prisma.clientTask.create({
     data: {
-      username: "totallycoolperson",
+      username: username,
       name,
       description,
       date: dueDate,
@@ -37,6 +34,7 @@ export async function addClientTask(
 }
 
 export async function editClientTask(
+  username: string,
   id: string,
   name: string,
   description: string,
@@ -45,15 +43,19 @@ export async function editClientTask(
   bools: boolean[]
 ) {
   await prisma.clientTask.update({
-    where: { username: "totallycoolperson", id: id },
+    where: { username: username, id: id },
     data: { name, description, date: dueDate, labels, bools },
   });
 }
 
-export async function getTasksFromPrisma(firstDate: number, lastDate: number) {
+export async function getTasksFromPrisma(
+  username: string,
+  firstDate: number,
+  lastDate: number
+) {
   const tasks = await prisma.clientTask.findMany({
     where: {
-      username: "totallycoolperson",
+      username: username,
       date: {
         gte: new Date(firstDate),
         lte: new Date(lastDate + MS_IN_DAY - 1),
