@@ -4,27 +4,35 @@ import Link from 'next/link';
 import './globals.css';
 
 export const metadata: Metadata = {
-    title: 'IbProductive',
-    description: 'Become more productive!',
+  title: 'IbProductive',
+  description: 'Become more productive!',
 };
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-            <body className="bg-slate-900">
-                {/*Navbar*/}
-                <div className="p-5 m-0 space-x-10 text-4xl bg-gray-800">
-                    <Link href="/">Home</Link>
-                    <Link href="/about">About</Link>
-                    <Link href="/components/calendar">Scheduler</Link>
-                    <Link href="/sign_in">Sign In</Link>
-                </div>
-                <div className="m-10">{children}</div>
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en">
+      <head></head>
+      <body className="bg-black font-lato font-light">
+        {/*Navbar*/}
+        <div className="p-5 m-0 text-4xl bg-gradient-to-r from-zinc-900 to-zinc-950 flex flex-row font-semibold">
+          <div className="space-x-8">
+            <Link href="/">Home</Link>
+            <Link href="/about">About</Link>
+            <Link href="/components/calendar">Scheduler</Link>
+          </div>
+          <div className="ml-auto space-x-8 text-green-500">
+            <Link className="" href="/sign_in">
+              Sign In
+            </Link>
+            <Link href="/sign_up">Sign Up</Link>
+          </div>
+        </div>
+        <div className="m-10">{children}</div>
+      </body>
+    </html>
+  );
 }
