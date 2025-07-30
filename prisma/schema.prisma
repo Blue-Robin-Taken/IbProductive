@@ -9,11 +9,11 @@ datasource db {
 }
 
 model User {
-  id          Int    @id @default(autoincrement())
-  email       String @unique
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
   passHash    String
-  username    String @unique
-  isAdmin     Boolean 
+  username    String  @unique
+  isAdmin     Boolean @default(false)
 
   clientTasks ClientTask[]
 }
@@ -25,13 +25,9 @@ model ClientTask {
   id          String    @id @default(cuid())
   name        String
   description String?
-  year        Int
-  month       Int
-  date        Int
+  date        DateTime @default(now())
   labels      String[]
   bools       Boolean[]
-  username    String
-  User        User      @relation(fields: [username], references: [username])
 }
 
 model VerificationToken {

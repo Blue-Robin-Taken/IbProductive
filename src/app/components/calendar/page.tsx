@@ -7,14 +7,14 @@ import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
 import { createTask, taskComps, TaskData } from "./tasks/TaskBackEnd";
 import { TaskForm } from "./tasks/TaskForm";
+import { NextRequest } from "next/server";
 
 const MS_IN_DAY: number = 86400000;
 
 type CalendarState = {
   month: number;
   year: number;
-  firstDay: number;
-  lastDay: number;
+  now: Date;
   tasks: TaskData[];
   modal: React.ReactElement;
   actionsUp: boolean;
@@ -28,8 +28,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     this.state = {
       month: date.getMonth(),
       year: date.getFullYear(),
-      firstDay: firstDayOnCal(date.getFullYear(), date.getMonth()),
-      lastDay: lastDayOnCal(date.getFullYear(), date.getMonth()),
+      now: date,
       tasks: [],
       modal: <div></div>,
       actionsUp: false,
@@ -77,13 +76,26 @@ export default class Calendar extends React.Component<{}, CalendarState> {
             </h2>
           ))}
         </div>
-        <CalendarGrid state={this.state} />
+        <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
+          {this.generateBoxes()}
+        </div>
 
         {this.CalActions()}
       </div>
     );
   }
 
+  setModal(elem: React.ReactElement) {
+    this.setState((prev) => ({ ...prev, modal: elem }));
+  }
+
+  clearModal() {
+    this.setModal(<div></div>);
+  }
+
+  ///
+  /// Buttons
+  ///
   /**
    * A useful button which sets the calendar to the current month.
    *
@@ -114,8 +126,6 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       ...prev,
       month: date.getMonth(),
       year: date.getFullYear(),
-      firstDay: firstDayOnCal(date.getFullYear(), date.getMonth()),
-      lastDay: lastDayOnCal(date.getFullYear(), date.getMonth()),
     }));
   }
 
@@ -135,8 +145,6 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       ...prev,
       month: newMonth,
       year: newYear,
-      firstDay: firstDayOnCal(newYear, newMonth),
-      lastDay: lastDayOnCal(newYear, newMonth),
     }));
   }
 
@@ -156,8 +164,6 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       ...prev,
       month: newMonth,
       year: newYear,
-      firstDay: firstDayOnCal(newYear, newMonth),
-      lastDay: lastDayOnCal(newYear, newMonth),
     }));
   }
 
@@ -210,114 +216,74 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     );
   }
 
-  async fetchTasks() {
-    let params = new URLSearchParams({
-      start: String(this.state.firstDay),
-      end: String(this.state.lastDay),
-    });
+  ///
+  /// Boxes
+  ///
+  CalendarBox(timeInMS: number) {
+    let css: string = "";
+    let timeAsDate: Date = new Date(timeInMS);
 
-    this.setState((prev) => ({ ...prev, modal: <LoadingModal /> }));
+    if (timeAsDate.getMonth() !== this.state.month) {
+      // prev month or next month
+      css = "other-month";
+    } else {
+      // current month
+      css = "current-month";
+    }
+
+    if (
+      timeAsDate.getFullYear() === this.state.now.getFullYear() &&
+      timeAsDate.getMonth() === this.state.now.getMonth() &&
+      timeAsDate.getDate() === this.state.now.getDate()
+    ) {
+      css += "-today";
+    }
+    return (
+      <div key={timeInMS} className={css}>
+        <p className="inline-block px-1 mr-2 text-xl">{timeAsDate.getDate()}</p>
+        {getHolidays(timeAsDate)}
+        {taskComps(this.state.tasks, timeAsDate)}
+      </div>
+    );
+  }
+
+  generateBoxes() {
+    let arr = [];
+
+    for (
+      let i = firstDayOnCal(this.state.year, this.state.month);
+      i <= lastDayOnCal(this.state.year, this.state.month);
+      i += MS_IN_DAY
+    ) {
+      arr.push(this.CalendarBox(i));
+    }
+
+    return arr;
+  }
+
+  async fetchTasks() {
+    const start: number = firstDayOnCal(this.state.year, this.state.month);
+    const end: number = lastDayOnCal(this.state.year, this.state.month);
+
+    let params = new URLSearchParams({
+      start: String(start),
+      end: String(end),
+    });
 
     let res = await fetch("/api/calendar/tasks?" + params);
     let json = await res.json();
     let data: TaskData[] = json["taskArr" as keyof typeof json];
     // console.log(data);
-
-    this.setState((prev) => ({ ...prev, modal: <div></div> }));
     return data;
   }
 }
-
-function LoadingModal(props: {}) {
-  return (
-    <div className="modal-bg">
-      <p>Loading lol</p>
-    </div>
-  );
-}
-
-/**
- * A function component for the grid of calendar boxes.
- * @param props
- * @returns
- */
-function CalendarGrid(props: { state: CalendarState }) {
-  let arr = [];
-  for (let i = props.state.firstDay; i <= props.state.lastDay; i += MS_IN_DAY) {
-    arr.push(
-      <CalendarBox
-        key={String(i)}
-        time={i}
-        displayedMonth={props.state.month}
-        tasks={props.state.tasks}
-      />
-    );
-  }
-
-  return (
-    <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
-      {arr}
-    </div>
-  );
-}
-
-type CalendarBoxProps = {
-  time: number;
-  displayedMonth: number;
-  tasks: TaskData[];
-};
-
-/**
- * Creates a box for a given date.
- * @param date               the date which is being created
- * @param month             the current month
- * @param year              the current year
- * @param daysInThisMonth   how many days are in the current month
- * @returns                 HTML component
- */
-function CalendarBox(props: CalendarBoxProps) {
-  let keyValue = props.time;
-  let now: Date = new Date();
-  let today: number = now.getDate();
-  let nowMonth: number = now.getMonth();
-  let nowYear: number = now.getFullYear();
-  let todayCSS = "";
-
-  let timeAsDate: Date = new Date(props.time);
-  let date: number = timeAsDate.getDate();
-
-  if (timeAsDate.getMonth() !== props.displayedMonth) {
-    // previous month
-    todayCSS = "other-month";
-  } else {
-    // current month
-    todayCSS = "current-month";
-  }
-
-  if (
-    timeAsDate.getFullYear() === nowYear &&
-    timeAsDate.getMonth() === nowMonth &&
-    date === today
-  ) {
-    todayCSS += "-today";
-  }
-
-  return (
-    <div key={keyValue} className={todayCSS}>
-      <p className="inline-block px-1 mr-2 text-xl">{date}</p>
-      {getHolidays(timeAsDate)}
-      {taskComps(props.tasks, timeAsDate)}
-    </div>
-  );
-}
-
 /**
  * Gets the number of days in a month.
  * @param month the number of month as an index in an array
  * @param year
  * @returns
  */
-function daysInMonth(month: number, year: number) {
+function daysInMonth(year: number, month: number) {
   switch (month) {
     case 1:
       // leap year : not leap year
@@ -333,20 +299,6 @@ function daysInMonth(month: number, year: number) {
     default:
       return 31;
   }
-}
-
-function firstDayOnCal(year: number, month: number) {
-  let dateOfFirst: Date = new Date(year, month, 1);
-  let dayOfFirst: number = dateOfFirst.getDay(); // also doubles for how many offests are needed
-
-  return dateOfFirst.getTime() - dayOfFirst * MS_IN_DAY;
-}
-
-function lastDayOnCal(year: number, month: number) {
-  let dateOfLast: Date = new Date(year, month, daysInMonth(month, year));
-  let dayOfLast: number = dateOfLast.getDay();
-
-  return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY;
 }
 
 /**
@@ -388,4 +340,18 @@ function getMonth(month: number) {
     "December",
   ];
   return monthArr[month];
+}
+
+function firstDayOnCal(year: number, month: number) {
+  let dateOfFirst: Date = new Date(year, month, 1);
+  let dayOfFirst: number = dateOfFirst.getDay(); // also doubles for how many offests are needed
+
+  return dateOfFirst.getTime() - dayOfFirst * MS_IN_DAY;
+}
+
+function lastDayOnCal(year: number, month: number) {
+  let dateOfLast: Date = new Date(year, month, daysInMonth(year, month));
+  let dayOfLast: number = dateOfLast.getDay();
+
+  return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY + (MS_IN_DAY - 1); // ms_in_day - 1 for 11:59pm
 }
