@@ -3,9 +3,14 @@
 import React, { ReactElement } from "react";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { AddClientTask } from "./tasks/TaskForm";
-import { ErrorModal } from "../generic/modals";
+import { AddClassTask, AddClientTask } from "./tasks/TaskForm";
 import Task, { TaskData, TaskCheckbox } from "./tasks/Task";
+import {
+  firstDayOnCal,
+  getDayString,
+  getMonthString,
+  lastDayOnCal,
+} from "../generic/time/time";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -58,7 +63,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
             Previous
           </button>
           <h1 className="text-6xl flex-start">
-            {getMonth(this.state.month)} {this.state.year}
+            {getMonthString(this.state.month)} {this.state.year}
           </h1>
           <button onClick={this.NextMonth.bind(this)} className="w-24 h-12">
             Next
@@ -68,7 +73,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
           {/* Date Labels */}
           {Array.from({ length: 7 }).map((_, index) => (
             <h2 className="flex bg-red-400 justify-center py-2" key={index}>
-              {getDay(index)}
+              {getDayString(index)}
             </h2>
           ))}
         </div>
@@ -83,10 +88,6 @@ export default class Calendar extends React.Component<{}, CalendarState> {
 
   setModal(elem: React.ReactElement) {
     this.setState((prev) => ({ ...prev, modal: elem }));
-  }
-
-  clearModal() {
-    this.setModal(<div></div>);
   }
 
   ///
@@ -167,7 +168,8 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     const toggleMenu = () => {
       this.setState((prev) => ({ ...prev, actionsUp: !prev.actionsUp }));
     };
-    const setModal = (elem: ReactElement) => {
+
+    const setModal = (elem: React.ReactElement) => {
       toggleMenu();
       this.setState((prev) => ({ ...prev, modal: elem }));
     };
@@ -177,16 +179,28 @@ export default class Calendar extends React.Component<{}, CalendarState> {
         {!this.state.actionsUp ? null : (
           <div className="relative">
             <button
-              onClick={() => {
+              onClick={() =>
                 setModal(
                   <AddClientTask
-                    onClose={() => setModal(<div></div>)}
-                    onSubmit={this.createTask.bind(this)}
+                    setModal={this.setModal.bind(this)}
+                    setStateTasks={this.setStateTasks.bind(this)}
                   />
-                );
-              }}
+                )
+              }
             >
               {" Add Task "}
+            </button>
+            <button
+              onClick={() =>
+                setModal(
+                  <AddClassTask
+                    setModal={this.setModal.bind(this)}
+                    setStateTasks={this.setStateTasks.bind(this)}
+                  />
+                )
+              }
+            >
+              Add Class Task
             </button>
           </div>
         )}
@@ -244,7 +258,6 @@ export default class Calendar extends React.Component<{}, CalendarState> {
           key={task.id}
           data={task}
           setModal={this.setModal.bind(this)}
-          clearModal={this.clearModal.bind(this)}
           setStateTasks={this.setStateTasks.bind(this)}
         />
       );
@@ -268,7 +281,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
   }
 
   async setStateTasks() {
-    // Fetches Tasks
+    /* Fetches Tasks */
     const start: number = firstDayOnCal(this.state.year, this.state.month);
     const end: number = lastDayOnCal(this.state.year, this.state.month);
 
@@ -282,116 +295,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     let data: TaskData[] = json["taskArr" as keyof typeof json];
     // console.log(data);
 
-    // Update Tasks
+    /* Updates Tasks */
     this.setState((prev) => ({ ...prev, tasks: data }));
   }
-
-  async createTask(
-    name: string,
-    description: string,
-    dueDate: Date,
-    checkboxes: TaskCheckbox[]
-  ) {
-    let res = await fetch("/api/calendar/tasks", {
-      method: "POST",
-      body: JSON.stringify({
-        id: "",
-        name: name,
-        description: description,
-        dueDate: dueDate,
-        checkboxes: checkboxes,
-      }),
-    });
-
-    if (res.status == 200) {
-      // successful create
-      this.setStateTasks();
-    } else {
-      this.setModal(
-        <ErrorModal
-          header={"Error " + res.status}
-          body={'There was an issue with creating "' + name + '".'}
-          onClose={this.clearModal.bind(this)}
-        />
-      );
-    }
-  }
-}
-/**
- * Gets the number of days in a month.
- * @param month the number of month as an index in an array
- * @param year
- * @returns
- */
-function daysInMonth(year: number, month: number) {
-  switch (month) {
-    case 1:
-      // leap year : not leap year
-      return year % 4 == 0 ? 29 : 28;
-    case 3:
-      return 30;
-    case 5:
-      return 30;
-    case 8:
-      return 30;
-    case 10:
-      return 30;
-    default:
-      return 31;
-  }
-}
-
-/**
- *
- * @param index
- * @returns       The day as a string
- */
-function getDay(index: number) {
-  let dayArray = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  return dayArray[index];
-}
-
-/**
- *
- * @param month
- * @returns       The month as a string
- */
-function getMonth(month: number) {
-  let monthArr = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return monthArr[month];
-}
-
-function firstDayOnCal(year: number, month: number) {
-  let dateOfFirst: Date = new Date(year, month, 1);
-  let dayOfFirst: number = dateOfFirst.getDay(); // also doubles for how many offests are needed
-
-  return dateOfFirst.getTime() - dayOfFirst * MS_IN_DAY;
-}
-
-function lastDayOnCal(year: number, month: number) {
-  let dateOfLast: Date = new Date(year, month, daysInMonth(year, month));
-  let dayOfLast: number = dateOfLast.getDay();
-
-  return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY + (MS_IN_DAY - 1); // ms_in_day - 1 for 11:59pm
 }

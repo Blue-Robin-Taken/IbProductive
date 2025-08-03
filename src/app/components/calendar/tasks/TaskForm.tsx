@@ -1,13 +1,9 @@
-import { deleteClientTask } from "@/db/tasks/client_task";
 import "../calendar.css";
 import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
 import { useEffect, useState } from "react";
-import {
-  ClassData,
-  createTaskForClass,
-  getAllClasses,
-} from "@/db/classes/class";
+import { ClassData } from "@/db/classes/class";
+import { ConfirmModal, ErrorModal } from "../../generic/modals";
 
 export type TaskFormEditable = {
   nameEditable: boolean;
@@ -20,7 +16,7 @@ type TaskFormProps = {
   data: TaskData;
   type: TaskFormType;
   onClose: Function;
-  onSubmit: Function; // name, desc, dueDate, checklists
+  onSubmit: Function; // name, desc, dueDate, checklists, classId (sometimes)
   onDelete: Function;
 };
 
@@ -37,27 +33,8 @@ export default function TaskForm(props: TaskFormProps) {
     props.onClose();
   };
   const submit = () => {
-    if (isAdminType(props.type) && classId == "none") {
-    } else {
-      props.onSubmit(
-        name,
-        desc,
-        props.data.dueDate,
-        checkboxes,
-        Number(classId)
-      );
-      close();
-    }
-    // if (props.type == TaskFormType.ADMIN_CREATE && classId !== "none") {
-    //   createTaskForClass(
-    //     Number.parseInt(classId),
-    //     name,
-    //     desc,
-    //     props.data.dueDate,
-    //     checkboxes
-    //   );
-    // } else {
-    // }
+    props.onSubmit(name, desc, props.data.dueDate, checkboxes, Number(classId));
+    close();
   };
 
   const [name, setName] = useState<string>(props.data.name);
@@ -75,8 +52,8 @@ export default function TaskForm(props: TaskFormProps) {
         .then((res) => {
           return res.json();
         })
-        .then((val) => {
-          let arr: ClassData[] = val.arr;
+        .then((resJson) => {
+          let arr: ClassData[] = resJson.arr;
           setClasses(
             arr.map((i: ClassData) => {
               return (
@@ -275,9 +252,44 @@ function isAdminType(type: TaskFormType): boolean {
 }
 
 export function AddClientTask(props: {
-  onClose: Function;
-  onSubmit: Function;
+  setModal: Function;
+  setStateTasks: Function;
 }) {
+  const submit = async (
+    name: string,
+    desc: string,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[]
+  ) => {
+    /* Create the task */
+    let res = await fetch("/api/calendar/tasks", {
+      method: "POST",
+      body: JSON.stringify({
+        id: "",
+        name: name,
+        description: desc,
+        dueDate: dueDate,
+        checkboxes: checkboxes,
+      }),
+    });
+
+    /* Response Handling */
+    if (res.status == 200) {
+      // successful create
+      props.setStateTasks();
+    } else {
+      props.setModal(
+        <ErrorModal
+          header={"Error " + res.status}
+          body={'There was an issue with creating "' + name + '".'}
+          onClose={() => {
+            props.setModal(<div></div>);
+          }}
+        />
+      );
+    }
+  };
+
   return (
     <TaskForm
       data={{
@@ -294,14 +306,71 @@ export function AddClientTask(props: {
         },
       }}
       type={TaskFormType.CLIENT_CREATE}
-      onClose={props.onClose}
-      onSubmit={props.onSubmit}
+      onClose={() => props.setModal(<div></div>)}
+      onSubmit={submit}
       onDelete={() => {}}
     />
   );
 }
 
-export function AddClassTask(props: { onClose: Function; onSubmit: Function }) {
+export function AddClassTask(props: {
+  setModal: Function;
+  setStateTasks: Function;
+}) {
+  const confirm = async (
+    name: string,
+    desc: string,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[],
+    classId: number
+  ) => {
+    let res = await fetch("/api/classes/tasks", {
+      method: "POST",
+      body: JSON.stringify({
+        classId: classId,
+        name: name,
+        description: desc,
+        dueDate: dueDate,
+        checkboxes: checkboxes,
+      }),
+    });
+
+    if (res.status == 200) {
+      props.setModal(<div></div>);
+      props.setStateTasks();
+    } else {
+      props.setModal(
+        <ErrorModal
+          header={"Error " + res.status}
+          body={
+            'There was a problem with creating "' + name + '" for the class.'
+          }
+          onClose={() => props.setModal(<div></div>)}
+        />
+      );
+    }
+  };
+
+  const submit = (
+    name: string,
+    desc: string,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[],
+    classId: number
+  ) => {
+    confirm(name, desc, dueDate, checkboxes, classId);
+    // props.setModal(
+    //   <ConfirmModal
+    //     body={
+    //       "You are about to create a task for a class, meaning that this task will also be created for users.  Do you wish to continue?"
+    //     }
+    //     onConfirm={() => confirm(name, desc, dueDate, checkboxes, classId)}
+    //     onCancel={() => {}}
+    //     onClose={() => props.setModal(<div></div>)}
+    //   />
+    // );
+  };
+
   return (
     <TaskForm
       data={{
@@ -311,15 +380,15 @@ export function AddClassTask(props: { onClose: Function; onSubmit: Function }) {
         description: "",
         checkboxes: [],
         editables: {
-          nameEditable: false,
-          descEditable: false,
-          dueEditable: false,
+          nameEditable: true,
+          descEditable: true,
+          dueEditable: true,
           deletable: false,
         },
       }}
       type={TaskFormType.ADMIN_CREATE}
-      onClose={props.onClose}
-      onSubmit={props.onSubmit}
+      onClose={() => props.setModal(<div></div>)}
+      onSubmit={submit}
       onDelete={() => {}}
     />
   );

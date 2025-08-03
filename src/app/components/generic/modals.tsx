@@ -42,8 +42,11 @@ export function ConfirmModal(props: {
   return (
     <div
       onKeyDown={(e) => {
-        e.preventDefault();
-        if (e.key == "enter" || e.key == "escape") {
+        if (e.key == "enter") {
+          e.preventDefault();
+          confirm();
+        } else if (e.key == "escape") {
+          e.preventDefault();
           deny();
         }
       }}

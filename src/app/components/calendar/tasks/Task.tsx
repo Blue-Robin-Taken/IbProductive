@@ -25,7 +25,6 @@ export type TaskState = {
 type TaskProps = {
   data: TaskData;
   setModal: Function;
-  clearModal: Function;
   setStateTasks: Function;
 };
 
@@ -70,7 +69,7 @@ export default class Task extends React.Component<TaskProps, TaskState> {
             body={
               'There was an issue with editing "' + this.state.data.name + '".'
             }
-            onClose={this.props.clearModal.bind(this)}
+            onClose={() => this.props.setModal(<div></div>)}
           />
         );
       }
@@ -87,7 +86,7 @@ export default class Task extends React.Component<TaskProps, TaskState> {
               <TaskForm
                 data={this.state.data}
                 type={TaskFormType.CLIENT_EDIT}
-                onClose={this.props.clearModal}
+                onClose={() => this.props.setModal(<div></div>)}
                 onSubmit={this.setStateData.bind(this)}
                 onDelete={async () => {
                   let res = await fetch("/api/calendar/tasks", {
@@ -95,7 +94,7 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                     body: JSON.stringify({ id: this.state.data.id }),
                   });
 
-                  this.props.clearModal();
+                  this.props.setModal(<div></div>);
                   if (res.status == 200) {
                     this.props.setStateTasks();
                   } else {
@@ -107,7 +106,7 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                           this.state.data.name +
                           '".'
                         }
-                        onClose={this.props.clearModal.bind(this)}
+                        onClose={() => this.props.setModal(<div></div>)}
                       />
                     );
                   }

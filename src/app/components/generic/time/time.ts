@@ -1,5 +1,10 @@
 export const MS_IN_DAY: number = 86400000;
 
+/**
+ *
+ * @param month
+ * @returns       The month as a string
+ */
 export function getMonthString(month: number) {
   const monthArr = [
     "January",
@@ -36,7 +41,13 @@ export function getDayString(index: number) {
   return dayArray[index];
 }
 
-export function daysInMonth(month: number, year: number) {
+/**
+ * Gets the number of days in a month.
+ * @param year
+ * @param month the number of month as an index in an array
+ * @returns
+ */
+export function daysInMonth(year: number, month: number) {
   switch (month) {
     case 1:
       // leap year : not leap year
@@ -62,7 +73,7 @@ export function firstDayOnCal(year: number, month: number) {
 }
 
 export function lastDayOnCal(year: number, month: number) {
-  let dateOfLast: Date = new Date(year, month, daysInMonth(month, year));
+  let dateOfLast: Date = new Date(year, month, daysInMonth(year, month));
   let dayOfLast: number = dateOfLast.getDay();
 
   return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY;
