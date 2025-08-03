@@ -22,7 +22,7 @@ export default function RootLayout({
           <div className="space-x-8">
             <Link href="/">Home</Link>
             <Link href="/about">About</Link>
-            <Link href="/components/calendar">Scheduler</Link>
+            <Link href="/workspace">Workspace</Link>
           </div>
           <div className="ml-auto space-x-8 text-green-500">
             <Link className="" href="/sign_in">
