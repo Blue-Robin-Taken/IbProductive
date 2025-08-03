@@ -24,11 +24,14 @@ export default function RootLayout({
             <Link href="/about">About</Link>
             <Link href="/workspace">Workspace</Link>
           </div>
-          <div className="ml-auto space-x-8 text-green-500">
-            <Link className="" href="/sign_in">
-              Sign In
-            </Link>
-            <Link href="/sign_up">Sign Up</Link>
+          <div className="ml-auto flex flex-row space-x-8">
+            <Link href="/settings">Settings</Link>
+            <div className="space-x-8 text-green-500">
+              <Link className="" href="/sign_in">
+                Sign In
+              </Link>
+              <Link href="/sign_up">Sign Up</Link>
+            </div>
           </div>
         </div>
         <div className="m-10">{children}</div>

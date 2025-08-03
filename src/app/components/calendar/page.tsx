@@ -157,7 +157,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     }
 
     this.setState((prev) => ({
-      ...prev,
+      ...prev, 
       month: newMonth,
       year: newYear,
     }));

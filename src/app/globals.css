@@ -22,13 +22,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-button {
-  background-color: limegreen;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
 @layer utilities {
   /* Raw families */
   .font-inter {

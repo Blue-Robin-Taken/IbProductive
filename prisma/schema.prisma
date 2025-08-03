@@ -9,6 +9,29 @@ datasource db {
 }
 
 model User {
+<<<<<<< HEAD
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  passHash    String
+  username    String       @unique
+  isAdmin     Boolean      @default(false)
+  clientTasks ClientTask[]
+}
+
+model ClientTask {
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  labels       String[]
+  bools        Boolean[]
+  username     String
+  date         DateTime  @default(now())
+  dateEditable Boolean   @default(true)
+  descEditable Boolean   @default(true)
+  isDeletable  Boolean   @default(true)
+  nameEditable Boolean   @default(true)
+  user         User      @relation(fields: [username], references: [username])
+=======
   id       Int     @id @default(autoincrement())
   email    String  @unique
   passHash String
@@ -53,6 +76,7 @@ model ClientTask {
   descEditable Boolean
   dateEditable Boolean
   isDeletable  Boolean
+>>>>>>> eda3f16a9ed6a0f23328744184242f37e958f468
 }
 
 model VerificationToken {
