@@ -27,7 +27,7 @@ export default function SignIn() {
     const requestText = await req.text();
 
     if (requestText == 'login happy') {
-      router.push('/components/calendar');
+      router.push('/workspace');
     }
 
     setFormValid(requestText);
