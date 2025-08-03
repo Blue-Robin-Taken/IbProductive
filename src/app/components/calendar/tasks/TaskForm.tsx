@@ -2,7 +2,12 @@ import { deleteClientTask } from "@/db/tasks/client_task";
 import "../calendar.css";
 import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  ClassData,
+  createTaskForClass,
+  getAllClasses,
+} from "@/db/classes/class";
 
 export type TaskFormEditable = {
   nameEditable: boolean;
@@ -13,6 +18,7 @@ export type TaskFormEditable = {
 
 type TaskFormProps = {
   data: TaskData;
+  isCreating: boolean;
   onClose: Function;
   onSubmit: Function; // name, desc, dueDate, checklists
   onDelete: Function;
@@ -23,7 +29,17 @@ export default function TaskForm(props: TaskFormProps) {
     props.onClose();
   };
   const submit = () => {
-    props.onSubmit(name, desc, props.data.dueDate, checkboxes);
+    if (props.isCreating && classId !== "none") {
+      createTaskForClass(
+        Number.parseInt(classId),
+        name,
+        desc,
+        props.data.dueDate,
+        checkboxes
+      );
+    } else {
+      props.onSubmit(name, desc, props.data.dueDate, checkboxes);
+    }
     close();
   };
 
@@ -32,6 +48,31 @@ export default function TaskForm(props: TaskFormProps) {
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
   );
+  const [classId, setClassId] = useState<string>("none");
+  const [classes, setClasses] = useState<React.ReactElement[]>();
+
+  useEffect(() => {
+    let params = new URLSearchParams({ name: "all" });
+    fetch("/api/classes?" + params)
+      .then((res) => {
+        return res.json();
+      })
+      .then((val) => {
+        let arr: ClassData[] = val.arr;
+        setClasses(
+          arr.map((i: ClassData) => {
+            return (
+              <option key={i.id} value={i.id}>
+                {i.name}
+              </option>
+            );
+          })
+        );
+      });
+
+    return () => {};
+  }, []);
+
   let nextId: number =
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1;
 
@@ -81,6 +122,23 @@ export default function TaskForm(props: TaskFormProps) {
           </button>
         </div>
         <div className="grid grid-cols-[10%_auto] gap-y-5">
+          {/* Class */}
+          {props.isCreating ? (
+            <label className="task-form-label">Class:</label>
+          ) : null}
+          {props.isCreating ? (
+            <select
+              defaultValue={"none"}
+              onChange={(e) => {
+                e.preventDefault();
+                setClassId(e.currentTarget.value);
+              }}
+            >
+              <option value="none">None</option>
+              {classes}
+            </select>
+          ) : null}
+
           {/* Description */}
           <label className="task-form-label">Description:</label>
           {props.data.editables.descEditable ? (
@@ -152,21 +210,37 @@ export default function TaskForm(props: TaskFormProps) {
           </div>
 
           {/* Deletable */}
-          {props.data.editables.deletable ? (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                props.onDelete();
-              }}
-            >
-              Delete Task
-            </button>
-          ) : (
-            <p>This task cannot be edited.</p>
+          {deleteComponent(
+            props.isCreating,
+            props.data.editables.deletable,
+            props.onDelete
           )}
           <input type="submit" value="submit" />
         </div>
       </form>
     </div>
   );
+}
+
+function deleteComponent(
+  isCreating: boolean,
+  isDeletable: boolean,
+  onDelete: Function
+) {
+  if (isCreating) {
+    return null;
+  } else if (isDeletable) {
+    return (
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          onDelete();
+        }}
+      >
+        Delete Task
+      </button>
+    );
+  } else {
+    return <p>This task is not deletable.</p>;
+  }
 }

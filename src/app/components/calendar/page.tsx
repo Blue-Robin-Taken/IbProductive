@@ -190,6 +190,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
             deletable: false,
           },
         }}
+        isCreating={true}
         onClose={clearModal}
         onSubmit={this.createTask.bind(this)}
         onDelete={() => {}}

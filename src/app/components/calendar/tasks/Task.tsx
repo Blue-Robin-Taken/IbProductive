@@ -86,6 +86,7 @@ export default class Task extends React.Component<TaskProps, TaskState> {
             this.props.setModal(
               <TaskForm
                 data={this.state.data}
+                isCreating={false}
                 onClose={this.props.clearModal}
                 onSubmit={this.setStateData.bind(this)}
                 onDelete={async () => {
@@ -160,5 +161,3 @@ export default class Task extends React.Component<TaskProps, TaskState> {
     }));
   }
 }
-
-// move this component to the page.tsx

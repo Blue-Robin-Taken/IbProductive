@@ -1,4 +1,4 @@
-import { TaskData } from "@/app/components/calendar/tasks/Task";
+import { TaskCheckbox, TaskData } from "@/app/components/calendar/tasks/Task";
 import prisma from "..";
 
 export type ClassData = {
@@ -11,21 +11,11 @@ export type UserData = {
   id: number;
 };
 
-export async function getAllClasses() {
+export async function getAllClasses(): Promise<ClassData[]> {
   const classes = await prisma.class.findMany();
-
-  let arr = [];
-
-  for (const i of classes) {
-    let classData: ClassData = {
-      name: i.name,
-      id: i.id,
-    };
-
-    arr.push(classData);
-  }
-
-  return arr;
+  return classes.map((i) => {
+    return { name: i.name, id: i.id };
+  });
 }
 
 /**
@@ -51,23 +41,29 @@ export async function getUsersInClass(id: number) {
   return arr;
 }
 
-export async function createTaskForClass(classId: number, taskData: TaskData) {
+export async function createTaskForClass(
+  classId: number,
+  name: string,
+  desc: string,
+  dueDate: Date,
+  checkboxes: TaskCheckbox[]
+) {
   let users: UserData[] = await getUsersInClass(classId);
 
-  let labels: string[] = taskData.checkboxes.map((i) => {
+  let labels: string[] = checkboxes.map((i) => {
     return i.label;
   });
 
-  let bools: boolean[] = taskData.checkboxes.map((i) => {
+  let bools: boolean[] = checkboxes.map((i) => {
     return i.bool;
   });
 
   let data = users.map((i) => {
     return {
       username: i.name,
-      name: taskData.name,
-      description: taskData.description,
-      date: taskData.dueDate,
+      name,
+      description: desc,
+      date: dueDate,
       labels,
       bools,
       nameEditable: false,
