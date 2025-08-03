@@ -56,12 +56,12 @@ interface PostRequest {
 }
 
 export async function POST(request: Request) {
-  const json: PostRequest = await request.json();
+  const jsonReq: PostRequest = await request.json();
 
   let labels: string[] = [];
   let bools: boolean[] = [];
 
-  for (const checkbox of json.checkboxes) {
+  for (const checkbox of jsonReq.checkboxes) {
     labels.push(checkbox.label);
     bools.push(checkbox.bool);
   }
@@ -70,12 +70,12 @@ export async function POST(request: Request) {
   const tokenCookie = cookieStore.get("token")?.value;
   const username = await getUsername(String(tokenCookie));
 
-  if (json.id === "") {
+  if (jsonReq.id === "") {
     await addClientTask(
       username,
-      json.name,
-      json.description,
-      new Date(json.dueDate),
+      jsonReq.name,
+      jsonReq.description,
+      new Date(jsonReq.dueDate),
       labels,
       bools
     );
@@ -83,10 +83,10 @@ export async function POST(request: Request) {
   } else {
     await editClientTask(
       username,
-      json.id,
-      json.name,
-      json.description,
-      new Date(json.dueDate),
+      jsonReq.id,
+      jsonReq.name,
+      jsonReq.description,
+      new Date(jsonReq.dueDate),
       labels,
       bools
     );
@@ -99,11 +99,12 @@ interface DeleteRequest {
 }
 
 export async function DELETE(request: Request) {
-  const json: DeleteRequest = await request.json();
+  const jsonReq: DeleteRequest = await request.json();
 
   const cookieStore = await cookies();
   const tokenCookie = cookieStore.get("token")?.value;
   const username = await getUsername(String(tokenCookie));
 
-  await deleteClientTask(username, json.id);
+  await deleteClientTask(username, jsonReq.id);
+  return new Response();
 }

@@ -15,6 +15,7 @@ type TaskFormProps = {
   data: TaskData;
   onClose: Function;
   onSubmit: Function; // name, desc, dueDate, checklists
+  onDelete: Function;
 };
 
 export default function TaskForm(props: TaskFormProps) {
@@ -23,13 +24,6 @@ export default function TaskForm(props: TaskFormProps) {
   };
   const submit = () => {
     props.onSubmit(name, desc, props.data.dueDate, checkboxes);
-    close();
-  };
-  const del = async () => {
-    await fetch("/api/calendar/tasks", {
-      method: "DELETE",
-      body: JSON.stringify({ id: props.data.id }),
-    });
     close();
   };
 
@@ -51,6 +45,9 @@ export default function TaskForm(props: TaskFormProps) {
           if (e.key === "escape") {
             e.preventDefault();
             close();
+          } else if (e.key === "enter") {
+            e.preventDefault();
+            submit();
           }
         }}
       >
@@ -159,7 +156,7 @@ export default function TaskForm(props: TaskFormProps) {
             <button
               onClick={(e) => {
                 e.preventDefault();
-                del();
+                props.onDelete();
               }}
             >
               Delete Task
