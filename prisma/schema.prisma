@@ -9,30 +9,50 @@ datasource db {
 }
 
 model User {
-  id          Int     @id @default(autoincrement())
-  email       String  @unique
-  passHash    String
-  username    String  @unique
-  isAdmin     Boolean @default(false)
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  passHash String
+  username String  @unique
+  isAdmin  Boolean @default(false)
 
-  clientTasks ClientTask[]
+  clientTasks  ClientTask[]
+  UsersInClass UsersInClass[]
+
+  @@unique([id, username])
+}
+
+model Class {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  UsersInClass UsersInClass[]
+}
+
+model UsersInClass {
+  class    Class  @relation(fields: [classId], references: [id])
+  classId  Int
+  user     User   @relation(fields: [userId, username], references: [id, username])
+  userId   Int
+  username String
+
+  @@id([classId, userId])
 }
 
 model ClientTask {
-  user          User      @relation(fields: [username], references: [username])
-  username      String
+  user     User   @relation(fields: [username], references: [username])
+  username String
 
-  id            String    @id @default(cuid())
-  name          String
-  description   String?
-  date          DateTime  @default(now())
-  labels        String[]
-  bools         Boolean[]
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  date        DateTime
+  labels      String[]
+  bools       Boolean[]
 
-  nameEditable  Boolean   @default(true)
-  descEditable  Boolean   @default(true)
-  dateEditable  Boolean   @default(true)
-  isDeletable   Boolean   @default(true)
+  nameEditable Boolean
+  descEditable Boolean
+  dateEditable Boolean
+  isDeletable  Boolean
 }
 
 model VerificationToken {
