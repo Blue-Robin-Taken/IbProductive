@@ -9,12 +9,11 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  passHash String
-  username String  @unique
-  isAdmin  Boolean @default(false)
-
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  passHash     String
+  username     String         @unique
+  isAdmin      Boolean        @default(false)
   clientTasks  ClientTask[]
   UsersInClass UsersInClass[]
 
@@ -22,37 +21,37 @@ model User {
 }
 
 model Class {
-  id   Int    @id @default(autoincrement())
-  name String
-
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  ClientTask   ClientTask[]
   UsersInClass UsersInClass[]
 }
 
 model UsersInClass {
-  class    Class  @relation(fields: [classId], references: [id])
   classId  Int
-  user     User   @relation(fields: [userId, username], references: [id, username])
   userId   Int
   username String
+  class    Class  @relation(fields: [classId], references: [id])
+  user     User   @relation(fields: [userId, username], references: [id, username])
 
   @@id([classId, userId])
 }
 
 model ClientTask {
-  user     User   @relation(fields: [username], references: [username])
-  username String
-
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  date        DateTime
-  labels      String[]
-  bools       Boolean[]
-
+  username     String
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  date         DateTime
+  labels       String[]
+  bools        Boolean[]
   nameEditable Boolean
   descEditable Boolean
   dateEditable Boolean
   isDeletable  Boolean
+  classId      Int?
+  Class        Class?    @relation(fields: [classId], references: [id])
+  user         User      @relation(fields: [username], references: [username])
 }
 
 model VerificationToken {
