@@ -56,12 +56,12 @@ interface PostRequest {
 }
 
 export async function POST(request: Request) {
-  const jsonReq: PostRequest = await request.json();
+  const reqJson: PostRequest = await request.json();
 
   let labels: string[] = [];
   let bools: boolean[] = [];
 
-  for (const checkbox of jsonReq.checkboxes) {
+  for (const checkbox of reqJson.checkboxes) {
     labels.push(checkbox.label);
     bools.push(checkbox.bool);
   }
@@ -70,12 +70,12 @@ export async function POST(request: Request) {
   const tokenCookie = cookieStore.get("token")?.value;
   const username = await getUsername(String(tokenCookie));
 
-  if (jsonReq.id === "") {
+  if (reqJson.id === "") {
     await addClientTask(
       username,
-      jsonReq.name,
-      jsonReq.description,
-      new Date(jsonReq.dueDate),
+      reqJson.name,
+      reqJson.description,
+      new Date(reqJson.dueDate),
       labels,
       bools
     );
@@ -83,10 +83,10 @@ export async function POST(request: Request) {
   } else {
     await editClientTask(
       username,
-      jsonReq.id,
-      jsonReq.name,
-      jsonReq.description,
-      new Date(jsonReq.dueDate),
+      reqJson.id,
+      reqJson.name,
+      reqJson.description,
+      new Date(reqJson.dueDate),
       labels,
       bools
     );

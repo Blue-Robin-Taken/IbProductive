@@ -87,6 +87,7 @@ export async function getTasksFromPrisma(
         dueEditable: i.dateEditable,
         deletable: i.isDeletable,
       },
+      classId: i.classId,
     };
 
     dataPlural.push(taskData);

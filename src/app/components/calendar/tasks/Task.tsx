@@ -15,10 +15,10 @@ export type TaskData = {
   description: string;
   checkboxes: TaskCheckbox[];
   editables: TaskFormEditable;
+  classId: number | null;
 };
 
 export type TaskState = {
-  isOpen: boolean;
   data: TaskData;
 };
 
@@ -36,7 +36,6 @@ export default class Task extends React.Component<TaskProps, TaskState> {
     let dueDate: Date = new Date(props.data.dueDate);
 
     this.state = {
-      isOpen: false,
       data: {
         ...props.data,
         dueDate: dueDate,
@@ -49,13 +48,18 @@ export default class Task extends React.Component<TaskProps, TaskState> {
     prevState: Readonly<TaskState>,
     snapshot?: any
   ) {
-    if (prevState.data != this.state.data) {
-      /* Edits the data on the db */
-      let res = await fetch("/api/calendar/tasks", {
+    const classTaskChange: boolean =
+      prevState.data.name != this.state.data.name ||
+      prevState.data.description != this.state.data.description ||
+      prevState.data.dueDate != this.state.data.dueDate;
+
+    if (this.props.data.classId != null && classTaskChange) {
+      let res = await fetch("/api/classes/tasks", {
         method: "POST",
         body: JSON.stringify({
-          id: this.state.data.id,
-          name: this.state.data.name,
+          taskId: this.state.data.id,
+          oldName: prevState.data.name,
+          newName: this.state.data.name,
           description: this.state.data.description,
           dueDate: this.state.data.dueDate,
           checkboxes: this.state.data.checkboxes,
@@ -67,12 +71,21 @@ export default class Task extends React.Component<TaskProps, TaskState> {
           <ErrorModal
             header={"Error " + res.status}
             body={
-              'There was an issue with editing "' + this.state.data.name + '".'
+              'There was an issue with editing "' +
+              this.state.data.name +
+              '" for the class.'
             }
             onClose={() => this.props.setModal(<div></div>)}
           />
         );
       }
+
+      if (prevState.data.checkboxes != this.state.data.checkboxes) {
+        this.updateClientTask();
+      }
+    } else if (prevState.data != this.state.data) {
+      /* Edits the data on the db */
+      this.updateClientTask();
     }
   }
 
@@ -85,14 +98,27 @@ export default class Task extends React.Component<TaskProps, TaskState> {
             this.props.setModal(
               <TaskForm
                 data={this.state.data}
-                type={TaskFormType.CLIENT_EDIT}
+                type={
+                  this.props.data.classId != null
+                    ? TaskFormType.ADMIN_EDIT
+                    : TaskFormType.CLIENT_EDIT
+                }
                 onClose={() => this.props.setModal(<div></div>)}
                 onSubmit={this.setStateData.bind(this)}
                 onDelete={async () => {
-                  let res = await fetch("/api/calendar/tasks", {
-                    method: "DELETE",
-                    body: JSON.stringify({ id: this.state.data.id }),
-                  });
+                  let res =
+                    this.state.data.classId == null
+                      ? await fetch("/api/calendar/tasks", {
+                          method: "DELETE",
+                          body: JSON.stringify({ id: this.state.data.id }),
+                        })
+                      : await fetch("/api/classes/tasks", {
+                          method: "DELETE",
+                          body: JSON.stringify({
+                            classId: this.state.data.classId,
+                            taskName: this.state.data.name,
+                          }),
+                        });
 
                   this.props.setModal(<div></div>);
                   if (res.status == 200) {
@@ -158,5 +184,30 @@ export default class Task extends React.Component<TaskProps, TaskState> {
         checkboxes: checkboxes,
       },
     }));
+  }
+
+  async updateClientTask() {
+    let res = await fetch("/api/calendar/tasks", {
+      method: "POST",
+      body: JSON.stringify({
+        id: this.state.data.id,
+        name: this.state.data.name,
+        description: this.state.data.description,
+        dueDate: this.state.data.dueDate,
+        checkboxes: this.state.data.checkboxes,
+      }),
+    });
+
+    if (res.status != 200) {
+      this.props.setModal(
+        <ErrorModal
+          header={"Error " + res.status}
+          body={
+            'There was an issue with editing "' + this.state.data.name + '".'
+          }
+          onClose={() => this.props.setModal(<div></div>)}
+        />
+      );
+    }
   }
 }

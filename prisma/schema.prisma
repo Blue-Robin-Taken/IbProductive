@@ -23,9 +23,10 @@ model User {
 
 model Class {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @unique
 
   UsersInClass UsersInClass[]
+  tasks ClientTask[]
 }
 
 model UsersInClass {
@@ -53,6 +54,9 @@ model ClientTask {
   descEditable Boolean
   dateEditable Boolean
   isDeletable  Boolean
+
+  class     Class?   @relation(fields:[classId], references: [id])
+  classId   Int?
 }
 
 model VerificationToken {

@@ -16,7 +16,7 @@ type TaskFormProps = {
   data: TaskData;
   type: TaskFormType;
   onClose: Function;
-  onSubmit: Function; // name, desc, dueDate, checklists, classId (sometimes)
+  onSubmit: Function; // name, desc, dueDate, checklists, classId (sometimes), oldName (sometimes)
   onDelete: Function;
 };
 
@@ -33,10 +33,18 @@ export default function TaskForm(props: TaskFormProps) {
     props.onClose();
   };
   const submit = () => {
-    props.onSubmit(name, desc, props.data.dueDate, checkboxes, Number(classId));
+    props.onSubmit(
+      name,
+      desc,
+      props.data.dueDate,
+      checkboxes,
+      Number(classId),
+      props.data.name
+    );
     close();
   };
 
+  const isAdminType: boolean = checkIfAdminType(props.type);
   const [name, setName] = useState<string>(props.data.name);
   const [desc, setDesc] = useState<string>(props.data.description);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
@@ -46,7 +54,7 @@ export default function TaskForm(props: TaskFormProps) {
   const [classes, setClasses] = useState<React.ReactElement[]>();
 
   useEffect(() => {
-    if (isAdminType(props.type)) {
+    if (isAdminType) {
       let params = new URLSearchParams({ name: "all" });
       fetch("/api/classes?" + params)
         .then((res) => {
@@ -89,7 +97,7 @@ export default function TaskForm(props: TaskFormProps) {
         }}
       >
         <div className="modal-header">
-          {props.data.editables.nameEditable ? (
+          {isAdminType || props.data.editables.nameEditable ? (
             <input
               className="task-input"
               type="text"
@@ -119,10 +127,10 @@ export default function TaskForm(props: TaskFormProps) {
         </div>
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Class */}
-          {isAdminType(props.type) ? (
+          {isAdminType ? (
             <label className="task-form-label">Class:</label>
           ) : null}
-          {isAdminType(props.type) ? (
+          {isAdminType ? (
             <select
               defaultValue={"none"}
               onChange={(e) => {
@@ -137,7 +145,7 @@ export default function TaskForm(props: TaskFormProps) {
 
           {/* Description */}
           <label className="task-form-label">Description:</label>
-          {props.data.editables.descEditable ? (
+          {isAdminType || props.data.editables.descEditable ? (
             <input
               className="task-input"
               type="text"
@@ -207,6 +215,7 @@ export default function TaskForm(props: TaskFormProps) {
 
           {/* Deletable */}
           {deleteComponent(
+            isAdminType,
             props.type,
             props.data.editables.deletable,
             props.onDelete
@@ -219,13 +228,14 @@ export default function TaskForm(props: TaskFormProps) {
 }
 
 function deleteComponent(
+  isAdminType: boolean,
   type: TaskFormType,
   isDeletable: boolean,
   onDelete: Function
 ) {
   if (isCreatingType(type)) {
     return null;
-  } else if (isDeletable) {
+  } else if (isAdminType || isDeletable) {
     return (
       <button
         onClick={(e) => {
@@ -247,7 +257,7 @@ function isCreatingType(type: TaskFormType): boolean {
   );
 }
 
-function isAdminType(type: TaskFormType): boolean {
+function checkIfAdminType(type: TaskFormType): boolean {
   return type == TaskFormType.ADMIN_CREATE || type == TaskFormType.ADMIN_EDIT;
 }
 
@@ -304,6 +314,7 @@ export function AddClientTask(props: {
           dueEditable: true,
           deletable: false,
         },
+        classId: null,
       }}
       type={TaskFormType.CLIENT_CREATE}
       onClose={() => props.setModal(<div></div>)}
@@ -324,11 +335,14 @@ export function AddClassTask(props: {
     checkboxes: TaskCheckbox[],
     classId: number
   ) => {
+    console.log(name);
     let res = await fetch("/api/classes/tasks", {
       method: "POST",
       body: JSON.stringify({
+        taskId: "",
         classId: classId,
-        name: name,
+        oldName: "",
+        newName: name,
         description: desc,
         dueDate: dueDate,
         checkboxes: checkboxes,
@@ -385,6 +399,7 @@ export function AddClassTask(props: {
           dueEditable: true,
           deletable: false,
         },
+        classId: null,
       }}
       type={TaskFormType.ADMIN_CREATE}
       onClose={() => props.setModal(<div></div>)}
