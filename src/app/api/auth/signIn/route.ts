@@ -3,6 +3,7 @@ import checkLogin from '@/db/authentication/signIn';
 import * as jose from 'jose';
 import { createSecretKey } from 'crypto';
 import { cookies } from 'next/headers';
+import { checkDatabaseIsAdmin } from '@/db/authentication/jwtAuth';
 
 interface responseType {
   username: string;
@@ -27,7 +28,10 @@ export async function POST(request: Request) {
     }
     const JWT_SECRET: string = process.env['JWT_SECRET'];
 
-    const jwt_key = await new jose.SignJWT({ username: username })
+    const jwt_key = await new jose.SignJWT({
+      username: username,
+      isAdmin: await checkDatabaseIsAdmin(username),
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .sign(createSecretKey(JWT_SECRET, 'utf-8')); // createSecretKey is for https://stackoverflow.com/a/74704299/15982771
     cookieStore.set({

@@ -7,7 +7,7 @@ export default function Pomodoro() {
   const [duration, setDuration] = useState(0);
   const [reset, setReset] = useState(0);
 
-  const [currentCycle, setCurrentCycle] = useState<string>('Break Time');
+  const [currentCycle, setCurrentCycle] = useState<string>('Work Time');
 
   const [colorsTime, setColorsTime] = useState<number[]>();
 
@@ -111,98 +111,96 @@ export default function Pomodoro() {
             </div>
           )}
         </CountdownCircleTimer>
-        <div className="flex flex-row items-center">
-          <div className="m-8 flex flex-col space-y-4">
-            <div className="flex flex-col space-y-4">
-              <div className="flex flex-row space-x-4">
-                <h2 className="text-3xl font-semibold m-4">Work Time</h2>
-                <div className="flex flex-row items-center font-bold">
-                  <label htmlFor="hours" className="p-2">
-                    Hours
-                  </label>
-                  <input
-                    min={0}
-                    defaultValue={0}
-                    ref={hourWorkRef}
-                    id="hours"
-                    name="hours"
-                    type="number"
-                    className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
-                  />
-                </div>
-                <div className="flex flex-row items-center font-bold">
-                  <label htmlFor="minutes" className="p-2">
-                    Minutes
-                  </label>
-                  <input
-                    min={0}
-                    defaultValue={0}
-                    ref={minuteWorkRef}
-                    id="minutes"
-                    name="minutes"
-                    type="number"
-                    className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
-                  />
-                </div>
-                <div className="flex flex-row items-center font-bold ">
-                  <label htmlFor="seconds" className="p-2">
-                    Seconds
-                  </label>
-                  <input
-                    min={0}
-                    defaultValue={0}
-                    ref={secondWorkRef}
-                    id="seconds"
-                    name="seconds"
-                    type="number"
-                    className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
-                  />
-                </div>
+        <div className="m-8 flex flex-col space-y-4">
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-row space-x-4">
+              <h2 className="text-3xl font-semibold m-4">Work Time</h2>
+              <div className="flex flex-row items-center font-bold">
+                <label htmlFor="hours" className="p-2">
+                  Hours
+                </label>
+                <input
+                  min={0}
+                  defaultValue={0}
+                  ref={hourWorkRef}
+                  id="hours"
+                  name="hours"
+                  type="number"
+                  className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
+                />
               </div>
-              <div className="flex flex-row space-x-4">
-                <h2 className="text-3xl font-semibold m-4">Break Time</h2>
-                <div className="flex flex-row items-center font-bold">
-                  <label htmlFor="hours" className="p-2">
-                    Hours
-                  </label>
-                  <input
-                    min={0}
-                    defaultValue={0}
-                    ref={hourBreakRef}
-                    id="hours"
-                    name="hours"
-                    type="number"
-                    className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
-                  />
-                </div>
-                <div className="flex flex-row items-center font-bold ">
-                  <label htmlFor="minutes" className="p-2">
-                    Minutes
-                  </label>
-                  <input
-                    min={0}
-                    defaultValue={0}
-                    ref={minuteBreakRef}
-                    id="minutes"
-                    name="minutes"
-                    type="number"
-                    className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
-                  />
-                </div>
-                <div className="flex flex-row items-center font-bold ">
-                  <label htmlFor="seconds" className="p-2">
-                    Seconds
-                  </label>
-                  <input
-                    min={0}
-                    defaultValue={0}
-                    ref={secondBreakRef}
-                    id="seconds"
-                    name="seconds"
-                    type="number"
-                    className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
-                  />
-                </div>
+              <div className="flex flex-row items-center font-bold">
+                <label htmlFor="minutes" className="p-2">
+                  Minutes
+                </label>
+                <input
+                  min={0}
+                  defaultValue={0}
+                  ref={minuteWorkRef}
+                  id="minutes"
+                  name="minutes"
+                  type="number"
+                  className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
+                />
+              </div>
+              <div className="flex flex-row items-center font-bold ">
+                <label htmlFor="seconds" className="p-2">
+                  Seconds
+                </label>
+                <input
+                  min={0}
+                  defaultValue={0}
+                  ref={secondWorkRef}
+                  id="seconds"
+                  name="seconds"
+                  type="number"
+                  className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
+                />
+              </div>
+            </div>
+            <div className="flex flex-row space-x-4">
+              <h2 className="text-3xl font-semibold m-4">Break Time</h2>
+              <div className="flex flex-row items-center font-bold">
+                <label htmlFor="hours" className="p-2">
+                  Hours
+                </label>
+                <input
+                  min={0}
+                  defaultValue={0}
+                  ref={hourBreakRef}
+                  id="hours"
+                  name="hours"
+                  type="number"
+                  className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
+                />
+              </div>
+              <div className="flex flex-row items-center font-bold ">
+                <label htmlFor="minutes" className="p-2">
+                  Minutes
+                </label>
+                <input
+                  min={0}
+                  defaultValue={0}
+                  ref={minuteBreakRef}
+                  id="minutes"
+                  name="minutes"
+                  type="number"
+                  className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
+                />
+              </div>
+              <div className="flex flex-row items-center font-bold ">
+                <label htmlFor="seconds" className="p-2">
+                  Seconds
+                </label>
+                <input
+                  min={0}
+                  defaultValue={0}
+                  ref={secondBreakRef}
+                  id="seconds"
+                  name="seconds"
+                  type="number"
+                  className="max-w-20 max-h-10 p-2 bg-slate-800 rounded-sm text-white ml-auto"
+                />
               </div>
             </div>
             <button
