@@ -1,9 +1,11 @@
-"use client"; // Form validation should be done both client side and server side!!!
+'use client'; // Form validation should be done both client side and server side!!!
 // Do not store anything sensitive here!!
-import { FormEvent, useState } from "react";
+import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function SignIn() {
-  const [formValid, setFormValid] = useState("");
+  const router = useRouter();
+  const [formValid, setFormValid] = useState('');
 
   async function submitForm(e: FormEvent) {
     e.preventDefault();
@@ -11,18 +13,24 @@ export default function SignIn() {
     const username = (e.target as HTMLFormElement).username.value;
     const password = (e.target as HTMLFormElement).passkey.value;
 
-    const req = await fetch("/api/auth/signIn", {
-      method: "POST",
+    const req = await fetch('/api/auth/signIn', {
+      method: 'POST',
       body: JSON.stringify({
         username: username,
         password: password,
       }),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
-    setFormValid(await req.text());
+    const requestText = await req.text();
+
+    if (requestText == 'login happy') {
+      router.push('/workspace');
+    }
+
+    setFormValid(requestText);
   }
 
   return (
