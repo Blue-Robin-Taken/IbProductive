@@ -18,29 +18,46 @@ export type TaskFormEditable = {
 
 type TaskFormProps = {
   data: TaskData;
-  isCreating: boolean;
+  type: TaskFormType;
   onClose: Function;
   onSubmit: Function; // name, desc, dueDate, checklists
   onDelete: Function;
 };
+
+export enum TaskFormType {
+  CLIENT_CREATE,
+  CLIENT_EDIT,
+
+  ADMIN_CREATE,
+  ADMIN_EDIT,
+}
 
 export default function TaskForm(props: TaskFormProps) {
   const close = () => {
     props.onClose();
   };
   const submit = () => {
-    if (props.isCreating && classId !== "none") {
-      createTaskForClass(
-        Number.parseInt(classId),
+    if (isAdminType(props.type) && classId == "none") {
+    } else {
+      props.onSubmit(
         name,
         desc,
         props.data.dueDate,
-        checkboxes
+        checkboxes,
+        Number(classId)
       );
-    } else {
-      props.onSubmit(name, desc, props.data.dueDate, checkboxes);
+      close();
     }
-    close();
+    // if (props.type == TaskFormType.ADMIN_CREATE && classId !== "none") {
+    //   createTaskForClass(
+    //     Number.parseInt(classId),
+    //     name,
+    //     desc,
+    //     props.data.dueDate,
+    //     checkboxes
+    //   );
+    // } else {
+    // }
   };
 
   const [name, setName] = useState<string>(props.data.name);
@@ -52,23 +69,25 @@ export default function TaskForm(props: TaskFormProps) {
   const [classes, setClasses] = useState<React.ReactElement[]>();
 
   useEffect(() => {
-    let params = new URLSearchParams({ name: "all" });
-    fetch("/api/classes?" + params)
-      .then((res) => {
-        return res.json();
-      })
-      .then((val) => {
-        let arr: ClassData[] = val.arr;
-        setClasses(
-          arr.map((i: ClassData) => {
-            return (
-              <option key={i.id} value={i.id}>
-                {i.name}
-              </option>
-            );
-          })
-        );
-      });
+    if (isAdminType(props.type)) {
+      let params = new URLSearchParams({ name: "all" });
+      fetch("/api/classes?" + params)
+        .then((res) => {
+          return res.json();
+        })
+        .then((val) => {
+          let arr: ClassData[] = val.arr;
+          setClasses(
+            arr.map((i: ClassData) => {
+              return (
+                <option key={i.id} value={i.id}>
+                  {i.name}
+                </option>
+              );
+            })
+          );
+        });
+    }
 
     return () => {};
   }, []);
@@ -123,10 +142,10 @@ export default function TaskForm(props: TaskFormProps) {
         </div>
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Class */}
-          {props.isCreating ? (
+          {isAdminType(props.type) ? (
             <label className="task-form-label">Class:</label>
           ) : null}
-          {props.isCreating ? (
+          {isAdminType(props.type) ? (
             <select
               defaultValue={"none"}
               onChange={(e) => {
@@ -211,7 +230,7 @@ export default function TaskForm(props: TaskFormProps) {
 
           {/* Deletable */}
           {deleteComponent(
-            props.isCreating,
+            props.type,
             props.data.editables.deletable,
             props.onDelete
           )}
@@ -223,11 +242,11 @@ export default function TaskForm(props: TaskFormProps) {
 }
 
 function deleteComponent(
-  isCreating: boolean,
+  type: TaskFormType,
   isDeletable: boolean,
   onDelete: Function
 ) {
-  if (isCreating) {
+  if (isCreatingType(type)) {
     return null;
   } else if (isDeletable) {
     return (
@@ -243,4 +262,65 @@ function deleteComponent(
   } else {
     return <p>This task is not deletable.</p>;
   }
+}
+
+function isCreatingType(type: TaskFormType): boolean {
+  return (
+    type == TaskFormType.ADMIN_CREATE || type == TaskFormType.CLIENT_CREATE
+  );
+}
+
+function isAdminType(type: TaskFormType): boolean {
+  return type == TaskFormType.ADMIN_CREATE || type == TaskFormType.ADMIN_EDIT;
+}
+
+export function AddClientTask(props: {
+  onClose: Function;
+  onSubmit: Function;
+}) {
+  return (
+    <TaskForm
+      data={{
+        id: "",
+        dueDate: new Date(),
+        name: "New Task",
+        description: "",
+        checkboxes: [],
+        editables: {
+          nameEditable: true,
+          descEditable: true,
+          dueEditable: true,
+          deletable: false,
+        },
+      }}
+      type={TaskFormType.CLIENT_CREATE}
+      onClose={props.onClose}
+      onSubmit={props.onSubmit}
+      onDelete={() => {}}
+    />
+  );
+}
+
+export function AddClassTask(props: { onClose: Function; onSubmit: Function }) {
+  return (
+    <TaskForm
+      data={{
+        id: "",
+        dueDate: new Date(),
+        name: "New Task",
+        description: "",
+        checkboxes: [],
+        editables: {
+          nameEditable: false,
+          descEditable: false,
+          dueEditable: false,
+          deletable: false,
+        },
+      }}
+      type={TaskFormType.ADMIN_CREATE}
+      onClose={props.onClose}
+      onSubmit={props.onSubmit}
+      onDelete={() => {}}
+    />
+  );
 }

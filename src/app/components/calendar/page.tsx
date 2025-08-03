@@ -3,7 +3,7 @@
 import React, { ReactElement } from "react";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import TaskForm from "./tasks/TaskForm";
+import { AddClientTask } from "./tasks/TaskForm";
 import { ErrorModal } from "../generic/modals";
 import Task, { TaskData, TaskCheckbox } from "./tasks/Task";
 
@@ -157,7 +157,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     }
 
     this.setState((prev) => ({
-      ...prev, 
+      ...prev,
       month: newMonth,
       year: newYear,
     }));
@@ -171,39 +171,19 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       toggleMenu();
       this.setState((prev) => ({ ...prev, modal: elem }));
     };
-    const clearModal = () => {
-      setModal(<div></div>);
-    };
-
-    const AddTask: React.ReactElement = (
-      <TaskForm
-        data={{
-          id: "",
-          dueDate: new Date(),
-          name: "New Task",
-          description: "",
-          checkboxes: [],
-          editables: {
-            nameEditable: true,
-            descEditable: true,
-            dueEditable: true,
-            deletable: false,
-          },
-        }}
-        isCreating={true}
-        onClose={clearModal}
-        onSubmit={this.createTask.bind(this)}
-        onDelete={() => {}}
-      />
-    );
 
     return (
-      <div className="z-5 sticky bottom-10 left-10">
+      <div className="z-5 relative bottom-10 left-10">
         {!this.state.actionsUp ? null : (
           <div className="relative">
             <button
               onClick={() => {
-                setModal(AddTask);
+                setModal(
+                  <AddClientTask
+                    onClose={() => setModal(<div></div>)}
+                    onSubmit={this.createTask.bind(this)}
+                  />
+                );
               }}
             >
               {" Add Task "}

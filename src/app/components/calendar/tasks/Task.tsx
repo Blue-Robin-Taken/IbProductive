@@ -1,5 +1,5 @@
 import React from "react";
-import TaskForm, { TaskFormEditable } from "./TaskForm";
+import TaskForm, { TaskFormEditable, TaskFormType } from "./TaskForm";
 import { ErrorModal } from "../../generic/modals";
 
 export type TaskCheckbox = {
@@ -86,7 +86,7 @@ export default class Task extends React.Component<TaskProps, TaskState> {
             this.props.setModal(
               <TaskForm
                 data={this.state.data}
-                isCreating={false}
+                type={TaskFormType.CLIENT_EDIT}
                 onClose={this.props.clearModal}
                 onSubmit={this.setStateData.bind(this)}
                 onDelete={async () => {
