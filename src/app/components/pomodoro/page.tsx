@@ -19,10 +19,6 @@ export default function Pomodoro() {
   const secondBreakRef = useRef(null);
   const hourBreakRef = useRef(null);
 
-  function getColorsTime() {
-    const totalColors = setColorsTime();
-  }
-
   // At top of your file:
   type ColorHex = `#${string}`;
 
@@ -52,12 +48,49 @@ export default function Pomodoro() {
     '#5C0A0A', // dark red (last)
   ];
 
+  function startWorkTime() {
+    if (hourWorkRef.current && secondWorkRef.current && minuteWorkRef.current) {
+      const totalTime =
+        Number((hourWorkRef.current! as HTMLInputElement).value) * 60 * 60 +
+        Number((secondWorkRef.current! as HTMLInputElement).value) +
+        Number((minuteWorkRef.current! as HTMLInputElement).value) * 60; // in seconds
+      setReset(reset + 1);
+      setDuration(totalTime);
+      setPlaying(true);
+    }
+  }
+
+  function startBreakTime() {
+    if (
+      hourBreakRef.current &&
+      secondBreakRef.current &&
+      minuteBreakRef.current
+    ) {
+      const totalTime =
+        Number((hourBreakRef.current! as HTMLInputElement).value) * 60 * 60 +
+        Number((secondBreakRef.current! as HTMLInputElement).value) +
+        Number((minuteBreakRef.current! as HTMLInputElement).value) * 60; // in seconds
+      setReset(reset + 1);
+      setDuration(totalTime);
+      setPlaying(true);
+    }
+  }
+
   return (
     <div className="flex flex-col items-center">
       <h1 className="text-5xl font-bold text-center">Pomodoro Timer</h1>
       <div className="flex flex-col text-white m-auto p-10 items-center">
         {/* The timer component */}
         <CountdownCircleTimer
+          onComplete={() => {
+            if (currentCycle == 'Work Time') {
+              startBreakTime();
+              return setCurrentCycle('Break Time');
+            } else {
+              startWorkTime();
+              return setCurrentCycle('Work Time');
+            }
+          }}
           key={reset}
           isPlaying={play}
           duration={duration}
@@ -175,54 +208,20 @@ export default function Pomodoro() {
             <button
               onClick={() => {
                 if (currentCycle == 'Work Time') {
-                  if (
-                    hourWorkRef.current &&
-                    secondWorkRef.current &&
-                    minuteWorkRef.current
-                  ) {
-                    const totalTime =
-                      Number((hourWorkRef.current as HTMLInputElement).value) *
-                        60 *
-                        60 +
-                      Number(
-                        (secondWorkRef.current as HTMLInputElement).value
-                      ) +
-                      Number(
-                        (minuteWorkRef.current as HTMLInputElement).value
-                      ) *
-                        60; // in seconds
-                    console.log(totalTime);
-                    setReset(reset + 1);
-                    setDuration(totalTime);
-                    setPlaying(true);
-                  }
+                  startWorkTime();
                 } else if (currentCycle == 'Break Time') {
                   if (
                     hourBreakRef.current &&
                     secondBreakRef.current &&
                     minuteBreakRef.current
                   ) {
-                    const totalTime =
-                      Number((hourBreakRef.current as HTMLInputElement).value) *
-                        60 *
-                        60 +
-                      Number(
-                        (secondBreakRef.current as HTMLInputElement).value
-                      ) +
-                      Number(
-                        (minuteBreakRef.current as HTMLInputElement).value
-                      ) *
-                        60; // in seconds
-                    console.log(totalTime);
-                    setReset(reset + 1);
-                    setDuration(totalTime);
-                    setPlaying(true);
+                    startBreakTime();
                   }
                 }
               }}
               className="bg-slate-800 rounded-xl px-4 p-2 m-4 mx-auto"
             >
-              Set Time
+              Start Timer
             </button>
           </div>
         </div>
