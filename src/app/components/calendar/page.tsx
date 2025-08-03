@@ -1,13 +1,13 @@
 "use client";
 
-import React, { ReactElement, ReactNode, useEffect, useState } from "react";
+import React, { ReactElement } from "react";
 import { Days_One } from "next/font/google";
 import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { createTask, taskComps, TaskData } from "./tasks/TaskBackEnd";
+import { TaskCheckbox, taskComps, TaskData } from "./tasks/TaskBackEnd";
 import { TaskForm } from "./tasks/TaskForm";
-import { NextRequest } from "next/server";
+import { ErrorModal } from "../generic/modals";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -37,8 +37,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
 
   // runs when the component is added to the screen
   async componentDidMount() {
-    let tasks = await this.fetchTasks();
-    this.setState((prev) => ({ ...prev, tasks: tasks }));
+    this.setStateTasks();
   }
 
   async componentDidUpdate(
@@ -47,8 +46,7 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     snapshot?: any
   ) {
     if (prevState.month !== this.state.month) {
-      let tasks = await this.fetchTasks();
-      this.setState((prev) => ({ ...prev, tasks: tasks }));
+      this.setStateTasks();
     }
   }
 
@@ -192,9 +190,10 @@ export default class Calendar extends React.Component<{}, CalendarState> {
           nameEditable: true,
           descEditable: true,
           dueEditable: true,
+          deletable: false,
         }}
         onClose={clearModal}
-        onSubmit={createTask}
+        onSubmit={this.createTask.bind(this)}
       />
     );
 
@@ -261,7 +260,8 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     return arr;
   }
 
-  async fetchTasks() {
+  async setStateTasks() {
+    // Fetches Tasks
     const start: number = firstDayOnCal(this.state.year, this.state.month);
     const end: number = lastDayOnCal(this.state.year, this.state.month);
 
@@ -274,7 +274,40 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     let json = await res.json();
     let data: TaskData[] = json["taskArr" as keyof typeof json];
     // console.log(data);
-    return data;
+
+    // Update Tasks
+    this.setState((prev) => ({ ...prev, tasks: data }));
+  }
+
+  async createTask(
+    name: string,
+    description: string,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[]
+  ) {
+    let res = await fetch("/api/calendar/tasks", {
+      method: "POST",
+      body: JSON.stringify({
+        id: "",
+        name: name,
+        description: description,
+        dueDate: dueDate,
+        checkboxes: checkboxes,
+      }),
+    });
+
+    if (res.status == 200) {
+      // successful create
+      this.setStateTasks();
+    } else {
+      this.setModal(
+        <ErrorModal
+          header={"Error " + res.status}
+          body={'There was an issue with creating "' + name + '".'}
+          onClose={this.clearModal.bind(this)}
+        />
+      );
+    }
   }
 }
 /**

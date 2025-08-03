@@ -1,12 +1,13 @@
 import { TaskCheckbox, TaskData } from "./TaskBackEnd";
 import "../calendar.css";
 import "./tasks.css";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 
 type TaskFormEditable = {
   nameEditable: boolean;
   descEditable: boolean;
   dueEditable: boolean;
+  deletable: boolean;
 };
 
 type TaskFormProps = {
@@ -24,6 +25,10 @@ export function TaskForm(props: TaskFormProps) {
     props.onSubmit(name, desc, props.data.dueDate, checkboxes);
     close();
   };
+  const del = () => {
+    close();
+  };
+
   const [name, setName] = useState<string>(props.data.name);
   const [desc, setDesc] = useState<string>(props.data.description);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
@@ -144,6 +149,18 @@ export function TaskForm(props: TaskFormProps) {
               + Add New Checkbox
             </button>
           </div>
+
+          {/* Deletable */}
+          {props.editable.deletable ? (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                del();
+              }}
+            >
+              Delete Task
+            </button>
+          ) : null}
           <input type="submit" value="submit" />
         </div>
       </form>

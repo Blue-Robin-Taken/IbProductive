@@ -1,8 +1,5 @@
-import ClientTask from "./ClientTask";
+import Task from "./Task";
 
-///
-/// Data Types
-///
 export type TaskState = {
   isOpen: boolean;
   data: TaskData;
@@ -22,54 +19,6 @@ export type TaskCheckbox = {
   bool: boolean;
 };
 
-export type TaskModalProps = {
-  isOpen: boolean;
-  onClose: Function;
-  data: TaskData;
-};
-
-/**
- * Creates a new task on the Prisma databse. Only for ClientTask
- * @param name          the name of the task
- * @param description   the description of the task
- * @param dueDate       when the task is due
- * @param checkboxes    the checkboxes associated with the task
- */
-export function createTask(
-  name: string,
-  description: string,
-  dueDate: Date,
-  checkboxes: TaskCheckbox[]
-) {
-  fetch("/api/calendar/tasks", {
-    method: "POST",
-    body: JSON.stringify({
-      id: "",
-      name: name,
-      description: description,
-      dueDate: dueDate,
-      checkboxes: checkboxes,
-    }),
-  });
-}
-
-/**
- * Edits the data of a task on the Prisma database. Works for both ClientTask and GlobalTask.
- * @param data
- */
-export function editTask(data: TaskData) {
-  fetch("/api/calendar/tasks", {
-    method: "POST",
-    body: JSON.stringify({
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      dueDate: data.dueDate,
-      checkboxes: data.checkboxes,
-    }), // would this work?
-  });
-}
-
 export function taskComps(data: TaskData[], date: Date) {
   let taskArr = data.filter((task) => {
     let due: Date = new Date(task.dueDate);
@@ -83,7 +32,7 @@ export function taskComps(data: TaskData[], date: Date) {
 
   let compArr = [];
   for (const task of taskArr) {
-    compArr.push(<ClientTask key={task.id} data={task} />);
+    compArr.push(<Task key={task.id} data={task} />);
   }
 
   return compArr;

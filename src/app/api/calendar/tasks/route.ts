@@ -3,6 +3,7 @@ import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskBackEnd";
 import { addClientTask, editClientTask, getTasksFromPrisma } from "@/db";
 import { getUsername } from "@/db/authentication/jwtAuth";
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   /* Search Params */
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
       labels,
       bools
     );
+    return new NextResponse();
   } else {
     await editClientTask(
       username,
@@ -83,7 +85,6 @@ export async function POST(request: Request) {
       labels,
       bools
     );
+    return new NextResponse();
   }
-
-  return new Response();
 }
