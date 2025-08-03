@@ -1,7 +1,12 @@
-import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskBackEnd";
-
-import { addClientTask, editClientTask, getTasksFromPrisma } from "@/db";
+import { TaskCheckbox } from "@/app/components/calendar/tasks/Task";
+import { TaskFormEditable } from "@/app/components/calendar/tasks/TaskForm";
 import { getUsername } from "@/db/authentication/jwtAuth";
+import {
+  getTasksFromPrisma,
+  addClientTask,
+  editClientTask,
+  deleteClientTask,
+} from "@/db/tasks/client_task";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -51,12 +56,12 @@ interface PostRequest {
 }
 
 export async function POST(request: Request) {
-  const json: PostRequest = await request.json();
+  const jsonReq: PostRequest = await request.json();
 
   let labels: string[] = [];
   let bools: boolean[] = [];
 
-  for (const checkbox of json.checkboxes) {
+  for (const checkbox of jsonReq.checkboxes) {
     labels.push(checkbox.label);
     bools.push(checkbox.bool);
   }
@@ -65,12 +70,12 @@ export async function POST(request: Request) {
   const tokenCookie = cookieStore.get("token")?.value;
   const username = await getUsername(String(tokenCookie));
 
-  if (json.id === "") {
+  if (jsonReq.id === "") {
     await addClientTask(
       username,
-      json.name,
-      json.description,
-      new Date(json.dueDate),
+      jsonReq.name,
+      jsonReq.description,
+      new Date(jsonReq.dueDate),
       labels,
       bools
     );
@@ -78,13 +83,28 @@ export async function POST(request: Request) {
   } else {
     await editClientTask(
       username,
-      json.id,
-      json.name,
-      json.description,
-      new Date(json.dueDate),
+      jsonReq.id,
+      jsonReq.name,
+      jsonReq.description,
+      new Date(jsonReq.dueDate),
       labels,
       bools
     );
     return new NextResponse();
   }
+}
+
+interface DeleteRequest {
+  id: string;
+}
+
+export async function DELETE(request: Request) {
+  const jsonReq: DeleteRequest = await request.json();
+
+  const cookieStore = await cookies();
+  const tokenCookie = cookieStore.get("token")?.value;
+  const username = await getUsername(String(tokenCookie));
+
+  await deleteClientTask(username, jsonReq.id);
+  return new Response();
 }

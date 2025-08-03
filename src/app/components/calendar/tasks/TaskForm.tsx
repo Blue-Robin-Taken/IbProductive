@@ -1,9 +1,10 @@
-import { TaskCheckbox, TaskData } from "./TaskBackEnd";
+import { deleteClientTask } from "@/db/tasks/client_task";
 import "../calendar.css";
+import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
 import { useState } from "react";
 
-type TaskFormEditable = {
+export type TaskFormEditable = {
   nameEditable: boolean;
   descEditable: boolean;
   dueEditable: boolean;
@@ -12,20 +13,17 @@ type TaskFormEditable = {
 
 type TaskFormProps = {
   data: TaskData;
-  editable: TaskFormEditable;
   onClose: Function;
   onSubmit: Function; // name, desc, dueDate, checklists
+  onDelete: Function;
 };
 
-export function TaskForm(props: TaskFormProps) {
+export default function TaskForm(props: TaskFormProps) {
   const close = () => {
     props.onClose();
   };
   const submit = () => {
     props.onSubmit(name, desc, props.data.dueDate, checkboxes);
-    close();
-  };
-  const del = () => {
     close();
   };
 
@@ -47,11 +45,14 @@ export function TaskForm(props: TaskFormProps) {
           if (e.key === "escape") {
             e.preventDefault();
             close();
+          } else if (e.key === "enter") {
+            e.preventDefault();
+            submit();
           }
         }}
       >
         <div className="modal-header">
-          {props.editable.nameEditable ? (
+          {props.data.editables.nameEditable ? (
             <input
               className="task-input"
               type="text"
@@ -82,7 +83,7 @@ export function TaskForm(props: TaskFormProps) {
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Description */}
           <label className="task-form-label">Description:</label>
-          {props.editable.descEditable ? (
+          {props.data.editables.descEditable ? (
             <input
               className="task-input"
               type="text"
@@ -151,16 +152,18 @@ export function TaskForm(props: TaskFormProps) {
           </div>
 
           {/* Deletable */}
-          {props.editable.deletable ? (
+          {props.data.editables.deletable ? (
             <button
               onClick={(e) => {
                 e.preventDefault();
-                del();
+                props.onDelete();
               }}
             >
               Delete Task
             </button>
-          ) : null}
+          ) : (
+            <p>This task cannot be edited.</p>
+          )}
           <input type="submit" value="submit" />
         </div>
       </form>

@@ -1,5 +1,6 @@
 import React from "react";
-import { TaskForm } from "./TaskForm";
+import TaskForm, { TaskFormEditable } from "./TaskForm";
+import { ErrorModal } from "../../generic/modals";
 
 export type TaskCheckbox = {
   id: number;
@@ -13,6 +14,7 @@ export type TaskData = {
   name: string;
   description: string;
   checkboxes: TaskCheckbox[];
+  editables: TaskFormEditable;
 };
 
 export type TaskState = {
@@ -20,11 +22,15 @@ export type TaskState = {
   data: TaskData;
 };
 
-export default class Task extends React.Component<
-  { data: TaskData },
-  TaskState
-> {
-  constructor(props: { data: TaskData }) {
+type TaskProps = {
+  data: TaskData;
+  setModal: Function;
+  clearModal: Function;
+  setStateTasks: Function;
+};
+
+export default class Task extends React.Component<TaskProps, TaskState> {
+  constructor(props: TaskProps) {
     super(props);
 
     // Ensure that the dueDate is type of Date
@@ -45,7 +51,29 @@ export default class Task extends React.Component<
     snapshot?: any
   ) {
     if (prevState.data != this.state.data) {
-      this.editTask();
+      /* Edits the data on the db */
+      let res = await fetch("/api/calendar/tasks", {
+        method: "POST",
+        body: JSON.stringify({
+          id: this.state.data.id,
+          name: this.state.data.name,
+          description: this.state.data.description,
+          dueDate: this.state.data.dueDate,
+          checkboxes: this.state.data.checkboxes,
+        }),
+      });
+
+      if (res.status != 200) {
+        this.props.setModal(
+          <ErrorModal
+            header={"Error " + res.status}
+            body={
+              'There was an issue with editing "' + this.state.data.name + '".'
+            }
+            onClose={this.props.clearModal.bind(this)}
+          />
+        );
+      }
     }
   }
 
@@ -55,37 +83,42 @@ export default class Task extends React.Component<
         <button
           className={"task-label" + this.getTaskCSS()}
           onClick={() => {
-            this.toggleOpen();
+            this.props.setModal(
+              <TaskForm
+                data={this.state.data}
+                onClose={this.props.clearModal}
+                onSubmit={this.setStateData.bind(this)}
+                onDelete={async () => {
+                  let res = await fetch("/api/calendar/tasks", {
+                    method: "DELETE",
+                    body: JSON.stringify({ id: this.state.data.id }),
+                  });
+
+                  this.props.clearModal();
+                  if (res.status == 200) {
+                    this.props.setStateTasks();
+                  } else {
+                    this.props.setModal(
+                      <ErrorModal
+                        header={"Error " + res.status}
+                        body={
+                          'There was an issue with deleting "' +
+                          this.state.data.name +
+                          '".'
+                        }
+                        onClose={this.props.clearModal.bind(this)}
+                      />
+                    );
+                  }
+                }}
+              />
+            );
           }}
         >
           {this.state.data.name}
         </button>
-
-        {this.state.isOpen ? (
-          <TaskForm
-            data={this.state.data}
-            editable={{
-              nameEditable: false,
-              descEditable: false,
-              dueEditable: false,
-              deletable: true,
-            }}
-            onClose={this.toggleOpen.bind(this)}
-            onSubmit={this.editTask.bind(this)}
-          />
-        ) : null}
       </div>
     );
-  }
-
-  /**
-   * Toggles the state of the modal to be open or closed.
-   */
-  toggleOpen() {
-    this.setState((prev) => ({
-      ...prev,
-      isOpen: !prev.isOpen,
-    }));
   }
 
   getTimeLeft() {
@@ -109,17 +142,22 @@ export default class Task extends React.Component<
     return "";
   }
 
-  editTask() {
-    fetch("/api/calendar/tasks", {
-      method: "POST",
-      body: JSON.stringify({
-        id: this.state.data.id,
-        name: this.state.data.name,
-        description: this.state.data.description,
-        dueDate: this.state.data.dueDate,
-        checkboxes: this.state.data.checkboxes,
-      }), // would this work?
-    });
+  setStateData(
+    name: string,
+    desc: string,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[]
+  ) {
+    this.setState((prev) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        name: name,
+        description: desc,
+        dueDate: dueDate,
+        checkboxes: checkboxes,
+      },
+    }));
   }
 }
 

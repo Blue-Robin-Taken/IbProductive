@@ -1,13 +1,11 @@
 "use client";
 
 import React, { ReactElement } from "react";
-import { Days_One } from "next/font/google";
-import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { TaskCheckbox, taskComps, TaskData } from "./tasks/TaskBackEnd";
-import { TaskForm } from "./tasks/TaskForm";
+import TaskForm from "./tasks/TaskForm";
 import { ErrorModal } from "../generic/modals";
+import Task, { TaskData, TaskCheckbox } from "./tasks/Task";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -185,15 +183,16 @@ export default class Calendar extends React.Component<{}, CalendarState> {
           name: "New Task",
           description: "",
           checkboxes: [],
-        }}
-        editable={{
-          nameEditable: true,
-          descEditable: true,
-          dueEditable: true,
-          deletable: false,
+          editables: {
+            nameEditable: true,
+            descEditable: true,
+            dueEditable: true,
+            deletable: false,
+          },
         }}
         onClose={clearModal}
         onSubmit={this.createTask.bind(this)}
+        onDelete={() => {}}
       />
     );
 
@@ -241,9 +240,36 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       <div key={timeInMS} className={css}>
         <p className="inline-block px-1 mr-2 text-xl">{timeAsDate.getDate()}</p>
         {getHolidays(timeAsDate)}
-        {taskComps(this.state.tasks, timeAsDate)}
+        {this.taskComps(timeAsDate)}
       </div>
     );
+  }
+
+  taskComps(date: Date) {
+    let taskArr = this.state.tasks.filter((task) => {
+      let due: Date = new Date(task.dueDate);
+
+      return (
+        due.getFullYear() == date.getFullYear() &&
+        due.getMonth() == date.getMonth() &&
+        due.getDate() == date.getDate()
+      );
+    });
+
+    let compArr = [];
+    for (const task of taskArr) {
+      compArr.push(
+        <Task
+          key={task.id}
+          data={task}
+          setModal={this.setModal.bind(this)}
+          clearModal={this.clearModal.bind(this)}
+          setStateTasks={this.setStateTasks.bind(this)}
+        />
+      );
+    }
+
+    return compArr;
   }
 
   generateBoxes() {
