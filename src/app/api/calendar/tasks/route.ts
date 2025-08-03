@@ -1,7 +1,12 @@
-import { TaskCheckbox } from "@/app/components/calendar/tasks/TaskBackEnd";
-
-import { addClientTask, editClientTask, getTasksFromPrisma } from "@/db";
+import { TaskCheckbox } from "@/app/components/calendar/tasks/Task";
+import { TaskFormEditable } from "@/app/components/calendar/tasks/TaskForm";
 import { getUsername } from "@/db/authentication/jwtAuth";
+import {
+  getTasksFromPrisma,
+  addClientTask,
+  editClientTask,
+  deleteClientTask,
+} from "@/db/tasks/client_task";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -87,4 +92,18 @@ export async function POST(request: Request) {
     );
     return new NextResponse();
   }
+}
+
+interface DeleteRequest {
+  id: string;
+}
+
+export async function DELETE(request: Request) {
+  const json: DeleteRequest = await request.json();
+
+  const cookieStore = await cookies();
+  const tokenCookie = cookieStore.get("token")?.value;
+  const username = await getUsername(String(tokenCookie));
+
+  await deleteClientTask(username, json.id);
 }

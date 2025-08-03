@@ -1,13 +1,12 @@
 "use client";
 
 import React, { ReactElement } from "react";
-import { Days_One } from "next/font/google";
-import { json } from "stream/consumers";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { TaskCheckbox, taskComps, TaskData } from "./tasks/TaskBackEnd";
-import { TaskForm } from "./tasks/TaskForm";
+import { taskComps } from "./tasks/TaskBackEnd";
+import TaskForm from "./tasks/TaskForm";
 import { ErrorModal } from "../generic/modals";
+import { TaskData, TaskCheckbox } from "./tasks/Task";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -185,12 +184,12 @@ export default class Calendar extends React.Component<{}, CalendarState> {
           name: "New Task",
           description: "",
           checkboxes: [],
-        }}
-        editable={{
-          nameEditable: true,
-          descEditable: true,
-          dueEditable: true,
-          deletable: false,
+          editables: {
+            nameEditable: true,
+            descEditable: true,
+            dueEditable: true,
+            deletable: false,
+          },
         }}
         onClose={clearModal}
         onSubmit={this.createTask.bind(this)}

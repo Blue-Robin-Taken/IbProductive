@@ -1,23 +1,4 @@
-import Task from "./Task";
-
-export type TaskState = {
-  isOpen: boolean;
-  data: TaskData;
-};
-
-export type TaskData = {
-  id: string;
-  dueDate: Date;
-  name: string;
-  description: string;
-  checkboxes: TaskCheckbox[];
-};
-
-export type TaskCheckbox = {
-  id: number;
-  label: string;
-  bool: boolean;
-};
+import Task, { TaskData } from "./Task";
 
 export function taskComps(data: TaskData[], date: Date) {
   let taskArr = data.filter((task) => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { TaskForm } from "./TaskForm";
+import TaskForm, { TaskFormEditable } from "./TaskForm";
 
 export type TaskCheckbox = {
   id: number;
@@ -13,6 +13,7 @@ export type TaskData = {
   name: string;
   description: string;
   checkboxes: TaskCheckbox[];
+  editables: TaskFormEditable;
 };
 
 export type TaskState = {
@@ -64,14 +65,8 @@ export default class Task extends React.Component<
         {this.state.isOpen ? (
           <TaskForm
             data={this.state.data}
-            editable={{
-              nameEditable: false,
-              descEditable: false,
-              dueEditable: false,
-              deletable: true,
-            }}
             onClose={this.toggleOpen.bind(this)}
-            onSubmit={this.editTask.bind(this)}
+            onSubmit={this.setStateData.bind(this)}
           />
         ) : null}
       </div>
@@ -107,6 +102,24 @@ export default class Task extends React.Component<
     }
 
     return "";
+  }
+
+  setStateData(
+    name: string,
+    desc: string,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[]
+  ) {
+    this.setState((prev) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        name: name,
+        description: desc,
+        dueDate: dueDate,
+        checkboxes: checkboxes,
+      },
+    }));
   }
 
   editTask() {

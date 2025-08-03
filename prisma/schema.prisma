@@ -19,15 +19,20 @@ model User {
 }
 
 model ClientTask {
-  user        User      @relation(fields: [username], references: [username])
-  username    String
+  user          User      @relation(fields: [username], references: [username])
+  username      String
 
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  date        DateTime @default(now())
-  labels      String[]
-  bools       Boolean[]
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  date          DateTime  @default(now())
+  labels        String[]
+  bools         Boolean[]
+
+  nameEditable  Boolean   @default(true)
+  descEditable  Boolean   @default(true)
+  dateEditable  Boolean   @default(true)
+  isDeletable   Boolean   @default(true)
 }
 
 model VerificationToken {
