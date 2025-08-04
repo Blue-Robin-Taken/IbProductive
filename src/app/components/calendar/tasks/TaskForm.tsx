@@ -45,34 +45,44 @@ export default function TaskForm(props: TaskFormProps) {
   };
 
   const isAdminType: boolean = checkIfAdminType(props.type);
+  const [isUserAdmin, setUserAdmin] = useState<boolean>(false);
   const [name, setName] = useState<string>(props.data.name);
   const [desc, setDesc] = useState<string>(props.data.description);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
   );
-  const [classId, setClassId] = useState<string>("none");
+  const [classId, setClassId] = useState<string>(String(props.data.classId));
   const [classes, setClasses] = useState<React.ReactElement[]>();
 
   useEffect(() => {
-    if (isAdminType) {
-      let params = new URLSearchParams({ name: "all" });
-      fetch("/api/classes?" + params)
-        .then((res) => {
-          return res.json();
-        })
-        .then((resJson) => {
-          let arr: ClassData[] = resJson.arr;
-          setClasses(
-            arr.map((i: ClassData) => {
-              return (
-                <option key={i.id} value={i.id}>
-                  {i.name}
-                </option>
-              );
-            })
-          );
-        });
+    async function apiCall(isAdminInput: boolean) {
+      if (isAdminType && isAdminInput) {
+        let params = new URLSearchParams({ name: "all" });
+        let res = await fetch("/api/classes?" + params);
+        let resJson = await res.json();
+
+        let arr: ClassData[] = resJson.arr;
+        setClasses(
+          arr.map((i: ClassData) => {
+            return (
+              <option key={i.id} value={i.id}>
+                {i.name}
+              </option>
+            );
+          })
+        );
+      }
     }
+
+    fetch("/api/auth/admin?")
+      .then((res) => {
+        return res.json();
+      })
+      .then((resJson: { isAdmin: boolean }) => {
+        setUserAdmin(resJson.isAdmin);
+        return resJson.isAdmin;
+      })
+      .then(apiCall);
 
     return () => {};
   }, []);
@@ -97,7 +107,7 @@ export default function TaskForm(props: TaskFormProps) {
         }}
       >
         <div className="modal-header">
-          {isAdminType || props.data.editables.nameEditable ? (
+          {(isAdminType && isUserAdmin) || props.data.editables.nameEditable ? (
             <input
               className="task-input"
               type="text"
@@ -127,11 +137,12 @@ export default function TaskForm(props: TaskFormProps) {
         </div>
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Class */}
-          {isAdminType ? (
+          {isAdminType && isUserAdmin ? (
             <label className="task-form-label">Class:</label>
           ) : null}
-          {isAdminType ? (
+          {isAdminType && isUserAdmin ? (
             <select
+              className="text-black"
               defaultValue={"none"}
               onChange={(e) => {
                 e.preventDefault();
@@ -145,7 +156,7 @@ export default function TaskForm(props: TaskFormProps) {
 
           {/* Description */}
           <label className="task-form-label">Description:</label>
-          {isAdminType || props.data.editables.descEditable ? (
+          {(isAdminType && isUserAdmin) || props.data.editables.descEditable ? (
             <input
               className="task-input"
               type="text"
@@ -216,6 +227,7 @@ export default function TaskForm(props: TaskFormProps) {
           {/* Deletable */}
           {deleteComponent(
             isAdminType,
+            isUserAdmin,
             props.type,
             props.data.editables.deletable,
             props.onDelete
@@ -229,13 +241,14 @@ export default function TaskForm(props: TaskFormProps) {
 
 function deleteComponent(
   isAdminType: boolean,
+  isUserAdmin: boolean,
   type: TaskFormType,
   isDeletable: boolean,
   onDelete: Function
 ) {
   if (isCreatingType(type)) {
     return null;
-  } else if (isAdminType || isDeletable) {
+  } else if ((isAdminType && isUserAdmin) || isDeletable) {
     return (
       <button
         onClick={(e) => {
@@ -335,7 +348,6 @@ export function AddClassTask(props: {
     checkboxes: TaskCheckbox[],
     classId: number
   ) => {
-    console.log(name);
     let res = await fetch("/api/classes/tasks", {
       method: "POST",
       body: JSON.stringify({
@@ -349,19 +361,23 @@ export function AddClassTask(props: {
       }),
     });
 
-    if (res.status == 200) {
-      props.setModal(<div></div>);
-      props.setStateTasks();
-    } else {
+    const resText = await res.text();
+    if (res.status != 200 || resText !== "") {
       props.setModal(
         <ErrorModal
           header={"Error " + res.status}
           body={
-            'There was a problem with creating "' + name + '" for the class.'
+            'There was a problem with creating "' +
+            name +
+            '" for the class.  Error Message: ' +
+            resText
           }
           onClose={() => props.setModal(<div></div>)}
         />
       );
+    } else {
+      props.setModal(<div></div>);
+      props.setStateTasks();
     }
   };
 
