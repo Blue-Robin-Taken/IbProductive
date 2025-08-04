@@ -1,5 +1,5 @@
 import { TaskCheckbox } from "@/app/components/calendar/tasks/Task";
-import { checkDBIsAdminToken, getUsername } from "@/db/authentication/jwtAuth";
+import { checkDBIsAdminToken } from "@/db/authentication/jwtAuth";
 import {
   createTaskForClass,
   deleteTaskForClass,
@@ -58,7 +58,16 @@ interface DeleteRequest {
 export async function DELETE(req: Request) {
   const reqJson: DeleteRequest = await req.json();
 
+  /* Check if admin in DB */
+  const cookieStore = await cookies();
+  const tokenString = cookieStore.get("token")?.value;
+  const isAdminDB = await checkDBIsAdminToken(tokenString as string);
+
+  if (!isAdminDB) {
+    return new Response("User is not an admin");
+  }
+
   await deleteTaskForClass(reqJson.classId, reqJson.taskName);
 
-  return new Response();
+  return new Response("");
 }

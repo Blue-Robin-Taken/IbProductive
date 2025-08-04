@@ -70,7 +70,7 @@ export default class Task extends React.Component<TaskProps, TaskState> {
       if (res.status != 200 || resText !== "") {
         this.props.setModal(
           <ErrorModal
-            header={"Error " + res.status}
+            header={"Error " + res.status + ": " + resText}
             body={
               'There was an issue with editing "' +
               this.state.data.name +
@@ -123,13 +123,12 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                           }),
                         });
 
+                  let resText = await res.text();
                   this.props.setModal(<div></div>);
-                  if (res.status == 200) {
-                    this.props.setStateTasks();
-                  } else {
+                  if (res.status != 200 || resText !== "") {
                     this.props.setModal(
                       <ErrorModal
-                        header={"Error " + res.status}
+                        header={"Error " + res.status + ": " + resText}
                         body={
                           'There was an issue with deleting "' +
                           this.state.data.name +
@@ -138,6 +137,8 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                         onClose={() => this.props.setModal(<div></div>)}
                       />
                     );
+                  } else {
+                    this.props.setStateTasks();
                   }
                 }}
               />

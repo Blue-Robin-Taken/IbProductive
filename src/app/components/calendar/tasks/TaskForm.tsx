@@ -55,55 +55,40 @@ export default function TaskForm(props: TaskFormProps) {
     props.data.checkboxes
   );
   const [classId, setClassId] = useState<string>(String(props.data.classId));
+  const [className, setClassName] = useState<string>("Loading...");
   const [classes, setClasses] = useState<React.ReactElement[]>();
 
   useEffect(() => {
-    async function apiCall(isAdminInput: boolean) {
-      if (isAdminType && isAdminInput) {
-        let params = new URLSearchParams({ name: "all" });
-        let res = await fetch("/api/classes?" + params);
-        let resJson = await res.json();
-
-        let arr: ClassData[] = resJson.arr;
-        setClasses(
-          arr.map((i: ClassData) => {
-            return (
-              <option key={i.id} value={i.id}>
-                {i.name}
-              </option>
-            );
-          })
-        );
-      }
-    }
-
     fetch("/api/auth/admin?")
       .then((res) => {
         return res.json();
       })
       .then((resJson: { isAdmin: boolean }) => {
         setUserAdmin(resJson.isAdmin);
-        return resJson.isAdmin;
-      })
-      .then(apiCall);
+      });
+
+    /* Get from cache if exists */
+    let locClasses: string = String(localStorage.getItem("classesList"));
+    if (locClasses != "null") {
+      setClasses(
+        JSON.parse(locClasses).arr.map((i: ClassData) => {
+          if (i.id == props.data.classId) {
+            setClassName(i.name);
+          }
+          return (
+            <option key={i.id} value={i.id}>
+              {i.name}
+            </option>
+          );
+        })
+      );
+    }
 
     return () => {};
   }, []);
 
   let nextId: number =
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1;
-
-  console.log(
-    props.data.dueDate.getFullYear() +
-      "-" +
-      (props.data.dueDate.getMonth() + 1) +
-      "-" +
-      props.data.dueDate.getDate() +
-      "T" +
-      props.data.dueDate.getHours() +
-      ":" +
-      props.data.dueDate.getMinutes()
-  );
 
   return (
     <div className="modal-bg">
@@ -165,13 +150,13 @@ export default function TaskForm(props: TaskFormProps) {
         ) : null}
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Class */}
-          {isAdminType && isUserAdmin ? (
+          {isAdminType ? (
             <label className="task-form-label">Class:</label>
           ) : null}
           {isAdminType && isUserAdmin ? (
             <select
               className="text-black"
-              defaultValue={"none"}
+              defaultValue={props.data.classId ? props.data.classId : "none"}
               onChange={(e) => {
                 e.preventDefault();
                 setClassId(e.currentTarget.value);
@@ -181,6 +166,7 @@ export default function TaskForm(props: TaskFormProps) {
               {classes}
             </select>
           ) : null}
+          {isAdminType && !isUserAdmin ? <p>{className}</p> : null}
 
           {/* Description */}
           <label className="task-form-label">Description:</label>
