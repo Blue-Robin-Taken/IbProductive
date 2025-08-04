@@ -4,6 +4,8 @@ import "./tasks.css";
 import { useEffect, useState } from "react";
 import { ClassData } from "@/db/classes/class";
 import { ConfirmModal, ErrorModal } from "../../generic/modals";
+import TaskDueCountdown from "./TaskDueDate";
+import { dateAsDateTimeLocalValue } from "../../generic/time/time";
 
 export type TaskFormEditable = {
   nameEditable: boolean;
@@ -36,7 +38,7 @@ export default function TaskForm(props: TaskFormProps) {
     props.onSubmit(
       name,
       desc,
-      props.data.dueDate,
+      dueDate,
       checkboxes,
       Number(classId),
       props.data.name
@@ -48,6 +50,7 @@ export default function TaskForm(props: TaskFormProps) {
   const [isUserAdmin, setUserAdmin] = useState<boolean>(false);
   const [name, setName] = useState<string>(props.data.name);
   const [desc, setDesc] = useState<string>(props.data.description);
+  const [dueDate, setDueDate] = useState<Date>(props.data.dueDate);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
   );
@@ -89,6 +92,18 @@ export default function TaskForm(props: TaskFormProps) {
 
   let nextId: number =
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1;
+
+  console.log(
+    props.data.dueDate.getFullYear() +
+      "-" +
+      (props.data.dueDate.getMonth() + 1) +
+      "-" +
+      props.data.dueDate.getDate() +
+      "T" +
+      props.data.dueDate.getHours() +
+      ":" +
+      props.data.dueDate.getMinutes()
+  );
 
   return (
     <div className="modal-bg">
@@ -135,6 +150,19 @@ export default function TaskForm(props: TaskFormProps) {
             Close
           </button>
         </div>
+        {isCreatingType(props.type) ? null : <TaskDueCountdown due={dueDate} />}
+        {(isAdminType && isUserAdmin) || props.data.editables.dueEditable ? (
+          <input
+            className="text-black"
+            type="datetime-local"
+            id="dueDate"
+            defaultValue={dateAsDateTimeLocalValue(props.data.dueDate)}
+            onChange={(e) => {
+              e.preventDefault();
+              setDueDate(new Date(e.currentTarget.value));
+            }}
+          />
+        ) : null}
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Class */}
           {isAdminType && isUserAdmin ? (

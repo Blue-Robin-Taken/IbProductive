@@ -66,7 +66,8 @@ export default class Task extends React.Component<TaskProps, TaskState> {
         }),
       });
 
-      if (res.status != 200) {
+      const resText = await res.text();
+      if (res.status != 200 || resText !== "") {
         this.props.setModal(
           <ErrorModal
             header={"Error " + res.status}
@@ -78,6 +79,8 @@ export default class Task extends React.Component<TaskProps, TaskState> {
             onClose={() => this.props.setModal(<div></div>)}
           />
         );
+      } else {
+        this.props.setStateTasks();
       }
 
       if (prevState.data.checkboxes != this.state.data.checkboxes) {
@@ -198,7 +201,8 @@ export default class Task extends React.Component<TaskProps, TaskState> {
       }),
     });
 
-    if (res.status != 200) {
+    let resText = await res.text();
+    if (res.status != 200 || resText !== "") {
       this.props.setModal(
         <ErrorModal
           header={"Error " + res.status}
@@ -208,6 +212,8 @@ export default class Task extends React.Component<TaskProps, TaskState> {
           onClose={() => this.props.setModal(<div></div>)}
         />
       );
+    } else {
+      this.props.setStateTasks();
     }
   }
 }

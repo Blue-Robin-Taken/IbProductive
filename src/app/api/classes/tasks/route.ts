@@ -1,6 +1,5 @@
 import { TaskCheckbox } from "@/app/components/calendar/tasks/Task";
 import { checkDBIsAdminToken, getUsername } from "@/db/authentication/jwtAuth";
-import { checkCookieUser } from "@/db/authentication/signUp";
 import {
   createTaskForClass,
   deleteTaskForClass,
