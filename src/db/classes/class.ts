@@ -60,7 +60,7 @@ export async function createTaskForClass(
 
   let data = users.map((i) => {
     return {
-      classId: classId,
+      classId,
       username: i.name,
       name,
       description: desc,
@@ -92,4 +92,16 @@ export async function editTaskForClass(
 
 export async function deleteTaskForClass(classId: number, taskName: string) {
   await prisma.clientTask.deleteMany({ where: { classId, name: taskName } });
+}
+
+export async function assignUserToClasses(
+  classId: number[],
+  userId: number,
+  username: string
+) {
+  let data = classId.map((i: number) => {
+    return { classId: i, userId, username };
+  });
+
+  await prisma.usersInClass.createMany({ data });
 }
