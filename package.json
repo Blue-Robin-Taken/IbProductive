@@ -17,6 +17,7 @@
         "dotenv": "^16.5.0",
         "email-validator": "^2.0.4",
         "jose": "^6.0.11",
+        "motion": "^12.23.12",
         "next": "^15.3.3",
         "node-cron": "^4.2.0",
         "react": "^19.1.0",
