@@ -125,12 +125,12 @@ export default function Pomodoro() {
               ] as any
             }
             strokeLinecap="butt"
-            strokeWidth={32}
+            strokeWidth={8}
             trailColor="#000000"
             size={300}
           >
             {({ remainingTime }) => (
-              <div className="text-center font-bold flex flex-col space-y-2">
+              <div className="text-center font-bold flex flex-col space-y-2 text-xl">
                 <p>{currentCycle}:</p>
                 <p>{remainingTime}</p>
               </div>
