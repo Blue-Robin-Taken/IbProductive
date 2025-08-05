@@ -1,11 +1,12 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import Link from 'next/link';
-import './globals.css';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
+import "./globals.css";
+import UserLayout from "./components/generic/auth/UserAuth";
 
 export const metadata: Metadata = {
-  title: 'IbProductive',
-  description: 'Become more productive!',
+  title: "IbProductive",
+  description: "Become more productive!",
 };
 
 export default function RootLayout({
@@ -25,13 +26,7 @@ export default function RootLayout({
             <Link href="/workspace">Workspace</Link>
           </div>
           <div className="ml-auto flex flex-row space-x-8">
-            <Link href="/settings">Settings</Link>
-            <div className="space-x-8 text-green-500">
-              <Link className="" href="/sign_in">
-                Sign In
-              </Link>
-              <Link href="/sign_up">Sign Up</Link>
-            </div>
+            <UserLayout />
           </div>
         </div>
         <div className="m-10">{children}</div>
