@@ -1,15 +1,15 @@
-'use client';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import { useState, useRef } from 'react';
-import { motion } from 'motion/react';
-import { animate } from 'motion';
+"use client";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { useState, useRef } from "react";
+import { motion } from "motion/react";
+import { animate } from "motion";
 
 export default function Pomodoro() {
   const [play, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [reset, setReset] = useState(0);
 
-  const [currentCycle, setCurrentCycle] = useState<string>('Work Time');
+  const [currentCycle, setCurrentCycle] = useState<string>("Work Time");
 
   const [colorsTime, setColorsTime] = useState<number[]>();
 
@@ -25,29 +25,29 @@ export default function Pomodoro() {
   type ColorHex = `#${string}`;
 
   const colorsList: [ColorHex, ColorHex, ...ColorHex[]] = [
-    '#00274D', // IB navy (index 0)
-    '#093E5E', // teal-navy (index 1)
-    '#12556F',
-    '#1B6C80',
-    '#248391',
-    '#2D9AA2',
-    '#E6B800',
-    '#F6BE00',
-    '#FFCA28',
-    '#FFD54F',
-    '#FFE082',
-    '#FF8C00',
-    '#FF6F00',
-    '#FF5722',
-    '#F4511E',
-    '#E64A19',
-    '#C8102E',
-    '#B71C1C',
-    '#A31515',
-    '#900C3F',
-    '#7B0828',
-    '#660000',
-    '#5C0A0A', // dark red (last)
+    "#00274D", // IB navy (index 0)
+    "#093E5E", // teal-navy (index 1)
+    "#12556F",
+    "#1B6C80",
+    "#248391",
+    "#2D9AA2",
+    "#E6B800",
+    "#F6BE00",
+    "#FFCA28",
+    "#FFD54F",
+    "#FFE082",
+    "#FF8C00",
+    "#FF6F00",
+    "#FF5722",
+    "#F4511E",
+    "#E64A19",
+    "#C8102E",
+    "#B71C1C",
+    "#A31515",
+    "#900C3F",
+    "#7B0828",
+    "#660000",
+    "#5C0A0A", // dark red (last)
   ];
 
   function startWorkTime() {
@@ -56,7 +56,7 @@ export default function Pomodoro() {
         Number((hourWorkRef.current! as HTMLInputElement).value) * 60 * 60 +
         Number((secondWorkRef.current! as HTMLInputElement).value) +
         Number((minuteWorkRef.current! as HTMLInputElement).value) * 60; // in seconds
-      setReset(reset + 1);
+      setReset((prev) => prev + 1);
       setDuration(totalTime);
       setPlaying(true);
     }
@@ -72,9 +72,19 @@ export default function Pomodoro() {
         Number((hourBreakRef.current! as HTMLInputElement).value) * 60 * 60 +
         Number((secondBreakRef.current! as HTMLInputElement).value) +
         Number((minuteBreakRef.current! as HTMLInputElement).value) * 60; // in seconds
-      setReset(reset + 1);
+      setReset((prev) => prev + 1);
       setDuration(totalTime);
       setPlaying(true);
+    }
+  }
+
+  function swapWorkBreakTime() {
+    if (currentCycle == "Work Time") {
+      startBreakTime();
+      return setCurrentCycle("Break Time");
+    } else {
+      startWorkTime();
+      return setCurrentCycle("Work Time");
     }
   }
 
@@ -86,16 +96,20 @@ export default function Pomodoro() {
         <div id="mainClock">
           <CountdownCircleTimer
             onComplete={() => {
-              // Refresh anim
+              /* Goofy Audio */
+              // const ringtone = new Audio();
+              // ringtone.play();
+
+              /* Refresh Animation */
               animate(
-                document.getElementById('mainClock') as HTMLDivElement,
+                document.getElementById("mainClock") as HTMLDivElement,
                 {
                   rotate: 360,
                 },
                 { duration: 0.5 }
               ).then(() => {
                 animate(
-                  document.getElementById('mainClock') as HTMLDivElement,
+                  document.getElementById("mainClock") as HTMLDivElement,
                   {
                     rotate: 0,
                   },
@@ -103,14 +117,8 @@ export default function Pomodoro() {
                 );
               });
 
-              // restart
-              if (currentCycle == 'Work Time') {
-                startBreakTime();
-                return setCurrentCycle('Break Time');
-              } else {
-                startWorkTime();
-                return setCurrentCycle('Work Time');
-              }
+              /* Restart */
+              swapWorkBreakTime();
             }}
             key={reset}
             isPlaying={play}
@@ -132,7 +140,7 @@ export default function Pomodoro() {
             {({ remainingTime }) => (
               <div className="text-center font-bold flex flex-col space-y-2 text-xl">
                 <p>{currentCycle}:</p>
-                <p>{remainingTime}</p>
+                <p>{secondsToHrMinS(remainingTime)}</p>
               </div>
             )}
           </CountdownCircleTimer>
@@ -140,9 +148,9 @@ export default function Pomodoro() {
         <div className="grid grid-rows-2 grid-cols-1 space-y-2 mt-4">
           <button
             onClick={() => {
-              if (currentCycle == 'Work Time') {
+              if (currentCycle == "Work Time") {
                 startWorkTime();
-              } else if (currentCycle == 'Break Time') {
+              } else if (currentCycle == "Break Time") {
                 if (
                   hourBreakRef.current &&
                   secondBreakRef.current &&
@@ -167,6 +175,23 @@ export default function Pomodoro() {
             className="bg-slate-800 rounded-xl px-4 p-2 m-auto"
           >
             Pause/Play Timer
+          </button>
+          <button
+            onClick={() => {
+              setPlaying(false);
+              setReset((prev) => prev + 1);
+            }}
+            className="bg-slate-800 rounded-xl px-4 p-2 m-auto"
+          >
+            Reset Timer
+          </button>
+          <button
+            onClick={() => {
+              setDuration(0.5);
+            }}
+            className="bg-slate-800 rounded-xl px-4 p-2 m-auto"
+          >
+            Skip Timer
           </button>
         </div>
         <div className="flex flex-col space-y-4 m-auto mt-4 ml-16">
@@ -270,4 +295,22 @@ export default function Pomodoro() {
       </div>
     </div>
   );
+}
+
+function secondsToHrMinS(seconds: number) {
+  const hr = Math.floor(seconds / 3600);
+  const hrString = (Math.log10(hr) < 1 ? "0" : "") + hr;
+  const min = Math.floor((seconds - hr * 3600) / 60);
+  const minString = (Math.log10(min) < 1 ? "0" : "") + min;
+  const sec = seconds - hr * 3600 - min * 60;
+  const secString = (Math.log10(sec) < 1 ? "0" : "") + sec;
+
+  if (seconds < 10) {
+    return sec;
+  } else if (seconds < 60) {
+    return secString;
+  } else if (seconds < 3600) {
+    return minString + ":" + secString;
+  }
+  return hrString + ":" + minString + ":" + secString;
 }

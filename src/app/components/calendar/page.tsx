@@ -11,6 +11,7 @@ import {
   getMonthString,
   lastDayOnCal,
 } from "../generic/time/time";
+import { ClassData } from "@/db/classes/class";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -40,7 +41,20 @@ export default class Calendar extends React.Component<{}, CalendarState> {
 
   // runs when the component is added to the screen
   async componentDidMount() {
+    /* Sets the tasks */
     this.setStateTasks();
+
+    /* Class Data Cache */
+    let locClasses: string = String(localStorage.getItem("classesList"));
+    let allClassesParams = new URLSearchParams({ name: "all" });
+    let allClassesRes = await fetch("/api/classes?" + allClassesParams);
+    let allClassesResJson: { arr: ClassData[] } = await allClassesRes.json();
+    if (
+      locClasses == "null" ||
+      locClasses !== JSON.stringify(allClassesResJson)
+    ) {
+      localStorage.setItem("classesList", JSON.stringify(allClassesResJson));
+    }
   }
 
   async componentDidUpdate(
@@ -293,7 +307,6 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     let res = await fetch("/api/calendar/tasks?" + params);
     let json = await res.json();
     let data: TaskData[] = json["taskArr" as keyof typeof json];
-    // console.log(data);
 
     /* Updates Tasks */
     this.setState((prev) => ({ ...prev, tasks: data }));

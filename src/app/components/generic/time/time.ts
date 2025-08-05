@@ -78,3 +78,17 @@ export function lastDayOnCal(year: number, month: number) {
 
   return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY;
 }
+
+export function dateAsDateTimeLocalValue(date: Date) {
+  let output: string = date.getFullYear() + "-";
+  output +=
+    (Math.log10(date.getMonth() + 1) < 1 ? "0" : "") +
+    String(date.getMonth() + 1) +
+    "-";
+  output +=
+    (Math.log10(date.getDate()) < 1 ? "0" : "") + String(date.getDate()) + "T";
+  output +=
+    (Math.log10(date.getHours()) < 1 ? "0" : "") + date.getHours() + ":";
+  output += (Math.log10(date.getMinutes()) < 1 ? "0" : "") + date.getMinutes();
+  return output;
+}

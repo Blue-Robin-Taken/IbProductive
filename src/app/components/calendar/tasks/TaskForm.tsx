@@ -4,6 +4,8 @@ import "./tasks.css";
 import { useEffect, useState } from "react";
 import { ClassData } from "@/db/classes/class";
 import { ConfirmModal, ErrorModal } from "../../generic/modals";
+import TaskDueCountdown from "./TaskDueDate";
+import { dateAsDateTimeLocalValue } from "../../generic/time/time";
 
 export type TaskFormEditable = {
   nameEditable: boolean;
@@ -36,7 +38,7 @@ export default function TaskForm(props: TaskFormProps) {
     props.onSubmit(
       name,
       desc,
-      props.data.dueDate,
+      dueDate,
       checkboxes,
       Number(classId),
       props.data.name
@@ -48,41 +50,39 @@ export default function TaskForm(props: TaskFormProps) {
   const [isUserAdmin, setUserAdmin] = useState<boolean>(false);
   const [name, setName] = useState<string>(props.data.name);
   const [desc, setDesc] = useState<string>(props.data.description);
+  const [dueDate, setDueDate] = useState<Date>(props.data.dueDate);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
   );
   const [classId, setClassId] = useState<string>(String(props.data.classId));
+  const [className, setClassName] = useState<string>("Loading...");
   const [classes, setClasses] = useState<React.ReactElement[]>();
 
   useEffect(() => {
-    async function apiCall(isAdminInput: boolean) {
-      if (isAdminType && isAdminInput) {
-        let params = new URLSearchParams({ name: "all" });
-        let res = await fetch("/api/classes?" + params);
-        let resJson = await res.json();
-
-        let arr: ClassData[] = resJson.arr;
-        setClasses(
-          arr.map((i: ClassData) => {
-            return (
-              <option key={i.id} value={i.id}>
-                {i.name}
-              </option>
-            );
-          })
-        );
-      }
-    }
-
     fetch("/api/auth/admin?")
       .then((res) => {
         return res.json();
       })
       .then((resJson: { isAdmin: boolean }) => {
         setUserAdmin(resJson.isAdmin);
-        return resJson.isAdmin;
-      })
-      .then(apiCall);
+      });
+
+    /* Get from cache if exists */
+    let locClasses: string = String(localStorage.getItem("classesList"));
+    if (locClasses != "null") {
+      setClasses(
+        JSON.parse(locClasses).arr.map((i: ClassData) => {
+          if (i.id == props.data.classId) {
+            setClassName(i.name);
+          }
+          return (
+            <option key={i.id} value={i.id}>
+              {i.name}
+            </option>
+          );
+        })
+      );
+    }
 
     return () => {};
   }, []);
@@ -135,15 +135,28 @@ export default function TaskForm(props: TaskFormProps) {
             Close
           </button>
         </div>
+        {isCreatingType(props.type) ? null : <TaskDueCountdown due={dueDate} />}
+        {(isAdminType && isUserAdmin) || props.data.editables.dueEditable ? (
+          <input
+            className="text-black"
+            type="datetime-local"
+            id="dueDate"
+            defaultValue={dateAsDateTimeLocalValue(props.data.dueDate)}
+            onChange={(e) => {
+              e.preventDefault();
+              setDueDate(new Date(e.currentTarget.value));
+            }}
+          />
+        ) : null}
         <div className="grid grid-cols-[10%_auto] gap-y-5">
           {/* Class */}
-          {isAdminType && isUserAdmin ? (
+          {isAdminType ? (
             <label className="task-form-label">Class:</label>
           ) : null}
           {isAdminType && isUserAdmin ? (
             <select
               className="text-black"
-              defaultValue={"none"}
+              defaultValue={props.data.classId ? props.data.classId : "none"}
               onChange={(e) => {
                 e.preventDefault();
                 setClassId(e.currentTarget.value);
@@ -153,6 +166,7 @@ export default function TaskForm(props: TaskFormProps) {
               {classes}
             </select>
           ) : null}
+          {isAdminType && !isUserAdmin ? <p>{className}</p> : null}
 
           {/* Description */}
           <label className="task-form-label">Description:</label>
