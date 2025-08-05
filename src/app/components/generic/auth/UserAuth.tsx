@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function UserLayout() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [rerender, setRerender] = useState(0);
 
   useEffect(() => {
     fetch("/api/auth/user?")
@@ -16,10 +17,25 @@ export default function UserLayout() {
           setLoggedIn(true);
         }
       });
-  }, []);
+  }, [rerender]);
 
   return loggedIn ? (
-    <Link href="/settings">Settings</Link>
+    <div className="space-x-8 text-green-500">
+      <Link href="/settings">Settings</Link>
+      <button
+        onClick={async () => {
+          let deleteRes = await fetch("/api/auth/signIn", { method: "DELETE" });
+          let deleteResText = await deleteRes.text();
+
+          if (deleteRes.status != 200 || deleteResText != "") {
+          } else {
+            window.location.reload();
+          }
+        }}
+      >
+        Sign Out
+      </button>
+    </div>
   ) : (
     <div className="space-x-8 text-green-500">
       <Link className="" href="/sign_in">
