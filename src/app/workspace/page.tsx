@@ -1,5 +1,5 @@
-import Calendar from '../components/calendar/page';
-import Pomodoro from '../components/pomodoro/page';
+import Calendar from "../components/calendar/page";
+import Pomodoro from "../components/pomodoro/page";
 export default function Workspace() {
   return (
     <div>

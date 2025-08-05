@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
 import { AddClassTask, AddClientTask } from "./tasks/TaskForm";
@@ -24,213 +24,67 @@ type CalendarState = {
   actionsUp: boolean;
 };
 
-export default class Calendar extends React.Component<{}, CalendarState> {
-  constructor(props: {}) {
-    super(props);
+export default function Calender() {
+  let now: Date = new Date();
+  const [month, setMonth] = useState<number>(now.getMonth());
+  const [year, setYear] = useState<number>(now.getFullYear());
+  const [tasks, setTasks] = useState<TaskData[]>([]);
 
-    let date = new Date();
-    this.state = {
-      month: date.getMonth(),
-      year: date.getFullYear(),
-      now: date,
-      tasks: [],
-      modal: <div></div>,
-      actionsUp: false,
-    };
+  async function setStateTasks() {
+    /* Fetches Tasks */
+    const start: number = firstDayOnCal(year, month);
+    const end: number = lastDayOnCal(year, month);
+
+    let params = new URLSearchParams({
+      start: String(start),
+      end: String(end),
+    });
+
+    let res = await fetch("/api/calendar/tasks?" + params);
+    let json = await res.json();
+    let data: TaskData[] = json["taskArr" as keyof typeof json];
+
+    /* Updates Tasks */
+    setTasks(data);
   }
 
-  // runs when the component is added to the screen
-  async componentDidMount() {
-    /* Sets the tasks */
-    this.setStateTasks();
+  // get tasks everytime month changes
+  useEffect(() => {
+    setStateTasks();
+  }, [month]);
 
-    /* Class Data Cache */
-    let locClasses: string = String(localStorage.getItem("classesList"));
-    let allClassesParams = new URLSearchParams({ name: "all" });
-    let allClassesRes = await fetch("/api/classes?" + allClassesParams);
-    let allClassesResJson: { arr: ClassData[] } = await allClassesRes.json();
-    if (
-      locClasses == "null" ||
-      locClasses !== JSON.stringify(allClassesResJson)
-    ) {
-      localStorage.setItem("classesList", JSON.stringify(allClassesResJson));
+  /* Modal */
+  let modalRef = useRef<HTMLDialogElement | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalBox, setModalBox] = useState<ReactElement | null>();
+  useEffect(() => {
+    if (!showModal) return;
+    modalRef.current?.showModal();
+  }, [showModal]);
+
+  function prevMonth() {
+    if (month == 0) {
+      setMonth(11);
+      setYear((prev) => prev - 1);
+    } else {
+      setMonth((prev) => prev - 1);
     }
   }
 
-  async componentDidUpdate(
-    prevProps: Readonly<{}>,
-    prevState: Readonly<CalendarState>,
-    snapshot?: any
-  ) {
-    if (prevState.month !== this.state.month) {
-      this.setStateTasks();
+  function nextMonth() {
+    if (month == 11) {
+      setMonth(0);
+      setYear((prev) => prev + 1);
+    } else {
+      setMonth((prev) => prev + 1);
     }
   }
 
-  render() {
-    return (
-      <div>
-        {this.state.modal}
-        {this.TodayButton()}
-        <div className="text-black flex justify-between px-5 py-5 my-3 bg-red-300">
-          <button onClick={this.PrevMonth.bind(this)} className="w-24 h-12">
-            Previous
-          </button>
-          <h1 className="text-6xl flex-start">
-            {getMonthString(this.state.month)} {this.state.year}
-          </h1>
-          <button onClick={this.NextMonth.bind(this)} className="w-24 h-12">
-            Next
-          </button>
-        </div>
-        <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4 sticky">
-          {/* Date Labels */}
-          {Array.from({ length: 7 }).map((_, index) => (
-            <h2 className="flex bg-red-400 justify-center py-2" key={index}>
-              {getDayString(index)}
-            </h2>
-          ))}
-        </div>
-        <div className="justify-center grid grid-rows-6 grid-cols-7 gap-x-8 gap-y-4">
-          {this.generateBoxes()}
-        </div>
-
-        {this.CalActions()}
-      </div>
-    );
-  }
-
-  setModal(elem: React.ReactElement) {
-    this.setState((prev) => ({ ...prev, modal: elem }));
-  }
-
-  ///
-  /// Buttons
-  ///
-  /**
-   * A useful button which sets the calendar to the current month.
-   *
-   * @returns a button if the month that the calendar shows is not the current month.
-   */
-  TodayButton() {
-    let date = new Date();
-    let currentMonth = date.getMonth();
-    let currentYear = date.getFullYear();
-
-    if (currentMonth === this.state.month && currentYear === this.state.year) {
-      return <div></div>;
-    }
-
-    return (
-      <div className="text-black flex justify-between px-5 py-5 my-3 bg-red-300">
-        <button onClick={this.CurrMonth.bind(this)}>Today</button>
-      </div>
-    );
-  }
-
-  /**
-   * Sets the month that the calendar shows to the current month.
-   */
-  CurrMonth() {
-    let date = new Date();
-    this.setState((prev) => ({
-      ...prev,
-      month: date.getMonth(),
-      year: date.getFullYear(),
-    }));
-  }
-
-  /**
-   * Moves the month that the calendar shows to the previous month.
-   */
-  PrevMonth() {
-    var newMonth: number = this.state.month - 1;
-    var newYear: number = this.state.year;
-
-    if (newMonth === -1) {
-      newMonth = 11;
-      newYear--;
-    }
-
-    this.setState((prev) => ({
-      ...prev,
-      month: newMonth,
-      year: newYear,
-    }));
-  }
-
-  /**
-   * Moves the month that the calendar showss to the next month.
-   */
-  NextMonth() {
-    var newMonth: number = this.state.month + 1;
-    var newYear: number = this.state.year;
-
-    if (newMonth === 12) {
-      newMonth = 0;
-      newYear++;
-    }
-
-    this.setState((prev) => ({
-      ...prev,
-      month: newMonth,
-      year: newYear,
-    }));
-  }
-
-  CalActions() {
-    const toggleMenu = () => {
-      this.setState((prev) => ({ ...prev, actionsUp: !prev.actionsUp }));
-    };
-
-    const setModal = (elem: React.ReactElement) => {
-      toggleMenu();
-      this.setState((prev) => ({ ...prev, modal: elem }));
-    };
-
-    return (
-      <div className="z-5 relative bottom-10 left-10">
-        {!this.state.actionsUp ? null : (
-          <div className="relative">
-            <button
-              onClick={() =>
-                setModal(
-                  <AddClientTask
-                    setModal={this.setModal.bind(this)}
-                    setStateTasks={this.setStateTasks.bind(this)}
-                  />
-                )
-              }
-            >
-              {" Add Task "}
-            </button>
-            <button
-              onClick={() =>
-                setModal(
-                  <AddClassTask
-                    setModal={this.setModal.bind(this)}
-                    setStateTasks={this.setStateTasks.bind(this)}
-                  />
-                )
-              }
-            >
-              Add Class Task
-            </button>
-          </div>
-        )}
-        <button onClick={toggleMenu}>+</button>
-      </div>
-    );
-  }
-
-  ///
-  /// Boxes
-  ///
-  CalendarBox(timeInMS: number) {
+  function CalendarBox(timeInMS: number) {
     let css: string = "";
     let timeAsDate: Date = new Date(timeInMS);
 
-    if (timeAsDate.getMonth() !== this.state.month) {
+    if (timeAsDate.getMonth() !== month) {
       // prev month or next month
       css = "other-month";
     } else {
@@ -239,9 +93,9 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     }
 
     if (
-      timeAsDate.getFullYear() === this.state.now.getFullYear() &&
-      timeAsDate.getMonth() === this.state.now.getMonth() &&
-      timeAsDate.getDate() === this.state.now.getDate()
+      timeAsDate.getFullYear() === now.getFullYear() &&
+      timeAsDate.getMonth() === now.getMonth() &&
+      timeAsDate.getDate() === now.getDate()
     ) {
       css += "-today";
     }
@@ -249,13 +103,13 @@ export default class Calendar extends React.Component<{}, CalendarState> {
       <div key={timeInMS} className={css}>
         <p className="inline-block px-1 mr-2 text-xl">{timeAsDate.getDate()}</p>
         {getHolidays(timeAsDate)}
-        {this.taskComps(timeAsDate)}
+        {taskComps(timeAsDate)}
       </div>
     );
   }
 
-  taskComps(date: Date) {
-    let taskArr = this.state.tasks.filter((task) => {
+  function taskComps(date: Date) {
+    let taskArr = tasks.filter((task) => {
       let due: Date = new Date(task.dueDate);
 
       return (
@@ -271,8 +125,9 @@ export default class Calendar extends React.Component<{}, CalendarState> {
         <Task
           key={task.id}
           data={task}
-          setModal={this.setModal.bind(this)}
-          setStateTasks={this.setStateTasks.bind(this)}
+          toggleModal={() => setShowModal((prev) => !prev)}
+          setModal={(elem: ReactElement) => setModalBox(elem)}
+          setStateTasks={() => {}}
         />
       );
     }
@@ -280,35 +135,49 @@ export default class Calendar extends React.Component<{}, CalendarState> {
     return compArr;
   }
 
-  generateBoxes() {
+  function genBoxes() {
     let arr = [];
 
     for (
-      let i = firstDayOnCal(this.state.year, this.state.month);
-      i <= lastDayOnCal(this.state.year, this.state.month);
+      let i = firstDayOnCal(year, month);
+      i <= lastDayOnCal(year, month);
       i += MS_IN_DAY
     ) {
-      arr.push(this.CalendarBox(i));
+      arr.push(CalendarBox(i));
     }
 
     return arr;
   }
 
-  async setStateTasks() {
-    /* Fetches Tasks */
-    const start: number = firstDayOnCal(this.state.year, this.state.month);
-    const end: number = lastDayOnCal(this.state.year, this.state.month);
-
-    let params = new URLSearchParams({
-      start: String(start),
-      end: String(end),
-    });
-
-    let res = await fetch("/api/calendar/tasks?" + params);
-    let json = await res.json();
-    let data: TaskData[] = json["taskArr" as keyof typeof json];
-
-    /* Updates Tasks */
-    this.setState((prev) => ({ ...prev, tasks: data }));
-  }
+  return (
+    <div>
+      <button className="btn" onClick={() => setShowModal((prev) => !prev)}>
+        Show modal 🤪
+      </button>
+      <dialog className="modal" ref={modalRef}>
+        {modalBox}
+      </dialog>
+      <div className="text-secondary-content flex justify-between p-5 my-3 bg-secondary">
+        <button className="btn" onClick={prevMonth}>
+          Previous
+        </button>
+        <h1 className="text-6xl flex-start">
+          {getMonthString(month)} {year}
+        </h1>
+        <button className="btn" onClick={nextMonth}>
+          Next
+        </button>
+      </div>
+      <div className="grid grid-rows-1 grid-cols-7 gap-x-8 pb-4 sticky">
+        {Array.from({ length: 7 }).map((_, index) => (
+          <h2 className="flex justify-center py-2 bg-secondary" key={index}>
+            {getDayString(index)}
+          </h2>
+        ))}
+      </div>
+      <div className="justify-center grid grid-rows6 grid-cols-7 gap-x-8 gap-y-4">
+        {genBoxes()}
+      </div>
+    </div>
+  );
 }

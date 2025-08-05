@@ -91,7 +91,7 @@ export default function TaskForm(props: TaskFormProps) {
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1;
 
   return (
-    <div className="modal-bg">
+    <div className="modal-box w-screen h-screen">
       {/* TODO: what if the checklist is too big so you need to scroll? */}
       <form
         id="taskform"
