@@ -22,7 +22,22 @@ export default function UserLayout() {
   }, [location]);
 
   return loggedIn ? (
-    <Link href="/settings">Settings</Link>
+    <div className="space-x-8 text-green-500">
+      <Link href="/settings">Settings</Link>
+      <button
+        onClick={async () => {
+          let deleteRes = await fetch('/api/auth/signIn', { method: 'DELETE' });
+          let deleteResText = await deleteRes.text();
+
+          if (deleteRes.status != 200 || deleteResText != '') {
+          } else {
+            window.location.reload();
+          }
+        }}
+      >
+        Sign Out
+      </button>
+    </div>
   ) : (
     <div className="space-x-8 text-green-500">
       <Link className="" href="/sign_in">
