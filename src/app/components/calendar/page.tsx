@@ -131,7 +131,7 @@ export default function Calender() {
           data={task}
           toggleModal={() => setShowModal((prev) => !prev)}
           setModal={(elem: ReactElement) => setModalBox(elem)}
-          setStateTasks={() => {}}
+          setStateTasks={setStateTasks}
         />
       );
     }
@@ -167,6 +167,34 @@ export default function Calender() {
         }}
       >
         Show modal 🤪
+      </button>
+      <button
+        className="btn"
+        onClick={() =>
+          setModalBox(
+            <AddClientTask
+              toggleModal={() => setShowModal((prev) => !prev)}
+              setModalBox={(elem: ReactElement) => setModalBox(elem)}
+              setStateTasks={setStateTasks}
+            />
+          )
+        }
+      >
+        Add Personal Task
+      </button>
+      <button
+        className="btn"
+        onClick={() =>
+          setModalBox(
+            <AddClassTask
+              toggleModal={() => setShowModal((prev) => !prev)}
+              setModalBox={(elem: ReactElement) => setModalBox(elem)}
+              setStateTasks={setStateTasks}
+            />
+          )
+        }
+      >
+        Add Class Task
       </button>
       <dialog
         className="modal"

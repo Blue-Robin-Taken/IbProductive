@@ -3,7 +3,7 @@ import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
 import { useEffect, useRef, useState } from "react";
 import { ClassData } from "@/db/classes/class";
-import { ConfirmModal, ErrorModal } from "../../generic/modals";
+import { ErrorModal } from "../../generic/modals";
 import TaskDueCountdown from "./TaskDueDate";
 import { dateAsDateTimeLocalValue } from "../../generic/time/time";
 
@@ -120,21 +120,25 @@ export default function TaskForm(props: TaskFormProps) {
 
         <div className="grid grid-cols-[15%_auto] gap-y-5 my-5">
           {/* Due Date */}
-          {isCreatingType(props.type) ? null : (
-            <TaskDueCountdown due={dueDate} />
-          )}
-          {(isAdminType && isUserAdmin) || props.data.editables.dueEditable ? (
-            <input
-              className="input"
-              type="datetime-local"
-              id="dueDate"
-              defaultValue={dateAsDateTimeLocalValue(props.data.dueDate)}
-              onChange={(e) => {
-                e.preventDefault();
-                setDueDate(new Date(e.currentTarget.value));
-              }}
-            />
-          ) : null}
+          <label className="task-form-label">Due Date:</label>
+          <div className="inline-flex">
+            {(isAdminType && isUserAdmin) ||
+            props.data.editables.dueEditable ? (
+              <input
+                className="input input-xl"
+                type="datetime-local"
+                id="dueDate"
+                defaultValue={dateAsDateTimeLocalValue(props.data.dueDate)}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setDueDate(new Date(e.currentTarget.value));
+                }}
+              />
+            ) : null}
+            {isCreatingType(props.type) ? null : (
+              <TaskDueCountdown due={dueDate} />
+            )}
+          </div>
 
           {/* Class */}
           {isAdminType ? (
@@ -142,7 +146,7 @@ export default function TaskForm(props: TaskFormProps) {
           ) : null}
           {isAdminType && isUserAdmin ? (
             <select
-              className="text-black"
+              className="select select-xl"
               defaultValue={props.data.classId ? props.data.classId : "none"}
               onChange={(e) => {
                 e.preventDefault();
@@ -281,15 +285,16 @@ function checkIfAdminType(type: TaskFormType): boolean {
 }
 
 export function AddClientTask(props: {
-  setModal: Function;
+  toggleModal: Function;
+  setModalBox: Function;
   setStateTasks: Function;
 }) {
-  const submit = async (
+  async function submit(
     name: string,
     desc: string,
     dueDate: Date,
     checkboxes: TaskCheckbox[]
-  ) => {
+  ) {
     /* Create the task */
     let res = await fetch("/api/calendar/tasks", {
       method: "POST",
@@ -307,17 +312,15 @@ export function AddClientTask(props: {
       // successful create
       props.setStateTasks();
     } else {
-      props.setModal(
+      props.setModalBox(
         <ErrorModal
           header={"Error " + res.status}
           body={'There was an issue with creating "' + name + '".'}
-          onClose={() => {
-            props.setModal(<div></div>);
-          }}
+          onClose={() => props.toggleModal()}
         />
       );
     }
-  };
+  }
 
   return (
     <TaskForm
@@ -336,7 +339,7 @@ export function AddClientTask(props: {
         classId: null,
       }}
       type={TaskFormType.CLIENT_CREATE}
-      onClose={() => props.setModal(<div></div>)}
+      onClose={() => props.toggleModal()}
       onSubmit={submit}
       onDelete={() => {}}
     />
@@ -344,7 +347,8 @@ export function AddClientTask(props: {
 }
 
 export function AddClassTask(props: {
-  setModal: Function;
+  toggleModal: Function;
+  setModalBox: Function;
   setStateTasks: Function;
 }) {
   const confirm = async (
@@ -369,7 +373,7 @@ export function AddClassTask(props: {
 
     const resText = await res.text();
     if (res.status != 200 || resText !== "") {
-      props.setModal(
+      props.setModalBox(
         <ErrorModal
           header={"Error " + res.status}
           body={
@@ -378,11 +382,10 @@ export function AddClassTask(props: {
             '" for the class.  Error Message: ' +
             resText
           }
-          onClose={() => props.setModal(<div></div>)}
+          onClose={() => props.toggleModal()}
         />
       );
     } else {
-      props.setModal(<div></div>);
       props.setStateTasks();
     }
   };
@@ -424,7 +427,7 @@ export function AddClassTask(props: {
         classId: null,
       }}
       type={TaskFormType.ADMIN_CREATE}
-      onClose={() => props.setModal(<div></div>)}
+      onClose={() => props.toggleModal()}
       onSubmit={submit}
       onDelete={() => {}}
     />

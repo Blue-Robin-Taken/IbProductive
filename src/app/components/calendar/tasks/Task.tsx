@@ -138,7 +138,6 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                         onClose={() => this.props.toggleModal()}
                       />
                     );
-                    this.props.toggleModal();
                   } else {
                     this.props.setStateTasks();
                   }
