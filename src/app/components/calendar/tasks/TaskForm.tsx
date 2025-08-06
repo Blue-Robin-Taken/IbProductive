@@ -43,7 +43,6 @@ export default function TaskForm(props: TaskFormProps) {
       Number(classId),
       props.data.name
     );
-    props.onClose();
   }
 
   const isAdminType: boolean = checkIfAdminType(props.type);
@@ -95,16 +94,13 @@ export default function TaskForm(props: TaskFormProps) {
       {/* TODO: what if the checklist is too big so you need to scroll? */}
       <form
         id="taskform"
-        onSubmit={submit}
-        // onKeyDown={(e) => {
-        //   if (e.key === "escape") {
-        //     e.preventDefault();
-        //     props.onClose();
-        //   } else if (e.key === "enter") {
-        //     e.preventDefault();
-        //     submit();
-        //   }
-        // }}
+        onKeyDown={(e) => {
+          if (e.key === "enter") {
+            e.preventDefault();
+            submit();
+            props.onClose();
+          }
+        }}
       >
         {/* Name */}
         {(isAdminType && isUserAdmin) || props.data.editables.nameEditable ? (

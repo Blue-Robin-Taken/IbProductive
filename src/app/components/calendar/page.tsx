@@ -58,6 +58,10 @@ export default function Calender() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalBox, setModalBox] = useState<ReactElement | null>();
   useEffect(() => {
+    if (showModal || !modalBox) return;
+    setShowModal(true);
+  }, [modalBox]);
+  useEffect(() => {
     if (!showModal) return;
     modalRef.current?.showModal();
   }, [showModal]);

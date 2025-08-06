@@ -145,7 +145,6 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                 }}
               />
             );
-            this.props.toggleModal();
           }}
         >
           {this.state.data.name}
