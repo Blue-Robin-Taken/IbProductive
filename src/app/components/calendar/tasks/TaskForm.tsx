@@ -1,7 +1,7 @@
 import "../calendar.css";
 import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClassData } from "@/db/classes/class";
 import { ConfirmModal, ErrorModal } from "../../generic/modals";
 import TaskDueCountdown from "./TaskDueDate";
@@ -31,25 +31,25 @@ export enum TaskFormType {
 }
 
 export default function TaskForm(props: TaskFormProps) {
-  const close = () => {
-    props.onClose();
-  };
-  const submit = () => {
+  function submit() {
+    let nameVal = nameRef.current?.value;
+    let descVal = descRef.current?.value;
+
     props.onSubmit(
-      name,
-      desc,
+      nameVal,
+      descVal,
       dueDate,
       checkboxes,
       Number(classId),
       props.data.name
     );
-    close();
-  };
+    props.onClose();
+  }
 
   const isAdminType: boolean = checkIfAdminType(props.type);
   const [isUserAdmin, setUserAdmin] = useState<boolean>(false);
-  const [name, setName] = useState<string>(props.data.name);
-  const [desc, setDesc] = useState<string>(props.data.description);
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const descRef = useRef<HTMLInputElement | null>(null);
   const [dueDate, setDueDate] = useState<Date>(props.data.dueDate);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
@@ -91,64 +91,55 @@ export default function TaskForm(props: TaskFormProps) {
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1;
 
   return (
-    <div className="modal-box w-screen h-screen">
+    <div className="modal-box max-w-full">
       {/* TODO: what if the checklist is too big so you need to scroll? */}
       <form
         id="taskform"
         onSubmit={submit}
-        onKeyDown={(e) => {
-          if (e.key === "escape") {
-            e.preventDefault();
-            close();
-          } else if (e.key === "enter") {
-            e.preventDefault();
-            submit();
-          }
-        }}
+        // onKeyDown={(e) => {
+        //   if (e.key === "escape") {
+        //     e.preventDefault();
+        //     props.onClose();
+        //   } else if (e.key === "enter") {
+        //     e.preventDefault();
+        //     submit();
+        //   }
+        // }}
       >
-        <div className="modal-header">
-          {(isAdminType && isUserAdmin) || props.data.editables.nameEditable ? (
+        {/* Name */}
+        {(isAdminType && isUserAdmin) || props.data.editables.nameEditable ? (
+          <input
+            className="input input-xl"
+            type="text"
+            id="nombre"
+            name="nombre"
+            defaultValue={props.data.name}
+            placeholder="Task Name"
+            ref={nameRef}
+            required
+          />
+        ) : (
+          <h1>{props.data.name}</h1>
+        )}
+
+        <div className="grid grid-cols-[15%_auto] gap-y-5 my-5">
+          {/* Due Date */}
+          {isCreatingType(props.type) ? null : (
+            <TaskDueCountdown due={dueDate} />
+          )}
+          {(isAdminType && isUserAdmin) || props.data.editables.dueEditable ? (
             <input
-              className="task-input"
-              type="text"
-              id="nombre"
-              name="nombre"
-              defaultValue={name}
-              placeholder="Task Name"
+              className="input"
+              type="datetime-local"
+              id="dueDate"
+              defaultValue={dateAsDateTimeLocalValue(props.data.dueDate)}
               onChange={(e) => {
                 e.preventDefault();
-                setName(e.currentTarget.value);
+                setDueDate(new Date(e.currentTarget.value));
               }}
             />
-          ) : (
-            <h1>{name}</h1>
-          )}
-          <h1></h1>
-          <button
-            // flex none prevents from growing/shrinking
-            className="m-5 px-4 text-3xl flex-none"
-            onClick={(e) => {
-              e.preventDefault();
-              close();
-            }}
-          >
-            Close
-          </button>
-        </div>
-        {isCreatingType(props.type) ? null : <TaskDueCountdown due={dueDate} />}
-        {(isAdminType && isUserAdmin) || props.data.editables.dueEditable ? (
-          <input
-            className="text-black"
-            type="datetime-local"
-            id="dueDate"
-            defaultValue={dateAsDateTimeLocalValue(props.data.dueDate)}
-            onChange={(e) => {
-              e.preventDefault();
-              setDueDate(new Date(e.currentTarget.value));
-            }}
-          />
-        ) : null}
-        <div className="grid grid-cols-[10%_auto] gap-y-5">
+          ) : null}
+
           {/* Class */}
           {isAdminType ? (
             <label className="task-form-label">Class:</label>
@@ -172,27 +163,29 @@ export default function TaskForm(props: TaskFormProps) {
           <label className="task-form-label">Description:</label>
           {(isAdminType && isUserAdmin) || props.data.editables.descEditable ? (
             <input
-              className="task-input"
+              className="input input-xl"
               type="text"
               id="description"
               name="description"
-              defaultValue={desc}
+              defaultValue={props.data.description}
               placeholder="No Description"
-              onChange={(e) => {
-                e.preventDefault();
-                setDesc(e.currentTarget.value);
-              }}
+              ref={descRef}
             />
           ) : (
-            <p>{desc === "" ? "No description provided" : desc}</p>
+            <p>
+              {props.data.description === ""
+                ? "No description provided"
+                : props.data.description}
+            </p>
           )}
 
           {/* Checklist */}
           <label className="task-form-label">Checklist:</label>
           <div>
             {checkboxes.map((i) => (
-              <div key={String(i.id)}>
+              <div className="my-2" key={String(i.id)}>
                 <input
+                  className="checkbox mr-3"
                   id={i.id + "-box"}
                   type="checkbox"
                   defaultChecked={Boolean(i.bool)}
@@ -200,7 +193,7 @@ export default function TaskForm(props: TaskFormProps) {
                 />
                 <input
                   id={i.id + "-label"}
-                  className="mx-4"
+                  className="input mr-3"
                   type="text"
                   defaultValue={String(i.label)}
                   placeholder="New Checkbox"
@@ -210,6 +203,7 @@ export default function TaskForm(props: TaskFormProps) {
                   }}
                 />
                 <button
+                  className="btn"
                   onClick={(e) => {
                     e.preventDefault();
                     setCheckboxes(checkboxes.filter((j) => j.id !== i.id));
@@ -223,7 +217,7 @@ export default function TaskForm(props: TaskFormProps) {
 
             {/* Add Checkbox */}
             <button
-              className="my-3"
+              className="btn"
               key={"add-checkbox"}
               onClick={(e) => {
                 e.preventDefault();
@@ -237,17 +231,24 @@ export default function TaskForm(props: TaskFormProps) {
               + Add New Checkbox
             </button>
           </div>
-
-          {/* Deletable */}
-          {deleteComponent(
-            isAdminType,
-            isUserAdmin,
-            props.type,
-            props.data.editables.deletable,
-            props.onDelete
-          )}
-          <input type="submit" value="submit" />
         </div>
+      </form>
+      <form
+        method="dialog"
+        onSubmit={() => props.onClose()}
+        className="modal-action"
+      >
+        <button className="btn">Close</button>
+        {deleteComponent(
+          isAdminType,
+          isUserAdmin,
+          props.type,
+          props.data.editables.deletable,
+          props.onDelete
+        )}
+        <button className="btn" onClick={submit}>
+          Submit
+        </button>
       </form>
     </div>
   );
@@ -264,12 +265,7 @@ function deleteComponent(
     return null;
   } else if ((isAdminType && isUserAdmin) || isDeletable) {
     return (
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          onDelete();
-        }}
-      >
+      <button className="btn" onClick={() => onDelete()}>
         Delete Task
       </button>
     );

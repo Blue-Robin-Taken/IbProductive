@@ -151,10 +151,25 @@ export default function Calender() {
 
   return (
     <div>
-      <button className="btn" onClick={() => setShowModal((prev) => !prev)}>
+      <button
+        className="btn"
+        onClick={() => {
+          setModalBox(
+            <div className="modal-box">
+              <p>eeerm what the rizzler</p>
+            </div>
+          );
+          setShowModal((prev) => !prev);
+        }}
+      >
         Show modal 🤪
       </button>
-      <dialog className="modal" ref={modalRef}>
+      <dialog
+        className="modal"
+        ref={modalRef}
+        // id="calendar-dialog"
+        onCancel={() => setShowModal((prev) => !prev)}
+      >
         {modalBox}
       </dialog>
       <div className="text-secondary-content flex justify-between p-5 my-3 bg-secondary">

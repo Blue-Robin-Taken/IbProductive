@@ -99,16 +99,16 @@ export default class Task extends React.Component<TaskProps, TaskState> {
         <button
           className={"task-label" + this.getTaskCSS()}
           onClick={() => {
-            this.props.toggleModal();
             this.props.setModal(
               <TaskForm
+                key={this.state.data.id}
                 data={this.state.data}
                 type={
                   this.props.data.classId != null
                     ? TaskFormType.ADMIN_EDIT
                     : TaskFormType.CLIENT_EDIT
                 }
-                onClose={this.props.toggleModal.bind(this)}
+                onClose={() => this.props.toggleModal()}
                 onSubmit={this.setStateData.bind(this)}
                 onDelete={async () => {
                   let res =
@@ -126,7 +126,6 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                         });
 
                   let resText = await res.text();
-                  this.props.setModal(<div></div>);
                   if (res.status != 200 || resText !== "") {
                     this.props.setModal(
                       <ErrorModal
@@ -136,15 +135,17 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                           this.state.data.name +
                           '".'
                         }
-                        onClose={() => this.props.setModal(<div></div>)}
+                        onClose={() => this.props.toggleModal()}
                       />
                     );
+                    this.props.toggleModal();
                   } else {
                     this.props.setStateTasks();
                   }
                 }}
               />
             );
+            this.props.toggleModal();
           }}
         >
           {this.state.data.name}

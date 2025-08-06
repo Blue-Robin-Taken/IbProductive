@@ -9,6 +9,7 @@ export function ErrorModal(props: {
 
   return (
     <div
+      className="modal-box"
       onKeyDown={(e) => {
         e.preventDefault();
         if (e.key == "enter" || e.key == "escape") {
@@ -18,7 +19,11 @@ export function ErrorModal(props: {
     >
       <h1>{props.header}</h1>
       <p>{props.body}</p>
-      <button onClick={close}>Close</button>
+      <form className="modal-action" method="dialog">
+        <button className="btn" onClick={close}>
+          Close
+        </button>
+      </form>
     </div>
   );
 }
