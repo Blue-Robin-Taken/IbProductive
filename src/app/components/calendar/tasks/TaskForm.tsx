@@ -3,7 +3,7 @@ import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
 import { useEffect, useRef, useState } from "react";
 import { ClassData } from "@/db/classes/class";
-import { ErrorModal } from "../../generic/modals";
+import { ConfirmModal, ErrorModal } from "../../generic/modals";
 import TaskDueCountdown from "./TaskDueDate";
 import { dateAsDateTimeLocalValue } from "../../generic/time/time";
 
@@ -43,6 +43,7 @@ export default function TaskForm(props: TaskFormProps) {
       Number(classId),
       props.data.name
     );
+    return;
   }
 
   const isAdminType: boolean = checkIfAdminType(props.type);
@@ -390,25 +391,26 @@ export function AddClassTask(props: {
     }
   };
 
-  const submit = (
+  function submit(
     name: string,
     desc: string,
     dueDate: Date,
     checkboxes: TaskCheckbox[],
     classId: number
-  ) => {
-    confirm(name, desc, dueDate, checkboxes, classId);
-    // props.setModal(
-    //   <ConfirmModal
-    //     body={
-    //       "You are about to create a task for a class, meaning that this task will also be created for users.  Do you wish to continue?"
-    //     }
-    //     onConfirm={() => confirm(name, desc, dueDate, checkboxes, classId)}
-    //     onCancel={() => {}}
-    //     onClose={() => props.setModal(<div></div>)}
-    //   />
-    // );
-  };
+  ) {
+    props.setModalBox(
+      <ConfirmModal
+        body={
+          'You are about to create "' +
+          name +
+          '" for a class, meaning that this task will also be created for users.  Do you wish to continue?'
+        }
+        onConfirm={() => confirm(name, desc, dueDate, checkboxes, classId)}
+        onCancel={() => {}}
+        onClose={() => props.toggleModal()}
+      />
+    );
+  }
 
   return (
     <TaskForm

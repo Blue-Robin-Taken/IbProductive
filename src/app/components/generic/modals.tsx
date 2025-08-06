@@ -3,24 +3,20 @@ export function ErrorModal(props: {
   body: string;
   onClose: Function;
 }) {
-  const close = () => {
-    props.onClose();
-  };
-
   return (
     <div
       className="modal-box"
       onKeyDown={(e) => {
         e.preventDefault();
-        if (e.key == "enter" || e.key == "escape") {
-          close();
+        if (e.key == "enter") {
+          props.onClose();
         }
       }}
     >
       <h1>{props.header}</h1>
       <p>{props.body}</p>
       <form className="modal-action" method="dialog">
-        <button className="btn" onClick={close}>
+        <button className="btn" onClick={props.onClose()}>
           Close
         </button>
       </form>
@@ -34,31 +30,22 @@ export function ConfirmModal(props: {
   onCancel: Function;
   onClose: Function;
 }) {
-  const confirm = () => {
-    props.onConfirm();
-    props.onClose();
-  };
-
-  const deny = () => {
-    props.onCancel();
-    props.onClose();
-  };
-
   return (
-    <div
-      onKeyDown={(e) => {
-        e.preventDefault();
-        if (e.key == "enter") {
-          confirm();
-        } else if (e.key == "escape") {
-          deny();
-        }
-      }}
-    >
-      <h1>An action needs confirmation</h1>
+    <div className="modal-box">
+      <h1>An action needs confirmation!</h1>
       <p>{props.body}</p>
-      <button onClick={confirm}>Confirm</button>
-      <button onClick={deny}>Cancel</button>
+      <form
+        className="modal-action"
+        method="dialog"
+        onSubmit={() => props.onClose()}
+      >
+        <button className="btn" onClick={() => props.onConfirm()}>
+          Confirm
+        </button>
+        <button className="btn" onClick={() => props.onCancel()}>
+          Cancel
+        </button>
+      </form>
     </div>
   );
 }

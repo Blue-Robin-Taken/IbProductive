@@ -15,20 +15,26 @@ import { ClassData } from "@/db/classes/class";
 
 const MS_IN_DAY: number = 86400000;
 
-type CalendarState = {
-  month: number;
-  year: number;
-  now: Date;
-  tasks: TaskData[];
-  modal: React.ReactElement;
-  actionsUp: boolean;
-};
-
 export default function Calender() {
   let now: Date = new Date();
   const [month, setMonth] = useState<number>(now.getMonth());
   const [year, setYear] = useState<number>(now.getFullYear());
   const [tasks, setTasks] = useState<TaskData[]>([]);
+
+  /* Caching */
+  useEffect(() => {
+    let locClasses: string = String(localStorage.getItem("classesList"));
+    let allClassesParams = new URLSearchParams({ name: "all" });
+    fetch("/api/classes?" + allClassesParams)
+      .then((res) => {
+        return res.json();
+      })
+      .then((json: { arr: ClassData[] }) => {
+        if (locClasses == "null" || locClasses != JSON.stringify(json)) {
+          localStorage.setItem("classesList", JSON.stringify(json));
+        }
+      });
+  }, []);
 
   async function setStateTasks() {
     /* Fetches Tasks */
@@ -57,6 +63,8 @@ export default function Calender() {
   let modalRef = useRef<HTMLDialogElement | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalBox, setModalBox] = useState<ReactElement | null>();
+
+  // automatically display modal if modalBox is updated
   useEffect(() => {
     if (showModal || !modalBox) return;
     setShowModal(true);
@@ -155,19 +163,6 @@ export default function Calender() {
 
   return (
     <div>
-      <button
-        className="btn"
-        onClick={() => {
-          setModalBox(
-            <div className="modal-box">
-              <p>eeerm what the rizzler</p>
-            </div>
-          );
-          setShowModal((prev) => !prev);
-        }}
-      >
-        Show modal 🤪
-      </button>
       <button
         className="btn"
         onClick={() =>
