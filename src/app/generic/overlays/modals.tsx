@@ -20,6 +20,13 @@ export default function ModalSystem() {
       const details: AddModalEventDetails = (event as CustomEvent).detail;
       setModals((prev) => [...prev, details.body]);
     });
+
+    document.addEventListener("close-modal", () => {
+      if (dialogRef.current?.open) {
+        dialogRef.current?.close(); // manually closes the modal because 'close-modal' event is for when dialog event is not propogated
+      }
+      closeModal();
+    });
   }, []);
 
   useEffect(() => {
@@ -52,6 +59,11 @@ export default function ModalSystem() {
     </dialog>
   );
 }
+
+// export function closeModal() {
+//   const closeEvent = new Event("close-modal");
+//   document.dispatchEvent(closeEvent);
+// }
 
 export function createInfoModal(
   header: string,

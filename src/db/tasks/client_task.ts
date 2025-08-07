@@ -1,5 +1,5 @@
 import { TaskCheckbox, TaskData } from "@/app/components/calendar/tasks/Task";
-import { MS_IN_DAY } from "@/app/components/generic/time/time";
+import { MS_IN_DAY } from "@/app/generic/time/time";
 import prisma from "..";
 import { TaskFormEditable } from "@/app/components/calendar/tasks/TaskForm";
 

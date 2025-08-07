@@ -6,13 +6,13 @@ import { ClassData } from "@/db/classes/class";
 import {
   createConfirmModal,
   createInfoModal,
-} from "../../generic/overlays/modals";
+} from "../../../generic/overlays/modals";
 import TaskDueCountdown from "./TaskDueDate";
-import { dateAsDateTimeLocalValue } from "../../generic/time/time";
+import { dateAsDateTimeLocalValue } from "../../../generic/time/time";
 import {
   createToastEvent,
   ToastAlertType,
-} from "../../generic/overlays/toasts";
+} from "../../../generic/overlays/toasts";
 
 export type TaskFormEditable = {
   nameEditable: boolean;

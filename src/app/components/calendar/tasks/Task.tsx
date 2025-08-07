@@ -1,10 +1,10 @@
 import React from "react";
 import TaskForm, { TaskFormEditable, TaskFormType } from "./TaskForm";
-import { createInfoModal } from "../../generic/overlays/modals";
+import { createInfoModal } from "../../../generic/overlays/modals";
 import {
   createToastEvent,
   ToastAlertType,
-} from "../../generic/overlays/toasts";
+} from "../../../generic/overlays/toasts";
 
 export type TaskCheckbox = {
   id: number;

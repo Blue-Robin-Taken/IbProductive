@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
-import UserLayout from "./components/generic/auth/UserAuth";
-import ToastSystem from "./components/generic/overlays/toasts";
-import ModalSystem from "./components/generic/overlays/modals";
+import UserLayout from "./generic/auth/UserAuth";
+import ToastSystem from "./generic/overlays/toasts";
+import ModalSystem from "./generic/overlays/modals";
 
 export const metadata: Metadata = {
   title: "IbProductive",
