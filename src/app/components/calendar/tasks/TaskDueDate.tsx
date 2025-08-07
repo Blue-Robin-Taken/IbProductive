@@ -21,7 +21,7 @@ export default function TaskDueCountdown(props: TaskDueProps) {
       const ms: number = props.due.getTime() - now.getTime();
 
       setState(getTimeLeft(new Date(ms)));
-      console.log("updated state");
+      // console.log("updated state");
     }, 1000);
 
     return () => {

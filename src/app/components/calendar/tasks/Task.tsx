@@ -1,6 +1,10 @@
 import React from "react";
 import TaskForm, { TaskFormEditable, TaskFormType } from "./TaskForm";
-import { ErrorModal } from "../../generic/modals";
+import { ErrorModal } from "../../generic/overlays/modals";
+import {
+  createToastEvent,
+  ToastAlertType,
+} from "../../generic/overlays/toasts";
 
 export type TaskCheckbox = {
   id: number;
@@ -81,6 +85,12 @@ export default class Task extends React.Component<TaskProps, TaskState> {
           />
         );
       } else {
+        createToastEvent(
+          ToastAlertType.SUCCESS,
+          '"' +
+            this.state.data.name +
+            '" was successfully edited for the class.'
+        );
         this.props.setStateTasks();
       }
 
@@ -139,6 +149,10 @@ export default class Task extends React.Component<TaskProps, TaskState> {
                       />
                     );
                   } else {
+                    createToastEvent(
+                      ToastAlertType.SUCCESS,
+                      '"' + this.state.data.name + '" was successfully deleted.'
+                    );
                     this.props.setStateTasks();
                   }
                 }}
@@ -215,6 +229,10 @@ export default class Task extends React.Component<TaskProps, TaskState> {
         />
       );
     } else {
+      createToastEvent(
+        ToastAlertType.SUCCESS,
+        '"' + this.state.data.name + '" was successfully edited.'
+      );
       this.props.setStateTasks();
     }
   }

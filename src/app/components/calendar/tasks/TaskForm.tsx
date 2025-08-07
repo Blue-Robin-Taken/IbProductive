@@ -3,9 +3,13 @@ import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
 import { useEffect, useRef, useState } from "react";
 import { ClassData } from "@/db/classes/class";
-import { ConfirmModal, ErrorModal } from "../../generic/modals";
+import { ConfirmModal, ErrorModal } from "../../generic/overlays/modals";
 import TaskDueCountdown from "./TaskDueDate";
 import { dateAsDateTimeLocalValue } from "../../generic/time/time";
+import {
+  createToastEvent,
+  ToastAlertType,
+} from "../../generic/overlays/toasts";
 
 export type TaskFormEditable = {
   nameEditable: boolean;
@@ -309,10 +313,8 @@ export function AddClientTask(props: {
     });
 
     /* Response Handling */
-    if (res.status == 200) {
-      // successful create
-      props.setStateTasks();
-    } else {
+    let resText = await res.text();
+    if (res.status != 200 || resText !== "") {
       props.setModalBox(
         <ErrorModal
           header={"Error " + res.status}
@@ -320,6 +322,13 @@ export function AddClientTask(props: {
           onClose={() => props.toggleModal()}
         />
       );
+    } else {
+      // successful create
+      createToastEvent(
+        ToastAlertType.SUCCESS,
+        '"' + name + '" successfully created.'
+      );
+      props.setStateTasks();
     }
   }
 
@@ -352,13 +361,13 @@ export function AddClassTask(props: {
   setModalBox: Function;
   setStateTasks: Function;
 }) {
-  const confirm = async (
+  async function confirm(
     name: string,
     desc: string,
     dueDate: Date,
     checkboxes: TaskCheckbox[],
     classId: number
-  ) => {
+  ) {
     let res = await fetch("/api/classes/tasks", {
       method: "POST",
       body: JSON.stringify({
@@ -387,9 +396,14 @@ export function AddClassTask(props: {
         />
       );
     } else {
+      // successful create
+      createToastEvent(
+        ToastAlertType.SUCCESS,
+        '"' + name + '" successfully created for the class.'
+      );
       props.setStateTasks();
     }
-  };
+  }
 
   function submit(
     name: string,

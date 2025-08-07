@@ -1,12 +1,13 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import Link from 'next/link';
-import './globals.css';
-import UserLayout from './components/generic/auth/UserAuth';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
+import "./globals.css";
+import UserLayout from "./components/generic/auth/UserAuth";
+import ToastSystem from "./components/generic/overlays/toasts";
 
 export const metadata: Metadata = {
-  title: 'IbProductive',
-  description: 'Become more productive!',
+  title: "IbProductive",
+  description: "Become more productive!",
 };
 
 export default function RootLayout({
@@ -30,6 +31,7 @@ export default function RootLayout({
           </div>
         </div>
         <div className="z-0">{children}</div>
+        <ToastSystem />
       </body>
     </html>
   );
