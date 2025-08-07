@@ -17,7 +17,8 @@ export default function ToastSystem() {
   useEffect(() => {
     // "reciever": name of the event, how it is handled
     document.addEventListener("add-toast-alert", (event) => {
-      if (!isEventCustom(event)) {
+      if (!("detail" in event)) {
+        // checks if detail exists in event
         throw new Error('The "add-toast-alert" event is not custom.');
       }
 

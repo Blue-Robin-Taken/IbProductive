@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       name: "token",
       value: jwt_key,
       httpOnly: true,
+      expires: new Date().getTime() + 2 * 3600 * 1000, // 2 hrs * 60 min/hr * 60sec/min * 1000 ms/sec
     }); // set the cookie
 
     return new NextResponse("login happy"); // https://stackoverflow.com/a/69128205/15982771
@@ -47,6 +48,11 @@ export async function POST(request: Request) {
   // put an actual response msg lol
 }
 
+/**
+ * Removes the cookie from the user.
+ * @param request
+ * @returns
+ */
 export async function DELETE(request: Request) {
   let cookieStore = await cookies();
 

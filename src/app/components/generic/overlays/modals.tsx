@@ -1,3 +1,31 @@
+import { useEffect, useState } from "react";
+
+type AddModalEventDetails = {
+  dialog: HTMLDialogElement;
+};
+
+export default function ModalSystem() {
+  const [modals, setModals] = useState<HTMLDialogElement[]>([]);
+
+  useEffect(() => {
+    document.addEventListener("add-modal", (event) => {
+      if (!("detail" in event)) {
+        throw new Error('The "add-modal" event is not custom.');
+      }
+
+      const details: AddModalEventDetails = (event as CustomEvent).detail;
+      setModals((prev) => [...prev, details.dialog]);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (modals.length == 0) return;
+    modals[0].showModal();
+  }, [modals]);
+
+  return <>{modals.length > 0 ? modals[0] : null}</>;
+}
+
 export function ErrorModal(props: {
   header: string;
   body: string;
