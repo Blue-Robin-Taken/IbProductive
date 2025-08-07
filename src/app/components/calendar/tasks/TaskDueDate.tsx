@@ -21,7 +21,6 @@ export default function TaskDueCountdown(props: TaskDueProps) {
       const ms: number = props.due.getTime() - now.getTime();
 
       setState(getTimeLeft(new Date(ms)));
-      // console.log("updated state");
     }, 1000);
 
     return () => {
@@ -74,6 +73,9 @@ function getTimeLeft(timeLeft: Date): TaskDueState {
   let minutes: number = timeLeft.getUTCMinutes();
   if (hours !== 0) {
     output += hours + " hours ";
+  } else if (minutes <= 1) {
+    output += (minutes == 0 ? "<" : "") + "1 minute";
+    return { str: output, css: "" };
   }
   output += minutes + " minutes";
   return { str: output, css: "" };

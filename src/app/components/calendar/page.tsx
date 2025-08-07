@@ -169,7 +169,6 @@ export default function Calender() {
           setModalBox(
             <AddClientTask
               toggleModal={() => setShowModal((prev) => !prev)}
-              setModalBox={(elem: ReactElement) => setModalBox(elem)}
               setStateTasks={setStateTasks}
             />
           )
@@ -183,7 +182,6 @@ export default function Calender() {
           setModalBox(
             <AddClassTask
               toggleModal={() => setShowModal((prev) => !prev)}
-              setModalBox={(elem: ReactElement) => setModalBox(elem)}
               setStateTasks={setStateTasks}
             />
           )

@@ -1,9 +1,12 @@
 import "../calendar.css";
 import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
-import { useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import { ClassData } from "@/db/classes/class";
-import { ConfirmModal, ErrorModal } from "../../generic/overlays/modals";
+import {
+  createConfirmModal,
+  createInfoModal,
+} from "../../generic/overlays/modals";
 import TaskDueCountdown from "./TaskDueDate";
 import { dateAsDateTimeLocalValue } from "../../generic/time/time";
 import {
@@ -60,7 +63,7 @@ export default function TaskForm(props: TaskFormProps) {
   );
   const [classId, setClassId] = useState<string>(String(props.data.classId));
   const [className, setClassName] = useState<string>("Loading...");
-  const [classes, setClasses] = useState<React.ReactElement[]>();
+  const [classes, setClasses] = useState<ReactElement[]>();
 
   useEffect(() => {
     fetch("/api/auth/admin?")
@@ -291,7 +294,6 @@ function checkIfAdminType(type: TaskFormType): boolean {
 
 export function AddClientTask(props: {
   toggleModal: Function;
-  setModalBox: Function;
   setStateTasks: Function;
 }) {
   async function submit(
@@ -315,12 +317,9 @@ export function AddClientTask(props: {
     /* Response Handling */
     let resText = await res.text();
     if (res.status != 200 || resText !== "") {
-      props.setModalBox(
-        <ErrorModal
-          header={"Error " + res.status}
-          body={'There was an issue with creating "' + name + '".'}
-          onClose={() => props.toggleModal()}
-        />
+      createInfoModal(
+        "Error " + res.status + ": " + resText,
+        <p>{'There was an issue with creating "' + name + '".'}</p>
       );
     } else {
       // successful create
@@ -358,7 +357,6 @@ export function AddClientTask(props: {
 
 export function AddClassTask(props: {
   toggleModal: Function;
-  setModalBox: Function;
   setStateTasks: Function;
 }) {
   async function confirm(
@@ -383,17 +381,11 @@ export function AddClassTask(props: {
 
     const resText = await res.text();
     if (res.status != 200 || resText !== "") {
-      props.setModalBox(
-        <ErrorModal
-          header={"Error " + res.status}
-          body={
-            'There was a problem with creating "' +
-            name +
-            '" for the class.  Error Message: ' +
-            resText
-          }
-          onClose={() => props.toggleModal()}
-        />
+      createInfoModal(
+        "Error " + res.status + ": " + resText,
+        <p>
+          {'There was a problem with creating "' + name + '" for the class.'}
+        </p>
       );
     } else {
       // successful create
@@ -412,17 +404,13 @@ export function AddClassTask(props: {
     checkboxes: TaskCheckbox[],
     classId: number
   ) {
-    props.setModalBox(
-      <ConfirmModal
-        body={
-          'You are about to create "' +
+    createConfirmModal(
+      <p>
+        {'You are about to create "' +
           name +
-          '" for a class, meaning that this task will also be created for users.  Do you wish to continue?'
-        }
-        onConfirm={() => confirm(name, desc, dueDate, checkboxes, classId)}
-        onCancel={() => {}}
-        onClose={() => props.toggleModal()}
-      />
+          '" for a class, meaning that this task will also be created for users.  Do you wish to continue?'}
+      </p>,
+      () => confirm(name, desc, dueDate, checkboxes, classId)
     );
   }
 

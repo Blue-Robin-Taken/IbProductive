@@ -70,7 +70,3 @@ export function createToastEvent(type: ToastAlertType, body: string) {
 export enum ToastAlertType {
   SUCCESS,
 }
-
-function isEventCustom(event: Event) {
-  return "detail" in event;
-}

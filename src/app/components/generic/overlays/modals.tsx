@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { ReactElement, useEffect, useRef, useState } from "react";
 
 type AddModalEventDetails = {
-  dialog: HTMLDialogElement;
+  body: ReactElement;
 };
 
 export default function ModalSystem() {
-  const [modals, setModals] = useState<HTMLDialogElement[]>([]);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [modals, setModals] = useState<ReactElement[]>([]);
+  const [modalUp, setModalUp] = useState<boolean>(false);
 
   useEffect(() => {
     document.addEventListener("add-modal", (event) => {
@@ -14,66 +18,102 @@ export default function ModalSystem() {
       }
 
       const details: AddModalEventDetails = (event as CustomEvent).detail;
-      setModals((prev) => [...prev, details.dialog]);
+      setModals((prev) => [...prev, details.body]);
     });
   }, []);
 
   useEffect(() => {
-    if (modals.length == 0) return;
-    modals[0].showModal();
+    console.log(modals);
+    if (modalUp || modals.length == 0) return; // don't show modal if up or if there are none queued
+    dialogRef.current?.showModal();
+    setModalUp(true);
   }, [modals]);
 
-  return <>{modals.length > 0 ? modals[0] : null}</>;
-}
+  // remove the most recent modal if the modal is removed
+  useEffect(() => {
+    if (modalUp || modals.length == 0) return;
 
-export function ErrorModal(props: {
-  header: string;
-  body: string;
-  onClose: Function;
-}) {
+    setModals((prev) => prev.slice(1));
+  }, [modalUp]);
+
+  function closeModal() {
+    // Promise is used to wait for the modal to disappear before the next one renders
+    new Promise((resolve) => setTimeout(() => setModalUp(false), 500));
+  }
+
   return (
-    <div
-      className="modal-box"
-      onKeyDown={(e) => {
-        e.preventDefault();
-        if (e.key == "enter") {
-          props.onClose();
-        }
-      }}
+    <dialog
+      className="modal"
+      ref={dialogRef}
+      onCancel={closeModal}
+      onSubmit={closeModal}
     >
-      <h1>{props.header}</h1>
-      <p>{props.body}</p>
-      <form className="modal-action" method="dialog">
-        <button className="btn" onClick={props.onClose()}>
-          Close
-        </button>
-      </form>
-    </div>
+      {modals.length == 0 ? null : modals[0]}
+    </dialog>
   );
 }
 
-export function ConfirmModal(props: {
-  body: string;
-  onConfirm: Function;
-  onCancel: Function;
-  onClose: Function;
-}) {
-  return (
-    <div className="modal-box">
-      <h1>An action needs confirmation!</h1>
-      <p>{props.body}</p>
-      <form
-        className="modal-action"
-        method="dialog"
-        onSubmit={() => props.onClose()}
-      >
-        <button className="btn" onClick={() => props.onConfirm()}>
-          Confirm
-        </button>
-        <button className="btn" onClick={() => props.onCancel()}>
-          Cancel
-        </button>
-      </form>
-    </div>
-  );
+export function createInfoModal(
+  header: string,
+  body: ReactElement,
+  onKeyDown?: Function,
+  onClose?: Function
+) {
+  const event = new CustomEvent("add-modal", {
+    detail: {
+      body: (
+        <div
+          className="modal-box"
+          onKeyDown={(e) => (onKeyDown ? onKeyDown(e) : null)}
+        >
+          <h1>{header}</h1>
+          {body}
+          <form
+            className="modal-action"
+            method="dialog"
+            onSubmit={() => (onClose ? onClose() : null)}
+          >
+            <button className="btn">Close</button>
+          </form>
+        </div>
+      ),
+    },
+  });
+
+  document.dispatchEvent(event);
+}
+
+export function createConfirmModal(
+  body: ReactElement,
+  onConfirm: Function,
+  onCancel?: Function,
+  onClose?: Function
+) {
+  const event = new CustomEvent("add-modal", {
+    detail: {
+      body: (
+        <div className="modal-box">
+          <h1>An action needs confirmation!</h1>
+          {body}
+          <form
+            className="modal-action"
+            method="dialog"
+            onSubmit={() => (onClose ? onClose() : null)}
+          >
+            <button className="btn" onClick={() => onConfirm()}>
+              Confirm
+            </button>
+            <button
+              className="btn"
+              onClick={() => (onCancel ? onCancel() : null)}
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
+      ),
+    },
+  });
+
+  document.dispatchEvent(event);
 }

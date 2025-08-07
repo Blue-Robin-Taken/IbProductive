@@ -1,6 +1,6 @@
 import React from "react";
 import TaskForm, { TaskFormEditable, TaskFormType } from "./TaskForm";
-import { ErrorModal } from "../../generic/overlays/modals";
+import { createInfoModal } from "../../generic/overlays/modals";
 import {
   createToastEvent,
   ToastAlertType,
@@ -33,6 +33,7 @@ type TaskProps = {
   setStateTasks: Function;
 };
 
+// TODO: turn this into a functional component and fix the non-admin editing of a class task :P
 export default class Task extends React.Component<TaskProps, TaskState> {
   constructor(props: TaskProps) {
     super(props);
@@ -73,16 +74,13 @@ export default class Task extends React.Component<TaskProps, TaskState> {
 
       const resText = await res.text();
       if (res.status != 200 || resText !== "") {
-        this.props.setModal(
-          <ErrorModal
-            header={"Error " + res.status + ": " + resText}
-            body={
-              'There was an issue with editing "' +
+        createInfoModal(
+          "Error " + res.status + ": " + resText,
+          <p>
+            {'There was an issue with editing "' +
               this.state.data.name +
-              '" for the class.'
-            }
-            onClose={() => this.props.setModal(<div></div>)}
-          />
+              '" for the class.'}
+          </p>
         );
       } else {
         createToastEvent(
@@ -137,16 +135,13 @@ export default class Task extends React.Component<TaskProps, TaskState> {
 
                   let resText = await res.text();
                   if (res.status != 200 || resText !== "") {
-                    this.props.setModal(
-                      <ErrorModal
-                        header={"Error " + res.status + ": " + resText}
-                        body={
-                          'There was an issue with deleting "' +
+                    createInfoModal(
+                      "Error " + res.status + ": " + resText,
+                      <p>
+                        {'There was an issue with deleting "' +
                           this.state.data.name +
-                          '".'
-                        }
-                        onClose={() => this.props.toggleModal()}
-                      />
+                          '".'}
+                      </p>
                     );
                   } else {
                     createToastEvent(
@@ -219,14 +214,11 @@ export default class Task extends React.Component<TaskProps, TaskState> {
 
     let resText = await res.text();
     if (res.status != 200 || resText !== "") {
-      this.props.setModal(
-        <ErrorModal
-          header={"Error " + res.status}
-          body={
-            'There was an issue with editing "' + this.state.data.name + '".'
-          }
-          onClose={() => this.props.setModal(<div></div>)}
-        />
+      createInfoModal(
+        "Error " + res.status + ": " + resText,
+        <p>
+          {'There was an issue with editing "' + this.state.data.name + '".'}
+        </p>
       );
     } else {
       createToastEvent(

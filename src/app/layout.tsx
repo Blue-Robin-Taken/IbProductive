@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 import UserLayout from "./components/generic/auth/UserAuth";
 import ToastSystem from "./components/generic/overlays/toasts";
+import ModalSystem from "./components/generic/overlays/modals";
 
 export const metadata: Metadata = {
   title: "IbProductive",
@@ -32,6 +33,7 @@ export default function RootLayout({
         </div>
         <div className="z-0">{children}</div>
         <ToastSystem />
+        <ModalSystem />
       </body>
     </html>
   );
