@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import { ReactElement, useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent } from 'react';
 
 type AddModalEventDetails = {
   body: ReactElement;
@@ -12,8 +13,8 @@ export default function ModalSystem() {
   const [modalUp, setModalUp] = useState<boolean>(false);
 
   useEffect(() => {
-    document.addEventListener("add-modal", (event) => {
-      if (!("detail" in event)) {
+    document.addEventListener('add-modal', (event) => {
+      if (!('detail' in event)) {
         throw new Error('The "add-modal" event is not custom.');
       }
 
@@ -21,7 +22,7 @@ export default function ModalSystem() {
       setModals((prev) => [...prev, details.body]);
     });
 
-    document.addEventListener("close-modal", () => {
+    document.addEventListener('close-modal', () => {
       if (dialogRef.current?.open) {
         dialogRef.current?.close(); // manually closes the modal because 'close-modal' event is for when dialog event is not propogated
       }
@@ -45,7 +46,7 @@ export default function ModalSystem() {
 
   function closeModal() {
     // Promise is used to wait for the modal to disappear before the next one renders
-    new Promise((resolve) => setTimeout(() => setModalUp(false), 500));
+    new Promise(() => setTimeout(() => setModalUp(false), 500));
   }
 
   return (
@@ -68,15 +69,17 @@ export default function ModalSystem() {
 export function createInfoModal(
   header: string,
   body: ReactElement,
-  onKeyDown?: Function,
-  onClose?: Function
+  onKeyDown?: (e: KeyboardEvent) => void,
+  onClose?: () => void
 ) {
-  const event = new CustomEvent("add-modal", {
+  const event = new CustomEvent('add-modal', {
     detail: {
       body: (
         <div
           className="modal-box"
-          onKeyDown={(e) => (onKeyDown ? onKeyDown(e) : null)}
+          onKeyDown={(e: KeyboardEvent<HTMLDivElement>) =>
+            onKeyDown ? onKeyDown(e) : null
+          }
         >
           <h1>{header}</h1>
           {body}
@@ -97,11 +100,11 @@ export function createInfoModal(
 
 export function createConfirmModal(
   body: ReactElement,
-  onConfirm: Function,
-  onCancel?: Function,
-  onClose?: Function
+  onConfirm: () => void,
+  onCancel?: () => void,
+  onClose?: () => void
 ) {
-  const event = new CustomEvent("add-modal", {
+  const event = new CustomEvent('add-modal', {
     detail: {
       body: (
         <div className="modal-box">

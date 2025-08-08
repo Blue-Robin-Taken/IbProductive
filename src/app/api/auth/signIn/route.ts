@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
-import checkLogin from "@/db/authentication/signIn";
-import * as jose from "jose";
-import { createSecretKey } from "crypto";
-import { cookies } from "next/headers";
-import { checkDatabaseIsAdmin } from "@/db/authentication/jwtAuth";
+import { NextResponse } from 'next/server';
+import checkLogin from '@/db/authentication/signIn';
+import * as jose from 'jose';
+import { createSecretKey } from 'crypto';
+import { cookies } from 'next/headers';
+import { checkDatabaseIsAdmin } from '@/db/authentication/jwtAuth';
 
 interface responseType {
   username: string;
@@ -22,42 +22,40 @@ export async function POST(request: Request) {
 
   if (await checkLogin(username, password)) {
     // if true
-    if (!process.env["JWT_SECRET"]) {
-      console.log("NO JWT TOKEN SET");
+    if (!process.env['JWT_SECRET']) {
+      console.log('NO JWT TOKEN SET');
       return;
     }
-    const JWT_SECRET: string = process.env["JWT_SECRET"];
+    const JWT_SECRET: string = process.env['JWT_SECRET'];
 
     const jwt_key = await new jose.SignJWT({
       username: username,
       isAdmin: await checkDatabaseIsAdmin(username),
     })
-      .setProtectedHeader({ alg: "HS256" })
-      .sign(createSecretKey(JWT_SECRET, "utf-8")); // createSecretKey is for https://stackoverflow.com/a/74704299/15982771
+      .setProtectedHeader({ alg: 'HS256' })
+      .sign(createSecretKey(JWT_SECRET, 'utf-8')); // createSecretKey is for https://stackoverflow.com/a/74704299/15982771
     cookieStore.set({
-      name: "token",
+      name: 'token',
       value: jwt_key,
       httpOnly: true,
       expires: new Date().getTime() + 2 * 3600 * 1000, // 2 hrs * 60 min/hr * 60sec/min * 1000 ms/sec
     }); // set the cookie
 
-    return new NextResponse("login happy"); // https://stackoverflow.com/a/69128205/15982771
+    return new NextResponse('login happy'); // https://stackoverflow.com/a/69128205/15982771
     // put an actual response msg lol
   }
-  return new NextResponse("login sad"); // purposeful null response
+  return new NextResponse('login sad'); // purposeful null response
   // put an actual response msg lol
 }
 
 /**
  * Removes the cookie from the user.
- * @param request
- * @returns
  */
-export async function DELETE(request: Request) {
-  let cookieStore = await cookies();
+export async function DELETE() {
+  const cookieStore = await cookies();
 
-  cookieStore.set({ name: "token", value: "", httpOnly: true, expires: 1 });
+  cookieStore.set({ name: 'token', value: '', httpOnly: true, expires: 1 });
   // cookieStore.delete("token");
 
-  return new Response("");
+  return new Response('');
 }

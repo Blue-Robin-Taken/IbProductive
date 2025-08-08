@@ -1,13 +1,13 @@
-import React, { FormEvent, Ref, RefObject } from "react";
-import TaskForm, { TaskFormEditable, TaskFormType } from "./TaskForm";
+import React, { RefObject } from 'react';
+import TaskForm, { TaskFormEditable, TaskFormType } from './TaskForm';
 import {
   createConfirmModal,
   createInfoModal,
-} from "../../../generic/overlays/modals";
+} from '../../../generic/overlays/modals';
 import {
   createToastEvent,
   ToastAlertType,
-} from "../../../generic/overlays/toasts";
+} from '../../../generic/overlays/toasts';
 
 export type TaskCheckbox = {
   id: number;
@@ -31,20 +31,20 @@ export type TaskState = {
 
 type TaskProps = {
   data: TaskData;
-  setStateTasks: Function;
+  setStateTasks: () => void;
 };
 
 export function ClientTask(props: TaskProps) {
   async function handleDelete() {
-    let res = await fetch("/api/calendar/tasks", {
-      method: "DELETE",
+    let res = await fetch('/api/calendar/tasks', {
+      method: 'DELETE',
       body: JSON.stringify({ id: props.data.id }),
     });
 
     let resText = await res.text();
-    if (res.status != 200 || resText !== "") {
+    if (res.status != 200 || resText !== '') {
       createInfoModal(
-        "Error " + res.status + ": " + resText,
+        'Error ' + res.status + ': ' + resText,
         <p>{'There was an issue with deleting "' + '."'}</p>
       );
     } else {
@@ -65,7 +65,7 @@ export function ClientTask(props: TaskProps) {
     const name = nameRef.current?.value;
     const description = descRef.current?.value;
 
-    if (name === "") {
+    if (name === '') {
       return false;
     }
 
@@ -74,8 +74,8 @@ export function ClientTask(props: TaskProps) {
     //   description != props.data.description ||
     //   dueDate.getTime() != new Date(props.data.dueDate).getTime()
     // ) {
-    let res = await fetch("/api/calendar/tasks", {
-      method: "POST",
+    let res = await fetch('/api/calendar/tasks', {
+      method: 'POST',
       body: JSON.stringify({
         id: props.data.id,
         name: name,
@@ -85,9 +85,9 @@ export function ClientTask(props: TaskProps) {
       }),
     });
     let resText = await res.text();
-    if (res.status != 200 || resText !== "") {
+    if (res.status != 200 || resText !== '') {
       createInfoModal(
-        "Error " + res.status + ": " + resText,
+        'Error ' + res.status + ': ' + resText,
         <p>{'There was an issue with editing "' + props.data.name + '."'}</p>
       );
     } else {
@@ -101,7 +101,7 @@ export function ClientTask(props: TaskProps) {
     return true;
   }
 
-  const event = new CustomEvent("add-modal", {
+  const event = new CustomEvent('add-modal', {
     detail: {
       body: (
         <TaskForm
@@ -119,7 +119,7 @@ export function ClientTask(props: TaskProps) {
   return (
     <div className="calendar-item">
       <button
-        className={"task-label"}
+        className={'task-label'}
         onClick={() => document.dispatchEvent(event)}
       >
         {props.data.name}
@@ -130,8 +130,8 @@ export function ClientTask(props: TaskProps) {
 
 export function ClassTask(props: TaskProps) {
   async function handleDelete() {
-    let res = await fetch("/api/classes/tasks", {
-      method: "DELETE",
+    let res = await fetch('/api/classes/tasks', {
+      method: 'DELETE',
       body: JSON.stringify({
         classId: props.data.classId,
         taskName: props.data.name,
@@ -139,9 +139,9 @@ export function ClassTask(props: TaskProps) {
     });
 
     let resText = await res.text();
-    if (res.status != 200 || resText !== "") {
+    if (res.status != 200 || resText !== '') {
       createInfoModal(
-        "Error " + res.status + ": " + resText,
+        'Error ' + res.status + ': ' + resText,
         <p>
           {'There was an issue with deleting "' +
             props.data.name +
@@ -166,14 +166,14 @@ export function ClassTask(props: TaskProps) {
     const name = nameRef.current?.value;
     const description = descRef.current?.value;
 
-    if (name === "") {
+    if (name === '') {
       return false;
     }
 
     /* Client Edit */
     // if (checklist !== props.data.checkboxes) {
-    let res = await fetch("/api/calendar/tasks", {
-      method: "POST",
+    let res = await fetch('/api/calendar/tasks', {
+      method: 'POST',
       body: JSON.stringify({
         id: props.data.id,
         name: props.data.name,
@@ -184,9 +184,9 @@ export function ClassTask(props: TaskProps) {
     });
 
     let resText = await res.text();
-    if (res.status != 200 || resText !== "") {
+    if (res.status != 200 || resText !== '') {
       createInfoModal(
-        "Error " + res.status + ": " + resText,
+        'Error ' + res.status + ': ' + resText,
         <p>
           {'There was an issue with editing the checklist on "' +
             props.data.name +
@@ -203,7 +203,7 @@ export function ClassTask(props: TaskProps) {
     // }
 
     /* Admin Edit */
-    if (typeof name == "undefined") {
+    if (typeof name == 'undefined') {
       return true;
     }
 
@@ -219,8 +219,8 @@ export function ClassTask(props: TaskProps) {
             '" for a class, meaning that this task will also be edited for users.  Do you wish to continue?'}
         </p>,
         async () => {
-          let res = await fetch("/api/classes/tasks", {
-            method: "POST",
+          let res = await fetch('/api/classes/tasks', {
+            method: 'POST',
             body: JSON.stringify({
               taskId: props.data.id,
               classId: props.data.classId,
@@ -232,9 +232,9 @@ export function ClassTask(props: TaskProps) {
             }),
           });
           let resText = await res.text();
-          if (res.status != 200 || resText !== "") {
+          if (res.status != 200 || resText !== '') {
             createInfoModal(
-              "Error " + res.status + ": " + resText,
+              'Error ' + res.status + ': ' + resText,
               <p>
                 {'There was an issue with editing "' +
                   props.data.name +
@@ -254,7 +254,7 @@ export function ClassTask(props: TaskProps) {
     return true;
   }
 
-  const event = new CustomEvent("add-modal", {
+  const event = new CustomEvent('add-modal', {
     detail: {
       body: (
         <TaskForm
@@ -281,7 +281,7 @@ export function ClassTask(props: TaskProps) {
   return (
     <div className="calendar-item">
       <button
-        className={"task-label"}
+        className={'task-label'}
         onClick={() => document.dispatchEvent(event)}
       >
         {props.data.name}

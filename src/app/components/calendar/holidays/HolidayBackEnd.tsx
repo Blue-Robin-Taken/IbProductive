@@ -10,9 +10,9 @@ import "../calendar.css";
  * @returns       HTML components
  */
 export function getHolidays(dateItem: Date) {
-  let year: number = dateItem.getFullYear();
-  let month: number = dateItem.getMonth();
-  let date: number = dateItem.getDate();
+  const year: number = dateItem.getFullYear();
+  const month: number = dateItem.getMonth();
+  const date: number = dateItem.getDate();
 
   // if the year is not present then there are no holidays that year
   if (!(String(year) in holidays)) {
@@ -30,11 +30,11 @@ export function getHolidays(dateItem: Date) {
   if (!(String(date) in holidayArray)) {
     return null;
   }
-  const holiday: String[] =
+  const holiday: string[] =
     holidayArray[String(date) as keyof typeof holidayArray];
 
   // allows for multiple holidays on the same day.
-  let arr = [];
+  const arr = [];
   for (let i = 0; i < holiday.length; i++) {
     arr.push(HolidayLabel(holiday[i]));
   }
@@ -46,7 +46,7 @@ export function getHolidays(dateItem: Date) {
  * @param holiday
  * @returns
  */
-function HolidayLabel(holiday: String) {
+function HolidayLabel(holiday: string) {
   const cssArray = holidays["holiday_css"];
   const holidayCSS = cssArray[String(holiday) as keyof typeof cssArray];
 

@@ -21,42 +21,37 @@ model User {
 }
 
 model Class {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  UsersInClass UsersInClass[]
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
   tasks        ClientTask[]
+  UsersInClass UsersInClass[]
 }
 
 model UsersInClass {
-  class   Class @relation(fields: [classId], references: [id])
-  classId Int
-
-  user     User   @relation(fields: [userId, username], references: [id, username])
+  classId  Int
   userId   Int
   username String
+  class    Class  @relation(fields: [classId], references: [id])
+  user     User   @relation(fields: [userId, username], references: [id, username])
 
   @@id([classId, userId])
 }
 
 model ClientTask {
-  user     User   @relation(fields: [username], references: [username])
-  username String
-
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  date        DateTime
-  labels      String[]
-  bools       Boolean[]
-
+  username     String
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  date         DateTime
+  labels       String[]
+  bools        Boolean[]
   nameEditable Boolean
   descEditable Boolean
   dateEditable Boolean
   isDeletable  Boolean
-
-  Class   Class? @relation(fields: [classId], references: [id])
-  classId Int?
+  classId      Int?
+  Class        Class?    @relation(fields: [classId], references: [id])
+  user         User      @relation(fields: [username], references: [username])
 }
 
 model VerificationToken {
@@ -71,8 +66,8 @@ model VerificationToken {
 
 model Feedback {
   id          Int      @id @default(autoincrement())
-  email       String
-  title       String?
   description String
   createdAt   DateTime @default(now())
+  email       String
+  title       String?
 }

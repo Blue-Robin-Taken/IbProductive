@@ -1,14 +1,14 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
-import "./globals.css";
-import UserLayout from "./generic/auth/UserAuth";
-import ToastSystem from "./generic/overlays/toasts";
-import ModalSystem from "./generic/overlays/modals";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import Link from 'next/link';
+import './globals.css';
+import UserLayout from './generic/auth/UserAuth';
+import ToastSystem from './generic/overlays/toasts';
+import ModalSystem from './generic/overlays/modals';
 
 export const metadata: Metadata = {
-  title: "IbProductive",
-  description: "Become more productive!",
+  title: 'IbProductive',
+  description: 'Become more productive!',
 };
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head></head>
-      <body className="font-lato font-regular bg-black m-0 p-0  h-[calc(100vh)]">
+      <body className="font-lato font-regular bg-black m-0 p-0 min-h-screen ">
         {/*Navbar*/}
         <div className="p-5 m-0 text-4xl bg-gradient-to-r flex flex-row z-20">
           <div className="space-x-8">

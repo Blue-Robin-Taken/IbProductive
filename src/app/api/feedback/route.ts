@@ -1,4 +1,4 @@
-import createFeedback from "@/db/feedback/feedback";
+import createFeedback from '@/db/feedback/feedback';
 
 interface PostRequest {
   email: string;
@@ -7,8 +7,8 @@ interface PostRequest {
 }
 
 export async function POST(request: Request) {
-  let reqJson: PostRequest = await request.json();
+  const reqJson: PostRequest = await request.json();
   await createFeedback(reqJson.email, reqJson.description, reqJson.name);
 
-  return new Response("");
+  return new Response('');
 }

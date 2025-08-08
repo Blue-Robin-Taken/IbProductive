@@ -1,37 +1,37 @@
-"use client";
+'use client';
 
-import React, { ReactElement, useEffect, useRef, useState } from "react";
-import { getHolidays } from "./holidays/HolidayBackEnd";
-import "./calendar.css";
-import { AddClassTask, AddClientTask } from "./tasks/TaskForm";
-import { TaskData, ClientTask, ClassTask } from "./tasks/Task";
+import React, { useEffect, useState } from 'react';
+import { getHolidays } from './holidays/HolidayBackEnd';
+import './calendar.css';
+import { AddClassTask, AddClientTask } from './tasks/TaskForm';
+import { TaskData, ClientTask, ClassTask } from './tasks/Task';
 import {
   firstDayOnCal,
   getDayString,
   getMonthString,
   lastDayOnCal,
-} from "../../generic/time/time";
-import { ClassData } from "@/db/classes/class";
+} from '../../generic/time/time';
+import { ClassData } from '@/db/classes/class';
 
 const MS_IN_DAY: number = 86400000;
 
 export default function Calender() {
-  let now: Date = new Date();
+  const now: Date = new Date();
   const [month, setMonth] = useState<number>(now.getMonth());
   const [year, setYear] = useState<number>(now.getFullYear());
   const [tasks, setTasks] = useState<TaskData[]>([]);
 
   /* Caching */
   useEffect(() => {
-    let locClasses: string = String(localStorage.getItem("classesList"));
-    let allClassesParams = new URLSearchParams({ name: "all" });
-    fetch("/api/classes?" + allClassesParams)
+    const locClasses: string = String(localStorage.getItem('classesList'));
+    const allClassesParams = new URLSearchParams({ name: 'all' });
+    fetch('/api/classes?' + allClassesParams)
       .then((res) => {
         return res.json();
       })
       .then((json: { arr: ClassData[] }) => {
-        if (locClasses == "null" || locClasses != JSON.stringify(json)) {
-          localStorage.setItem("classesList", JSON.stringify(json));
+        if (locClasses == 'null' || locClasses != JSON.stringify(json)) {
+          localStorage.setItem('classesList', JSON.stringify(json));
         }
       });
   }, []);
@@ -41,14 +41,14 @@ export default function Calender() {
     const start: number = firstDayOnCal(year, month);
     const end: number = lastDayOnCal(year, month);
 
-    let params = new URLSearchParams({
+    const params = new URLSearchParams({
       start: String(start),
       end: String(end),
     });
 
-    let res = await fetch("/api/calendar/tasks?" + params);
-    let json = await res.json();
-    let data: TaskData[] = json["taskArr" as keyof typeof json];
+    const res = await fetch('/api/calendar/tasks?' + params);
+    const json = await res.json();
+    const data: TaskData[] = json['taskArr' as keyof typeof json];
 
     /* Updates Tasks */
     setTasks(data);
@@ -78,15 +78,15 @@ export default function Calender() {
   }
 
   function CalendarBox(timeInMS: number) {
-    let css: string = "";
-    let timeAsDate: Date = new Date(timeInMS);
+    let css: string = '';
+    const timeAsDate: Date = new Date(timeInMS);
 
     if (timeAsDate.getMonth() !== month) {
       // prev month or next month
-      css = "other-month";
+      css = 'other-month';
     } else {
       // current month
-      css = "current-month";
+      css = 'current-month';
     }
 
     if (
@@ -94,7 +94,7 @@ export default function Calender() {
       timeAsDate.getMonth() === now.getMonth() &&
       timeAsDate.getDate() === now.getDate()
     ) {
-      css += "-today";
+      css += '-today';
     }
     return (
       <div key={timeInMS} className={css}>
@@ -106,8 +106,8 @@ export default function Calender() {
   }
 
   function taskComps(date: Date) {
-    let taskArr = tasks.filter((task) => {
-      let due: Date = new Date(task.dueDate);
+    const taskArr = tasks.filter((task) => {
+      const due: Date = new Date(task.dueDate);
 
       return (
         due.getFullYear() == date.getFullYear() &&
@@ -116,7 +116,7 @@ export default function Calender() {
       );
     });
 
-    let compArr = [];
+    const compArr = [];
     for (const task of taskArr) {
       if (task.classId == null) {
         compArr.push(
@@ -133,7 +133,7 @@ export default function Calender() {
   }
 
   function genBoxes() {
-    let arr = [];
+    const arr = [];
 
     for (
       let i = firstDayOnCal(year, month);
