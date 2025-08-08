@@ -111,17 +111,16 @@ export default function TaskForm(props: TaskFormProps) {
     checkboxes.length === 0 ? 1 : checkboxes[checkboxes.length - 1].id + 1;
 
   return (
-    <div className="modal-box max-w-full">
-      <form
-        ref={formRef}
-        id="taskform"
-        onKeyDown={(e) => {
-          if (e.key === "enter") {
-            e.preventDefault();
-          }
-        }}
-        onSubmit={submit}
-      >
+    <div
+      className="modal-box max-w-full"
+      onKeyDown={(e) => {
+        if (e.key == "Enter") {
+          e.preventDefault();
+          formRef.current?.requestSubmit();
+        }
+      }}
+    >
+      <form ref={formRef} id="taskform" onSubmit={submit}>
         {/* Name */}
         {(isAdminType && isUserAdmin) || props.data.editables.nameEditable ? (
           <>
@@ -157,6 +156,7 @@ export default function TaskForm(props: TaskFormProps) {
                   e.preventDefault();
                   setDueDate(new Date(e.currentTarget.value));
                 }}
+                required
               />
             ) : null}
             {isCreatingType(props.type) ? null : (
