@@ -1,7 +1,14 @@
 import "../calendar.css";
 import { TaskData, TaskCheckbox } from "./Task";
 import "./tasks.css";
-import { ReactElement, useEffect, useRef, useState } from "react";
+import {
+  FormEvent,
+  ReactElement,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { ClassData } from "@/db/classes/class";
 import {
   createConfirmModal,
@@ -38,32 +45,38 @@ export enum TaskFormType {
 }
 
 export default function TaskForm(props: TaskFormProps) {
-  function submit() {
-    let nameVal = nameRef.current?.value;
-    let descVal = descRef.current?.value;
-
-    props.onSubmit(
-      nameVal,
-      descVal,
-      dueDate,
-      checkboxes,
-      Number(classId),
-      props.data.name
-    );
-    return;
-  }
-
+  const formRef = useRef<HTMLFormElement>(null);
   const isAdminType: boolean = checkIfAdminType(props.type);
   const [isUserAdmin, setUserAdmin] = useState<boolean>(false);
   const nameRef = useRef<HTMLInputElement | null>(null);
   const descRef = useRef<HTMLInputElement | null>(null);
+  const dueRef = useRef<HTMLInputElement | null>(null);
   const [dueDate, setDueDate] = useState<Date>(props.data.dueDate);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
   );
+  const classRef = useRef<HTMLSelectElement | null>(null);
   const [classId, setClassId] = useState<string>(String(props.data.classId));
   const [className, setClassName] = useState<string>("Loading...");
   const [classes, setClasses] = useState<ReactElement[]>();
+
+  function submit(e: FormEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const validSubmit = props.onSubmit(
+      nameRef,
+      descRef,
+      dueDate,
+      checkboxes,
+      classRef
+    );
+
+    if (validSubmit) {
+      const closeEvent = new Event("close-modal");
+      document.dispatchEvent(closeEvent);
+    }
+  }
 
   useEffect(() => {
     fetch("/api/auth/admin?")
@@ -99,29 +112,32 @@ export default function TaskForm(props: TaskFormProps) {
 
   return (
     <div className="modal-box max-w-full">
-      {/* TODO: what if the checklist is too big so you need to scroll? */}
       <form
+        ref={formRef}
         id="taskform"
         onKeyDown={(e) => {
           if (e.key === "enter") {
             e.preventDefault();
-            submit();
-            props.onClose();
           }
         }}
+        onSubmit={submit}
       >
         {/* Name */}
         {(isAdminType && isUserAdmin) || props.data.editables.nameEditable ? (
-          <input
-            className="input input-xl"
-            type="text"
-            id="nombre"
-            name="nombre"
-            defaultValue={props.data.name}
-            placeholder="Task Name"
-            ref={nameRef}
-            required
-          />
+          <>
+            <input
+              className="input input-xl validator"
+              type="text"
+              id="taskName"
+              name="taskName"
+              defaultValue={props.data.name}
+              placeholder="Task Name"
+              minLength={1}
+              ref={nameRef}
+              required
+            />
+            <p className="validator-hint">Please name your task.</p>
+          </>
         ) : (
           <h1>{props.data.name}</h1>
         )}
@@ -153,17 +169,19 @@ export default function TaskForm(props: TaskFormProps) {
             <label className="task-form-label">Class:</label>
           ) : null}
           {isAdminType && isUserAdmin ? (
-            <select
-              className="select select-xl"
-              defaultValue={props.data.classId ? props.data.classId : "none"}
-              onChange={(e) => {
-                e.preventDefault();
-                setClassId(e.currentTarget.value);
-              }}
-            >
-              <option value="none">None</option>
-              {classes}
-            </select>
+            <div>
+              <select
+                ref={classRef}
+                className="select select-xl"
+                defaultValue={props.data.classId ? props.data.classId : "None"}
+                onChange={(e) => setClassId(e.currentTarget.value)}
+                required
+              >
+                <option value={"None"}>None</option>
+                {classes}
+              </select>
+              <p className="validator-hint">Please choose a class.</p>
+            </div>
           ) : null}
           {isAdminType && !isUserAdmin ? <p>{className}</p> : null}
 
@@ -241,11 +259,7 @@ export default function TaskForm(props: TaskFormProps) {
           </div>
         </div>
       </form>
-      <form
-        method="dialog"
-        onSubmit={() => props.onClose()}
-        className="modal-action"
-      >
+      <form method="dialog" className="modal-action">
         <button className="btn">Close</button>
         {deleteComponent(
           isAdminType,
@@ -254,7 +268,14 @@ export default function TaskForm(props: TaskFormProps) {
           props.data.editables.deletable,
           props.onDelete
         )}
-        <button className="btn" onClick={submit}>
+        <button
+          className="btn"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            formRef.current?.requestSubmit();
+          }}
+        >
           Submit
         </button>
       </form>
@@ -292,23 +313,27 @@ function checkIfAdminType(type: TaskFormType): boolean {
   return type == TaskFormType.ADMIN_CREATE || type == TaskFormType.ADMIN_EDIT;
 }
 
-export function AddClientTask(props: {
-  toggleModal: Function;
-  setStateTasks: Function;
-}) {
-  async function submit(
-    name: string,
-    desc: string,
+export function AddClientTask(setStateTasks: Function) {
+  async function handleSubmit(
+    nameRef: RefObject<HTMLInputElement>,
+    descRef: RefObject<HTMLInputElement>,
     dueDate: Date,
     checkboxes: TaskCheckbox[]
-  ) {
+  ): Promise<boolean> {
+    const name = nameRef.current?.value;
+    const description = descRef.current?.value;
+
+    if (name == "") {
+      return false;
+    }
+
     /* Create the task */
     let res = await fetch("/api/calendar/tasks", {
       method: "POST",
       body: JSON.stringify({
         id: "",
         name: name,
-        description: desc,
+        description: description,
         dueDate: dueDate,
         checkboxes: checkboxes,
       }),
@@ -319,7 +344,7 @@ export function AddClientTask(props: {
     if (res.status != 200 || resText !== "") {
       createInfoModal(
         "Error " + res.status + ": " + resText,
-        <p>{'There was an issue with creating "' + name + '".'}</p>
+        <p>{'There was an issue with creating "' + name + '."'}</p>
       );
     } else {
       // successful create
@@ -327,45 +352,52 @@ export function AddClientTask(props: {
         ToastAlertType.SUCCESS,
         '"' + name + '" successfully created.'
       );
-      props.setStateTasks();
+      setStateTasks();
     }
+    return true;
   }
 
-  return (
-    <TaskForm
-      data={{
-        id: "",
-        dueDate: new Date(),
-        name: "New Task",
-        description: "",
-        checkboxes: [],
-        editables: {
-          nameEditable: true,
-          descEditable: true,
-          dueEditable: true,
-          deletable: false,
-        },
-        classId: null,
-      }}
-      type={TaskFormType.CLIENT_CREATE}
-      onClose={() => props.toggleModal()}
-      onSubmit={submit}
-      onDelete={() => {}}
-    />
-  );
+  const event = new CustomEvent("add-modal", {
+    detail: {
+      body: (
+        <TaskForm
+          data={{
+            id: "",
+            dueDate: new Date(),
+            name: "New Task",
+            description: "",
+            checkboxes: [],
+            editables: {
+              nameEditable: true,
+              descEditable: true,
+              dueEditable: true,
+              deletable: false,
+            },
+            classId: null,
+          }}
+          type={TaskFormType.CLIENT_CREATE}
+          onClose={() => {}}
+          onSubmit={handleSubmit}
+          onDelete={() => {}}
+        />
+      ),
+    },
+  });
+  document.dispatchEvent(event);
 }
 
-export function AddClassTask(props: {
-  toggleModal: Function;
-  setStateTasks: Function;
-}) {
+export function AddClassTask(setStateTasks: Function) {
   async function confirm(
     name: string,
     desc: string,
     dueDate: Date,
     checkboxes: TaskCheckbox[],
     classId: number
-  ) {
+  ): Promise<boolean> {
+    if (name == "") {
+      return false;
+    }
+
     let res = await fetch("/api/classes/tasks", {
       method: "POST",
       body: JSON.stringify({
@@ -393,47 +425,62 @@ export function AddClassTask(props: {
         ToastAlertType.SUCCESS,
         '"' + name + '" successfully created for the class.'
       );
-      props.setStateTasks();
+      setStateTasks();
     }
+    return true;
   }
 
-  function submit(
-    name: string,
-    desc: string,
+  function handleSubmit(
+    nameRef: RefObject<HTMLInputElement>,
+    descRef: RefObject<HTMLInputElement>,
     dueDate: Date,
-    checkboxes: TaskCheckbox[],
-    classId: number
-  ) {
+    checklist: TaskCheckbox[],
+    classRef: RefObject<HTMLSelectElement | null>
+  ): boolean {
+    const name = nameRef.current?.value;
+    const description = descRef.current?.value;
+    const classVal = classRef.current?.value;
+
+    if (name == "" || classVal == "None") {
+      return false;
+    }
+
     createConfirmModal(
       <p>
         {'You are about to create "' +
           name +
           '" for a class, meaning that this task will also be created for users.  Do you wish to continue?'}
       </p>,
-      () => confirm(name, desc, dueDate, checkboxes, classId)
+      () => confirm(name, description, dueDate, checklist, Number(classVal))
     );
+    return true;
   }
 
-  return (
-    <TaskForm
-      data={{
-        id: "",
-        dueDate: new Date(),
-        name: "New Task",
-        description: "",
-        checkboxes: [],
-        editables: {
-          nameEditable: true,
-          descEditable: true,
-          dueEditable: true,
-          deletable: false,
-        },
-        classId: null,
-      }}
-      type={TaskFormType.ADMIN_CREATE}
-      onClose={() => props.toggleModal()}
-      onSubmit={submit}
-      onDelete={() => {}}
-    />
-  );
+  const event = new CustomEvent("add-modal", {
+    detail: {
+      body: (
+        <TaskForm
+          data={{
+            id: "",
+            dueDate: new Date(),
+            name: "New Task",
+            description: "",
+            checkboxes: [],
+            editables: {
+              nameEditable: true,
+              descEditable: true,
+              dueEditable: true,
+              deletable: false,
+            },
+            classId: null,
+          }}
+          type={TaskFormType.ADMIN_CREATE}
+          onClose={() => {}}
+          onSubmit={handleSubmit}
+          onDelete={() => {}}
+        />
+      ),
+    },
+  });
+  document.dispatchEvent(event);
 }

@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
 import { AddClassTask, AddClientTask } from "./tasks/TaskForm";
-import Task, { TaskData, TaskCheckbox } from "./tasks/Task";
+import { TaskData, ClientTask, ClassTask } from "./tasks/Task";
 import {
   firstDayOnCal,
   getDayString,
@@ -58,21 +58,6 @@ export default function Calender() {
   useEffect(() => {
     setStateTasks();
   }, [month]);
-
-  /* Modal */
-  let modalRef = useRef<HTMLDialogElement | null>(null);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [modalBox, setModalBox] = useState<ReactElement | null>();
-
-  // automatically display modal if modalBox is updated
-  useEffect(() => {
-    if (showModal || !modalBox) return;
-    setShowModal(true);
-  }, [modalBox]);
-  useEffect(() => {
-    if (!showModal) return;
-    modalRef.current?.showModal();
-  }, [showModal]);
 
   function prevMonth() {
     if (month == 0) {
@@ -133,15 +118,15 @@ export default function Calender() {
 
     let compArr = [];
     for (const task of taskArr) {
-      compArr.push(
-        <Task
-          key={task.id}
-          data={task}
-          toggleModal={() => setShowModal((prev) => !prev)}
-          setModal={(elem: ReactElement) => setModalBox(elem)}
-          setStateTasks={setStateTasks}
-        />
-      );
+      if (task.classId == null) {
+        compArr.push(
+          <ClientTask key={task.id} data={task} setStateTasks={setStateTasks} />
+        );
+      } else {
+        compArr.push(
+          <ClassTask key={task.id} data={task} setStateTasks={setStateTasks} />
+        );
+      }
     }
 
     return compArr;
@@ -163,40 +148,12 @@ export default function Calender() {
 
   return (
     <div>
-      <button
-        className="btn"
-        onClick={() =>
-          setModalBox(
-            <AddClientTask
-              toggleModal={() => setShowModal((prev) => !prev)}
-              setStateTasks={setStateTasks}
-            />
-          )
-        }
-      >
+      <button className="btn" onClick={() => AddClientTask(setStateTasks)}>
         Add Personal Task
       </button>
-      <button
-        className="btn"
-        onClick={() =>
-          setModalBox(
-            <AddClassTask
-              toggleModal={() => setShowModal((prev) => !prev)}
-              setStateTasks={setStateTasks}
-            />
-          )
-        }
-      >
+      <button className="btn" onClick={() => AddClassTask(setStateTasks)}>
         Add Class Task
       </button>
-      <dialog
-        className="modal"
-        ref={modalRef}
-        // id="calendar-dialog"
-        onCancel={() => setShowModal((prev) => !prev)}
-      >
-        {modalBox}
-      </dialog>
       <div className="text-secondary-content flex justify-between p-5 my-3 bg-secondary">
         <button className="btn" onClick={prevMonth}>
           Previous

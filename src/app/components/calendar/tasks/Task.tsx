@@ -1,6 +1,9 @@
-import React from "react";
+import React, { FormEvent, Ref, RefObject } from "react";
 import TaskForm, { TaskFormEditable, TaskFormType } from "./TaskForm";
-import { createInfoModal } from "../../../generic/overlays/modals";
+import {
+  createConfirmModal,
+  createInfoModal,
+} from "../../../generic/overlays/modals";
 import {
   createToastEvent,
   ToastAlertType,
@@ -28,187 +31,110 @@ export type TaskState = {
 
 type TaskProps = {
   data: TaskData;
-  toggleModal: Function;
-  setModal: Function;
   setStateTasks: Function;
 };
 
-// TODO: turn this into a functional component and fix the non-admin editing of a class task :P
-export default class Task extends React.Component<TaskProps, TaskState> {
-  constructor(props: TaskProps) {
-    super(props);
+export function ClientTask(props: TaskProps) {
+  async function handleDelete() {
+    let res = await fetch("/api/calendar/tasks", {
+      method: "DELETE",
+      body: JSON.stringify({ id: props.data.id }),
+    });
 
-    // Ensure that the dueDate is type of Date
-    let dueDate: Date = new Date(props.data.dueDate);
-
-    this.state = {
-      data: {
-        ...props.data,
-        dueDate: dueDate,
-      },
-    };
-  }
-
-  async componentDidUpdate(
-    prevProps: Readonly<{ data: TaskData }>,
-    prevState: Readonly<TaskState>,
-    snapshot?: any
-  ) {
-    const classTaskChange: boolean =
-      prevState.data.name != this.state.data.name ||
-      prevState.data.description != this.state.data.description ||
-      prevState.data.dueDate != this.state.data.dueDate;
-
-    if (this.props.data.classId != null && classTaskChange) {
-      let res = await fetch("/api/classes/tasks", {
-        method: "POST",
-        body: JSON.stringify({
-          taskId: this.state.data.id,
-          oldName: prevState.data.name,
-          newName: this.state.data.name,
-          description: this.state.data.description,
-          dueDate: this.state.data.dueDate,
-          checkboxes: this.state.data.checkboxes,
-        }),
-      });
-
-      const resText = await res.text();
-      if (res.status != 200 || resText !== "") {
-        createInfoModal(
-          "Error " + res.status + ": " + resText,
-          <p>
-            {'There was an issue with editing "' +
-              this.state.data.name +
-              '" for the class.'}
-          </p>
-        );
-      } else {
-        createToastEvent(
-          ToastAlertType.SUCCESS,
-          '"' +
-            this.state.data.name +
-            '" was successfully edited for the class.'
-        );
-        this.props.setStateTasks();
-      }
-
-      if (prevState.data.checkboxes != this.state.data.checkboxes) {
-        this.updateClientTask();
-      }
-    } else if (prevState.data != this.state.data) {
-      /* Edits the data on the db */
-      this.updateClientTask();
+    let resText = await res.text();
+    if (res.status != 200 || resText !== "") {
+      createInfoModal(
+        "Error " + res.status + ": " + resText,
+        <p>{'There was an issue with deleting "' + '."'}</p>
+      );
+    } else {
+      createToastEvent(
+        ToastAlertType.SUCCESS,
+        '"' + '" was successfully deleted.'
+      );
+      props.setStateTasks();
     }
   }
 
-  render() {
-    return (
-      <div className="calendar-item">
-        <button
-          className={"task-label" + this.getTaskCSS()}
-          onClick={() => {
-            this.props.setModal(
-              <TaskForm
-                key={this.state.data.id}
-                data={this.state.data}
-                type={
-                  this.props.data.classId != null
-                    ? TaskFormType.ADMIN_EDIT
-                    : TaskFormType.CLIENT_EDIT
-                }
-                onClose={() => this.props.toggleModal()}
-                onSubmit={this.setStateData.bind(this)}
-                onDelete={async () => {
-                  let res =
-                    this.state.data.classId == null
-                      ? await fetch("/api/calendar/tasks", {
-                          method: "DELETE",
-                          body: JSON.stringify({ id: this.state.data.id }),
-                        })
-                      : await fetch("/api/classes/tasks", {
-                          method: "DELETE",
-                          body: JSON.stringify({
-                            classId: this.state.data.classId,
-                            taskName: this.state.data.name,
-                          }),
-                        });
-
-                  let resText = await res.text();
-                  if (res.status != 200 || resText !== "") {
-                    createInfoModal(
-                      "Error " + res.status + ": " + resText,
-                      <p>
-                        {'There was an issue with deleting "' +
-                          this.state.data.name +
-                          '".'}
-                      </p>
-                    );
-                  } else {
-                    createToastEvent(
-                      ToastAlertType.SUCCESS,
-                      '"' + this.state.data.name + '" was successfully deleted.'
-                    );
-                    this.props.setStateTasks();
-                  }
-                }}
-              />
-            );
-          }}
-        >
-          {this.state.data.name}
-        </button>
-      </div>
-    );
-  }
-
-  getTimeLeft() {
-    let now: Date = new Date();
-    let diff: Date = new Date(
-      new Date(this.state.data.dueDate).getTime() - now.getTime()
-    );
-
-    return diff;
-  }
-  /**
-   * Returns addition CSS information based on time
-   * @returns
-   */
-  getTaskCSS() {
-    let timeLeft: Date = this.getTimeLeft();
-    if (timeLeft.getUTCFullYear() - 1970 < 0) {
-      return "-overdue";
-    }
-
-    return "";
-  }
-
-  setStateData(
-    name: string,
-    desc: string,
+  async function handleSubmit(
+    nameRef: RefObject<HTMLInputElement | null>,
+    descRef: RefObject<HTMLInputElement | null>,
     dueDate: Date,
-    checkboxes: TaskCheckbox[]
-  ) {
-    this.setState((prev) => ({
-      ...prev,
-      data: {
-        ...prev.data,
-        name: name,
-        description: desc,
-        dueDate: dueDate,
-        checkboxes: checkboxes,
-      },
-    }));
-  }
+    checklist: TaskCheckbox[]
+  ): Promise<boolean> {
+    const name = nameRef.current?.value;
+    const description = descRef.current?.value;
 
-  async updateClientTask() {
+    if (name === "") {
+      return false;
+    }
+
+    // if (
+    //   name != props.data.name ||
+    //   description != props.data.description ||
+    //   dueDate.getTime() != new Date(props.data.dueDate).getTime()
+    // ) {
     let res = await fetch("/api/calendar/tasks", {
       method: "POST",
       body: JSON.stringify({
-        id: this.state.data.id,
-        name: this.state.data.name,
-        description: this.state.data.description,
-        dueDate: this.state.data.dueDate,
-        checkboxes: this.state.data.checkboxes,
+        id: props.data.id,
+        name: name,
+        description: description,
+        dueDate: dueDate,
+        checkboxes: checklist,
+      }),
+    });
+    let resText = await res.text();
+    if (res.status != 200 || resText !== "") {
+      createInfoModal(
+        "Error " + res.status + ": " + resText,
+        <p>{'There was an issue with editing "' + props.data.name + '."'}</p>
+      );
+    } else {
+      createToastEvent(
+        ToastAlertType.SUCCESS,
+        '"' + props.data.name + '" was successfully edited.'
+      );
+      props.setStateTasks();
+    }
+    // }
+    return true;
+  }
+
+  const event = new CustomEvent("add-modal", {
+    detail: {
+      body: (
+        <TaskForm
+          key={props.data.id}
+          data={{ ...props.data, dueDate: new Date(props.data.dueDate) }}
+          type={TaskFormType.CLIENT_EDIT}
+          onClose={() => {}}
+          onSubmit={handleSubmit}
+          onDelete={handleDelete}
+        />
+      ),
+    },
+  });
+
+  return (
+    <div className="calendar-item">
+      <button
+        className={"task-label"}
+        onClick={() => document.dispatchEvent(event)}
+      >
+        {props.data.name}
+      </button>
+    </div>
+  );
+}
+
+export function ClassTask(props: TaskProps) {
+  async function handleDelete() {
+    let res = await fetch("/api/classes/tasks", {
+      method: "DELETE",
+      body: JSON.stringify({
+        classId: props.data.classId,
+        taskName: props.data.name,
       }),
     });
 
@@ -217,15 +143,149 @@ export default class Task extends React.Component<TaskProps, TaskState> {
       createInfoModal(
         "Error " + res.status + ": " + resText,
         <p>
-          {'There was an issue with editing "' + this.state.data.name + '".'}
+          {'There was an issue with deleting "' +
+            props.data.name +
+            '" for the class.'}
         </p>
       );
     } else {
       createToastEvent(
         ToastAlertType.SUCCESS,
-        '"' + this.state.data.name + '" was successfully edited.'
+        '"' + props.data.name + '" was successfully deleted for the class.'
       );
-      this.props.setStateTasks();
+      props.setStateTasks();
     }
   }
+
+  async function handleSubmit(
+    nameRef: RefObject<HTMLInputElement | null>,
+    descRef: RefObject<HTMLInputElement | null>,
+    dueDate: Date,
+    checklist: TaskCheckbox[]
+  ): Promise<boolean> {
+    const name = nameRef.current?.value;
+    const description = descRef.current?.value;
+
+    if (name === "") {
+      return false;
+    }
+
+    /* Client Edit */
+    // if (checklist !== props.data.checkboxes) {
+    let res = await fetch("/api/calendar/tasks", {
+      method: "POST",
+      body: JSON.stringify({
+        id: props.data.id,
+        name: props.data.name,
+        description: props.data.description,
+        dueDate: props.data.dueDate,
+        checkboxes: checklist,
+      }),
+    });
+
+    let resText = await res.text();
+    if (res.status != 200 || resText !== "") {
+      createInfoModal(
+        "Error " + res.status + ": " + resText,
+        <p>
+          {'There was an issue with editing the checklist on "' +
+            props.data.name +
+            '."'}
+        </p>
+      );
+    } else {
+      createToastEvent(
+        ToastAlertType.SUCCESS,
+        '"' + props.data.name + '" checklist was successfully updated.'
+      );
+      props.setStateTasks();
+    }
+    // }
+
+    /* Admin Edit */
+    if (typeof name == "undefined") {
+      return true;
+    }
+
+    if (
+      name != props.data.name ||
+      description != props.data.description ||
+      dueDate.getTime() != new Date(props.data.dueDate).getTime()
+    ) {
+      createConfirmModal(
+        <p>
+          {'You are about to edit "' +
+            props.data.name +
+            '" for a class, meaning that this task will also be edited for users.  Do you wish to continue?'}
+        </p>,
+        async () => {
+          let res = await fetch("/api/classes/tasks", {
+            method: "POST",
+            body: JSON.stringify({
+              taskId: props.data.id,
+              classId: props.data.classId,
+              oldName: props.data.name,
+              newName: name,
+              description: description,
+              dueDate: dueDate,
+              checkboxes: checklist,
+            }),
+          });
+          let resText = await res.text();
+          if (res.status != 200 || resText !== "") {
+            createInfoModal(
+              "Error " + res.status + ": " + resText,
+              <p>
+                {'There was an issue with editing "' +
+                  props.data.name +
+                  '" for the class.'}
+              </p>
+            );
+          } else {
+            createToastEvent(
+              ToastAlertType.SUCCESS,
+              '"' + props.data.name + '" was successfully edited for the class.'
+            );
+            props.setStateTasks();
+          }
+        }
+      );
+    }
+    return true;
+  }
+
+  const event = new CustomEvent("add-modal", {
+    detail: {
+      body: (
+        <TaskForm
+          key={props.data.id}
+          data={{ ...props.data, dueDate: new Date(props.data.dueDate) }}
+          type={TaskFormType.ADMIN_EDIT}
+          onClose={() => {}}
+          onSubmit={handleSubmit}
+          onDelete={() => {
+            createConfirmModal(
+              <p>
+                {'You are about to delete "' +
+                  props.data.name +
+                  '" for a class, meaning that this task will also be deleted for users.  Do you wish to continue?'}
+              </p>,
+              handleDelete
+            );
+          }}
+        />
+      ),
+    },
+  });
+
+  return (
+    <div className="calendar-item">
+      <button
+        className={"task-label"}
+        onClick={() => document.dispatchEvent(event)}
+      >
+        {props.data.name}
+      </button>
+    </div>
+  );
 }
