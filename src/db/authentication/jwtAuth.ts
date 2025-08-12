@@ -11,11 +11,11 @@ export async function checkJWT(jwtString: string) {
     return 'JWT NOT SET';
   }
   const JWT_SECRET: string = process.env['JWT_SECRET'];
-
+  // eslint-disable-next-line
   const { payload, protectedHeader } = await jose.jwtVerify<jwtAuthToken>(
     jwtString,
     new TextEncoder().encode(JWT_SECRET)
-  );
+  ); // eslint-disable-line @typescript-eslint/no-unused-vars
   if (payload['username']) {
     // check database for user
     const dbResp = await (
@@ -62,11 +62,11 @@ export async function checkJWTIsAdmin(
     return 'JWT NOT SET';
   }
   const JWT_SECRET: string = process.env['JWT_SECRET'];
-
+  // eslint-disable-next-line
   const { payload, protectedHeader } = await jose.jwtVerify<jwtAuthToken>(
     jwtString,
     new TextEncoder().encode(JWT_SECRET)
-  );
+  ); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   return payload.isAdmin as boolean;
 }
@@ -77,11 +77,11 @@ export async function getUsername(jwtString: string) {
     return 'JWT NOT SET';
   }
   const JWT_SECRET: string = process.env['JWT_SECRET'];
-
+  // eslint-disable-next-line
   const { payload, protectedHeader } = await jose.jwtVerify<jwtAuthToken>(
     jwtString,
     new TextEncoder().encode(JWT_SECRET)
-  );
+  ); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   return payload.username;
 }

@@ -1,6 +1,6 @@
-import "../calendar.css";
-import { TaskData, TaskCheckbox } from "./Task";
-import "./tasks.css";
+import '../calendar.css';
+import { TaskData, TaskCheckbox } from './Task';
+import './tasks.css';
 import {
   FormEvent,
   ReactElement,
@@ -8,18 +8,18 @@ import {
   useEffect,
   useRef,
   useState,
-} from "react";
-import { ClassData } from "@/db/classes/class";
+} from 'react';
+import { ClassData } from '@/db/classes/class';
 import {
   createConfirmModal,
   createInfoModal,
-} from "../../../generic/overlays/modals";
-import TaskDueCountdown from "./TaskDueDate";
-import { dateAsDateTimeLocalValue } from "../../../generic/time/time";
+} from '../../../generic/overlays/modals';
+import TaskDueCountdown from './TaskDueDate';
+import { dateAsDateTimeLocalValue } from '../../../generic/time/time';
 import {
   createToastEvent,
   ToastAlertType,
-} from "../../../generic/overlays/toasts";
+} from '../../../generic/overlays/toasts';
 
 export type TaskFormEditable = {
   nameEditable: boolean;
@@ -31,9 +31,15 @@ export type TaskFormEditable = {
 type TaskFormProps = {
   data: TaskData;
   type: TaskFormType;
-  onClose: Function;
-  onSubmit: Function; // name, desc, dueDate, checklists, classId (sometimes), oldName (sometimes)
-  onDelete: Function;
+  onClose: () => void;
+  onSubmit: (
+    ref: RefObject<HTMLInputElement | null>,
+    descRef: RefObject<HTMLInputElement | null>,
+    dueDate: Date,
+    checkboxes: TaskCheckbox[],
+    classRef: RefObject<HTMLSelectElement | null>
+  ) => boolean; // name, desc, dueDate, checklists, classId (sometimes), oldName (sometimes)
+  onDelete: () => void;
 };
 
 export enum TaskFormType {
@@ -50,14 +56,15 @@ export default function TaskForm(props: TaskFormProps) {
   const [isUserAdmin, setUserAdmin] = useState<boolean>(false);
   const nameRef = useRef<HTMLInputElement | null>(null);
   const descRef = useRef<HTMLInputElement | null>(null);
-  const dueRef = useRef<HTMLInputElement | null>(null);
+  // const dueRef = useRef<HTMLInputElement | null>(null);
   const [dueDate, setDueDate] = useState<Date>(props.data.dueDate);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
   );
   const classRef = useRef<HTMLSelectElement | null>(null);
-  const [classId, setClassId] = useState<string>(String(props.data.classId));
-  const [className, setClassName] = useState<string>("Loading...");
+
+  const [classId, setClassId] = useState<string>(String(props.data.classId)); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [className, setClassName] = useState<string>('Loading...');
   const [classes, setClasses] = useState<ReactElement[]>();
 
   function submit(e: FormEvent) {
@@ -73,13 +80,13 @@ export default function TaskForm(props: TaskFormProps) {
     );
 
     if (validSubmit) {
-      const closeEvent = new Event("close-modal");
+      const closeEvent = new Event('close-modal');
       document.dispatchEvent(closeEvent);
     }
   }
 
   useEffect(() => {
-    fetch("/api/auth/admin?")
+    fetch('/api/auth/admin?')
       .then((res) => {
         return res.json();
       })
@@ -88,8 +95,8 @@ export default function TaskForm(props: TaskFormProps) {
       });
 
     /* Get from cache if exists */
-    let locClasses: string = String(localStorage.getItem("classesList"));
-    if (locClasses != "null") {
+    let locClasses: string = String(localStorage.getItem('classesList'));
+    if (locClasses != 'null') {
       setClasses(
         JSON.parse(locClasses).arr.map((i: ClassData) => {
           if (i.id == props.data.classId) {
@@ -114,7 +121,7 @@ export default function TaskForm(props: TaskFormProps) {
     <div
       className="modal-box max-w-full"
       onKeyDown={(e) => {
-        if (e.key == "Enter") {
+        if (e.key == 'Enter') {
           e.preventDefault();
           formRef.current?.requestSubmit();
         }
@@ -173,11 +180,11 @@ export default function TaskForm(props: TaskFormProps) {
               <select
                 ref={classRef}
                 className="select select-xl"
-                defaultValue={props.data.classId ? props.data.classId : "None"}
+                defaultValue={props.data.classId ? props.data.classId : 'None'}
                 onChange={(e) => setClassId(e.currentTarget.value)}
                 required
               >
-                <option value={"None"}>None</option>
+                <option value={'None'}>None</option>
                 {classes}
               </select>
               <p className="validator-hint">Please choose a class.</p>
@@ -199,8 +206,8 @@ export default function TaskForm(props: TaskFormProps) {
             />
           ) : (
             <p>
-              {props.data.description === ""
-                ? "No description provided"
+              {props.data.description === ''
+                ? 'No description provided'
                 : props.data.description}
             </p>
           )}
@@ -212,13 +219,13 @@ export default function TaskForm(props: TaskFormProps) {
               <div className="my-2" key={String(i.id)}>
                 <input
                   className="checkbox mr-3"
-                  id={i.id + "-box"}
+                  id={i.id + '-box'}
                   type="checkbox"
                   defaultChecked={Boolean(i.bool)}
                   onChange={() => (i.bool = !i.bool)}
                 />
                 <input
-                  id={i.id + "-label"}
+                  id={i.id + '-label'}
                   className="input mr-3"
                   type="text"
                   defaultValue={String(i.label)}
@@ -244,12 +251,12 @@ export default function TaskForm(props: TaskFormProps) {
             {/* Add Checkbox */}
             <button
               className="btn"
-              key={"add-checkbox"}
+              key={'add-checkbox'}
               onClick={(e) => {
                 e.preventDefault();
                 setCheckboxes((prev) => [
                   ...prev,
-                  { id: nextId, label: "New Checkbox", bool: false },
+                  { id: nextId, label: 'New Checkbox', bool: false },
                 ]);
                 nextId++;
               }}
@@ -323,15 +330,15 @@ export function AddClientTask(setStateTasks: Function) {
     const name = nameRef.current?.value;
     const description = descRef.current?.value;
 
-    if (name == "") {
+    if (name == '') {
       return false;
     }
 
     /* Create the task */
-    let res = await fetch("/api/calendar/tasks", {
-      method: "POST",
+    let res = await fetch('/api/calendar/tasks', {
+      method: 'POST',
       body: JSON.stringify({
-        id: "",
+        id: '',
         name: name,
         description: description,
         dueDate: dueDate,
@@ -341,9 +348,9 @@ export function AddClientTask(setStateTasks: Function) {
 
     /* Response Handling */
     let resText = await res.text();
-    if (res.status != 200 || resText !== "") {
+    if (res.status != 200 || resText !== '') {
       createInfoModal(
-        "Error " + res.status + ": " + resText,
+        'Error ' + res.status + ': ' + resText,
         <p>{'There was an issue with creating "' + name + '."'}</p>
       );
     } else {
@@ -357,15 +364,15 @@ export function AddClientTask(setStateTasks: Function) {
     return true;
   }
 
-  const event = new CustomEvent("add-modal", {
+  const event = new CustomEvent('add-modal', {
     detail: {
       body: (
         <TaskForm
           data={{
-            id: "",
+            id: '',
             dueDate: new Date(),
-            name: "New Task",
-            description: "",
+            name: 'New Task',
+            description: '',
             checkboxes: [],
             editables: {
               nameEditable: true,
@@ -394,16 +401,16 @@ export function AddClassTask(setStateTasks: Function) {
     checkboxes: TaskCheckbox[],
     classId: number
   ): Promise<boolean> {
-    if (name == "") {
+    if (name == '') {
       return false;
     }
 
-    let res = await fetch("/api/classes/tasks", {
-      method: "POST",
+    let res = await fetch('/api/classes/tasks', {
+      method: 'POST',
       body: JSON.stringify({
-        taskId: "",
+        taskId: '',
         classId: classId,
-        oldName: "",
+        oldName: '',
         newName: name,
         description: desc,
         dueDate: dueDate,
@@ -412,9 +419,9 @@ export function AddClassTask(setStateTasks: Function) {
     });
 
     const resText = await res.text();
-    if (res.status != 200 || resText !== "") {
+    if (res.status != 200 || resText !== '') {
       createInfoModal(
-        "Error " + res.status + ": " + resText,
+        'Error ' + res.status + ': ' + resText,
         <p>
           {'There was a problem with creating "' + name + '" for the class.'}
         </p>
@@ -441,7 +448,7 @@ export function AddClassTask(setStateTasks: Function) {
     const description = descRef.current?.value;
     const classVal = classRef.current?.value;
 
-    if (name == "" || classVal == "None") {
+    if (name == '' || classVal == 'None') {
       return false;
     }
 
@@ -456,15 +463,15 @@ export function AddClassTask(setStateTasks: Function) {
     return true;
   }
 
-  const event = new CustomEvent("add-modal", {
+  const event = new CustomEvent('add-modal', {
     detail: {
       body: (
         <TaskForm
           data={{
-            id: "",
+            id: '',
             dueDate: new Date(),
-            name: "New Task",
-            description: "",
+            name: 'New Task',
+            description: '',
             checkboxes: [],
             editables: {
               nameEditable: true,

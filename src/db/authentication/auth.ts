@@ -1,7 +1,7 @@
 /* general auth file */
 import { scrypt, randomBytes } from 'crypto';
 import { promisify } from 'util';
-import { createSecretKey } from 'crypto';
+// import { createSecretKey } from 'crypto';
 
 // scrypt is callback based so with promisify we can await it
 const scryptAsync = promisify(scrypt);

@@ -35,10 +35,10 @@ export default function UserLayout() {
         <li>
           <button
             onClick={async () => {
-              let deleteRes = await fetch("/api/auth/signIn", {
+              const deleteRes = await fetch("/api/auth/signIn", {
                 method: "DELETE",
               });
-              let deleteResText = await deleteRes.text();
+              const deleteResText = await deleteRes.text();
 
               if (deleteRes.status != 200 || deleteResText != "") {
               } else {

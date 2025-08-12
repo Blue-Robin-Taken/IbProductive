@@ -1,5 +1,5 @@
-import { TaskCheckbox, TaskData } from "@/app/components/calendar/tasks/Task";
-import prisma from "..";
+import { TaskCheckbox } from '@/app/components/calendar/tasks/Task';
+import prisma from '..';
 
 export type ClassData = {
   name: string;
@@ -23,14 +23,14 @@ export async function getAllClasses(): Promise<ClassData[]> {
  * @param id
  */
 export async function getUsersInClass(id: number) {
-  let userClassRels = await prisma.usersInClass.findMany({
+  const userClassRels = await prisma.usersInClass.findMany({
     where: { classId: id },
   });
 
-  let arr = [];
+  const arr = [];
 
   for (const i of userClassRels) {
-    let userData: UserData = {
+    const userData: UserData = {
       name: i.username,
       id: i.userId,
     };
@@ -48,17 +48,17 @@ export async function createTaskForClass(
   dueDate: Date,
   checkboxes: TaskCheckbox[]
 ) {
-  let users: UserData[] = await getUsersInClass(classId);
+  const users: UserData[] = await getUsersInClass(classId);
 
-  let labels: string[] = checkboxes.map((i) => {
+  const labels: string[] = checkboxes.map((i) => {
     return i.label;
   });
 
-  let bools: boolean[] = checkboxes.map((i) => {
+  const bools: boolean[] = checkboxes.map((i) => {
     return i.bool;
   });
 
-  let data = users.map((i) => {
+  const data = users.map((i) => {
     return {
       classId,
       username: i.name,
@@ -99,7 +99,7 @@ export async function assignUserToClasses(
   userId: number,
   username: string
 ) {
-  let data = classId.map((i: number) => {
+  const data = classId.map((i: number) => {
     return { classId: i, userId, username };
   });
 

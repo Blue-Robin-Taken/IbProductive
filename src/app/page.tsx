@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+// import Image from "next/image";
+import Link from 'next/link';
 export default function Home() {
   return (
     <div className="flex fixed inset-0  h-screen w-screen pointer-events-none">

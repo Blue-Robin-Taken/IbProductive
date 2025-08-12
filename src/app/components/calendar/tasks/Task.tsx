@@ -36,12 +36,12 @@ type TaskProps = {
 
 export function ClientTask(props: TaskProps) {
   async function handleDelete() {
-    let res = await fetch('/api/calendar/tasks', {
+    const res = await fetch('/api/calendar/tasks', {
       method: 'DELETE',
       body: JSON.stringify({ id: props.data.id }),
     });
 
-    let resText = await res.text();
+    const resText = await res.text();
     if (res.status != 200 || resText !== '') {
       createInfoModal(
         'Error ' + res.status + ': ' + resText,
@@ -74,7 +74,7 @@ export function ClientTask(props: TaskProps) {
     //   description != props.data.description ||
     //   dueDate.getTime() != new Date(props.data.dueDate).getTime()
     // ) {
-    let res = await fetch('/api/calendar/tasks', {
+    const res = await fetch('/api/calendar/tasks', {
       method: 'POST',
       body: JSON.stringify({
         id: props.data.id,
@@ -84,7 +84,7 @@ export function ClientTask(props: TaskProps) {
         checkboxes: checklist,
       }),
     });
-    let resText = await res.text();
+    const resText = await res.text();
     if (res.status != 200 || resText !== '') {
       createInfoModal(
         'Error ' + res.status + ': ' + resText,
@@ -130,7 +130,7 @@ export function ClientTask(props: TaskProps) {
 
 export function ClassTask(props: TaskProps) {
   async function handleDelete() {
-    let res = await fetch('/api/classes/tasks', {
+    const res = await fetch('/api/classes/tasks', {
       method: 'DELETE',
       body: JSON.stringify({
         classId: props.data.classId,
@@ -138,7 +138,7 @@ export function ClassTask(props: TaskProps) {
       }),
     });
 
-    let resText = await res.text();
+    const resText = await res.text();
     if (res.status != 200 || resText !== '') {
       createInfoModal(
         'Error ' + res.status + ': ' + resText,
@@ -172,7 +172,7 @@ export function ClassTask(props: TaskProps) {
 
     /* Client Edit */
     // if (checklist !== props.data.checkboxes) {
-    let res = await fetch('/api/calendar/tasks', {
+    const res = await fetch('/api/calendar/tasks', {
       method: 'POST',
       body: JSON.stringify({
         id: props.data.id,
@@ -183,7 +183,7 @@ export function ClassTask(props: TaskProps) {
       }),
     });
 
-    let resText = await res.text();
+    const resText = await res.text();
     if (res.status != 200 || resText !== '') {
       createInfoModal(
         'Error ' + res.status + ': ' + resText,
@@ -219,7 +219,7 @@ export function ClassTask(props: TaskProps) {
             '" for a class, meaning that this task will also be edited for users.  Do you wish to continue?'}
         </p>,
         async () => {
-          let res = await fetch('/api/classes/tasks', {
+          const res = await fetch('/api/classes/tasks', {
             method: 'POST',
             body: JSON.stringify({
               taskId: props.data.id,
@@ -231,7 +231,7 @@ export function ClassTask(props: TaskProps) {
               checkboxes: checklist,
             }),
           });
-          let resText = await res.text();
+          const resText = await res.text();
           if (res.status != 200 || resText !== '') {
             createInfoModal(
               'Error ' + res.status + ': ' + resText,

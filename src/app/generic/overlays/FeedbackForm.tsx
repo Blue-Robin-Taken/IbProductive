@@ -26,7 +26,7 @@ export function FeedbackForm() {
 
     if (!validForm) return;
 
-    let res = await fetch("/api/feedback", {
+    const res = await fetch("/api/feedback", {
       method: "POST",
       body: JSON.stringify({
         email: email,
@@ -35,7 +35,7 @@ export function FeedbackForm() {
       }),
     });
 
-    let resText = await res.text();
+    const resText = await res.text();
     if (res.status != 200 || resText != "") {
       createInfoModal(
         "Error " + res.status + ": " + resText,

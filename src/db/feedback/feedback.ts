@@ -1,5 +1,5 @@
-import { de } from "date-fns/locale";
-import prisma from "..";
+// import { de } from "date-fns/locale";
+import prisma from '..';
 
 export default async function createFeedback(
   email: string,

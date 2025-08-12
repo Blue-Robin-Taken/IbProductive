@@ -36,7 +36,7 @@ export default function TaskDueCountdown(props: TaskDueProps) {
 }
 
 function getTimeLeft(timeLeft: Date): TaskDueState {
-  let years: number = timeLeft.getUTCFullYear() - 1970; // 1970 needs to be subtracted for some reason
+  const years: number = timeLeft.getUTCFullYear() - 1970; // 1970 needs to be subtracted for some reason
   if (years < 0) {
     // negative years
     return { str: "Overdue!", css: "" };
@@ -45,8 +45,8 @@ function getTimeLeft(timeLeft: Date): TaskDueState {
   }
 
   let output: string = "Due in: ";
-  let months: number = timeLeft.getUTCMonth();
-  let days: number = timeLeft.getUTCDate() - 1;
+  const months: number = timeLeft.getUTCMonth();
+  const days: number = timeLeft.getUTCDate() - 1;
 
   if (months > 0) {
     output += months + " months " + days + " days";
@@ -56,7 +56,7 @@ function getTimeLeft(timeLeft: Date): TaskDueState {
     return { str: "Due in: " + days + " days", css: "" };
   }
 
-  let hours: number = timeLeft.getUTCHours();
+  const hours: number = timeLeft.getUTCHours();
 
   if (days > 0) {
     output += days + " days ";
@@ -70,7 +70,7 @@ function getTimeLeft(timeLeft: Date): TaskDueState {
     return { str: "Due in: " + hours + " hours", css: "" };
   }
 
-  let minutes: number = timeLeft.getUTCMinutes();
+  const minutes: number = timeLeft.getUTCMinutes();
   if (hours !== 0) {
     output += hours + " hours ";
   } else if (minutes <= 1) {

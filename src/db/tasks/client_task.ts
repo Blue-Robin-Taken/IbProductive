@@ -1,7 +1,7 @@
-import { TaskCheckbox, TaskData } from "@/app/components/calendar/tasks/Task";
-import { MS_IN_DAY } from "@/app/generic/time/time";
-import prisma from "..";
-import { TaskFormEditable } from "@/app/components/calendar/tasks/TaskForm";
+import { TaskCheckbox, TaskData } from '@/app/components/calendar/tasks/Task';
+import { MS_IN_DAY } from '@/app/generic/time/time';
+import prisma from '..';
+// import { TaskFormEditable } from "@/app/components/calendar/tasks/TaskForm";
 
 export async function addClientTask(
   username: string,
@@ -63,9 +63,9 @@ export async function getTasksFromPrisma(
     },
   });
 
-  let dataPlural = [];
+  const dataPlural = [];
   for (const i of tasks) {
-    let checkboxes: TaskCheckbox[] = [];
+    const checkboxes: TaskCheckbox[] = [];
 
     for (let j = 0; j < i.labels.length; j++) {
       checkboxes.push({
@@ -75,11 +75,11 @@ export async function getTasksFromPrisma(
       });
     }
 
-    let taskData: TaskData = {
+    const taskData: TaskData = {
       id: i.id,
       dueDate: i.date,
       name: i.name,
-      description: i.description == null ? "" : i.description,
+      description: i.description == null ? '' : i.description,
       checkboxes: checkboxes,
       editables: {
         nameEditable: i.nameEditable,

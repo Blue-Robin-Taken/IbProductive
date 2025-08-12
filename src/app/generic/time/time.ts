@@ -66,15 +66,15 @@ export function daysInMonth(year: number, month: number) {
 }
 
 export function firstDayOnCal(year: number, month: number) {
-  let dateOfFirst: Date = new Date(year, month, 1);
-  let dayOfFirst: number = dateOfFirst.getDay(); // also doubles for how many offests are needed
+  const dateOfFirst: Date = new Date(year, month, 1);
+  const dayOfFirst: number = dateOfFirst.getDay(); // also doubles for how many offests are needed
 
   return dateOfFirst.getTime() - dayOfFirst * MS_IN_DAY;
 }
 
 export function lastDayOnCal(year: number, month: number) {
-  let dateOfLast: Date = new Date(year, month, daysInMonth(year, month));
-  let dayOfLast: number = dateOfLast.getDay();
+  const dateOfLast: Date = new Date(year, month, daysInMonth(year, month));
+  const dayOfLast: number = dateOfLast.getDay();
 
   return dateOfLast.getTime() + (6 - dayOfLast) * MS_IN_DAY;
 }

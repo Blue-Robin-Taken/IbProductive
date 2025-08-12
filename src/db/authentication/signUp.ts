@@ -1,8 +1,8 @@
-import prisma from "..";
-import { randomUUID } from "crypto";
-import { addMinutes } from "date-fns";
-import { passwordStrength } from "check-password-strength";
-import { hashPassword } from "./auth";
+import prisma from '..';
+// import { randomUUID } from "crypto";
+import { addMinutes } from 'date-fns';
+// import { passwordStrength } from "check-password-strength";
+import { hashPassword } from './auth';
 
 export async function createAccount(
   username: string,
@@ -27,20 +27,20 @@ export async function createAccountVerificationToken(
     be referenced in that process. */
 
   // strip password of spaces: (commonly placed and may confuse users when their password doesn't work)
-  password = password.replace(" ", "");
+  password = password.replace(' ', '');
   const passHash = await hashPassword(password);
 
   // todo: Test database for same email
   let test = await prisma.user.findFirst({ where: { email: email } });
 
   if (test) {
-    return "Email already exists";
+    return 'Email already exists';
   }
 
   // Test database for same username
   test = await prisma.user.findFirst({ where: { username: username } });
   if (test) {
-    return "Username already exists";
+    return 'Username already exists';
   }
 
   // https://stackoverflow.com/a/67038052/15982771
@@ -64,7 +64,7 @@ export async function createAccountVerificationToken(
     },
   });
 
-  return "sent";
+  return 'sent';
 }
 
 export async function handleVerifyEmail(sentToken: string) {
@@ -85,7 +85,7 @@ export async function handleVerifyEmail(sentToken: string) {
           token: sentToken,
         },
       });
-      return "expired";
+      return 'expired';
     } else {
       // check if account already exists
       const user = await prisma.user.findFirst({
@@ -99,7 +99,7 @@ export async function handleVerifyEmail(sentToken: string) {
       });
 
       if (user) {
-        return "already exists";
+        return 'already exists';
       }
 
       await createAccount(
@@ -108,16 +108,16 @@ export async function handleVerifyEmail(sentToken: string) {
         databaseEntry.passHash
       ); // Create the account in the database
 
-      const del = await prisma.verificationToken.delete({
+      await prisma.verificationToken.delete({
         where: {
           token: sentToken,
         },
       }); // Delete the token
 
-      return "account created";
+      return 'account created';
     }
   } else {
-    return "No key";
+    return 'No key';
   }
 }
 
@@ -143,7 +143,7 @@ export async function usernameExists(checkUser: string): Promise<boolean> {
   return false;
 }
 
-export async function checkCookieUser(cookieJWT: string) {}
+// export async function checkCookieUser(cookieJWT: string) {}
 
 // export async function deleteUnusedVerificationKeys() {
 //     /* This is used to delete keys that have expired periodically with a node cron job */
@@ -157,7 +157,7 @@ export async function checkCookieUser(cookieJWT: string) {}
 // }
 
 export async function verificationKeyExists(email: string, username: string) {
-  let key = await prisma.verificationToken.findFirst({
+  const key = await prisma.verificationToken.findFirst({
     where: { email, username },
   });
 
