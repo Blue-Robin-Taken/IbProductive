@@ -33,12 +33,12 @@ type TaskFormProps = {
   type: TaskFormType;
   onClose: () => void;
   onSubmit: (
-    ref: RefObject<HTMLInputElement | null>,
-    descRef: RefObject<HTMLInputElement | null>,
+    ref: RefObject<HTMLInputElement>,
+    descRef: RefObject<HTMLInputElement>,
     dueDate: Date,
     checkboxes: TaskCheckbox[],
-    classRef: RefObject<HTMLSelectElement | null>
-  ) => boolean; // name, desc, dueDate, checklists, classId (sometimes), oldName (sometimes)
+    classRef: RefObject<HTMLSelectElement>
+  ) => Promise<boolean>; // name, desc, dueDate, checklists, classId (sometimes), oldName (sometimes)
   onDelete: () => void;
 };
 
@@ -95,7 +95,7 @@ export default function TaskForm(props: TaskFormProps) {
       });
 
     /* Get from cache if exists */
-    let locClasses: string = String(localStorage.getItem('classesList'));
+    const locClasses: string = String(localStorage.getItem('classesList'));
     if (locClasses != 'null') {
       setClasses(
         JSON.parse(locClasses).arr.map((i: ClassData) => {
