@@ -31,15 +31,9 @@ export type TaskFormEditable = {
 type TaskFormProps = {
   data: TaskData;
   type: TaskFormType;
-  onClose: () => void;
-  onSubmit: (
-    ref: RefObject<HTMLInputElement>,
-    descRef: RefObject<HTMLInputElement>,
-    dueDate: Date,
-    checkboxes: TaskCheckbox[],
-    classRef: RefObject<HTMLSelectElement>
-  ) => Promise<boolean>; // name, desc, dueDate, checklists, classId (sometimes), oldName (sometimes)
-  onDelete: () => void;
+  onClose: Function;
+  onSubmit: Function; // name, desc, dueDate, checklists, classId (sometimes), oldName (sometimes)
+  onDelete: Function;
 };
 
 export enum TaskFormType {
@@ -56,14 +50,13 @@ export default function TaskForm(props: TaskFormProps) {
   const [isUserAdmin, setUserAdmin] = useState<boolean>(false);
   const nameRef = useRef<HTMLInputElement | null>(null);
   const descRef = useRef<HTMLInputElement | null>(null);
-  // const dueRef = useRef<HTMLInputElement | null>(null);
+  const dueRef = useRef<HTMLInputElement | null>(null);
   const [dueDate, setDueDate] = useState<Date>(props.data.dueDate);
   const [checkboxes, setCheckboxes] = useState<TaskCheckbox[]>(
     props.data.checkboxes
   );
   const classRef = useRef<HTMLSelectElement | null>(null);
-
-  const [classId, setClassId] = useState<string>(String(props.data.classId)); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [classId, setClassId] = useState<string>(String(props.data.classId));
   const [className, setClassName] = useState<string>('Loading...');
   const [classes, setClasses] = useState<ReactElement[]>();
 
@@ -95,7 +88,7 @@ export default function TaskForm(props: TaskFormProps) {
       });
 
     /* Get from cache if exists */
-    const locClasses: string = String(localStorage.getItem('classesList'));
+    let locClasses: string = String(localStorage.getItem('classesList'));
     if (locClasses != 'null') {
       setClasses(
         JSON.parse(locClasses).arr.map((i: ClassData) => {
