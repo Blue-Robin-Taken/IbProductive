@@ -1,12 +1,12 @@
-"use client";
+'use client';
 /* Form Validation should be handled on the API level for 
 security (but this is the client side part) */
-import { FormEvent, useState } from "react";
-import * as EmailValidator from "email-validator";
-import { passwordStrength } from "check-password-strength";
+import { FormEvent, useState } from 'react';
+import * as EmailValidator from 'email-validator';
+import { passwordStrength } from 'check-password-strength';
 
 export default function SignIn() {
-  const [formInvalid, setValidation] = useState("");
+  const [formInvalid, setValidation] = useState('');
 
   async function submitForm(e: FormEvent) {
     // Must be in the SignIn function because of the form validation hook
@@ -19,27 +19,27 @@ export default function SignIn() {
     // validate before sending a request
 
     if (EmailValidator.validate(email) != true) {
-      return setValidation("Email validation failed");
+      return setValidation('Email validation failed');
     } else if (checkSamePass != password) {
       return setValidation("Passwords aren't the same");
     } else if (passwordStrength(password).id < 2) {
       return setValidation(
-        "Password is too weak. Minimum length of 8. Consider adding at least two of the following: Uppercase/lowercase, symbols, a number."
+        'Password is too weak. Minimum length of 8. Consider adding at least two of the following: Uppercase/lowercase, symbols, a number.'
       );
     } else {
       // No issues
-      setValidation("");
+      setValidation('');
     }
 
-    const resp = await fetch("/api/auth/signUp", {
-      method: "POST",
+    const resp = await fetch('/api/auth/signUp', {
+      method: 'POST',
       body: JSON.stringify({
         email: email,
         username: username,
         password: password,
       }),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
     setValidation(await resp.text());
@@ -54,12 +54,12 @@ export default function SignIn() {
         <label className="text-center" htmlFor="email">
           Email:
         </label>
-        <input className="text-black" type="text" id="email" name="email" />
+        <input className="text-white" type="text" id="email" name="email" />
         <label className="text-center" htmlFor="username">
           Username:
         </label>
         <input
-          className="text-black"
+          className="text-white"
           type="text"
           id="username"
           name="username"
@@ -68,7 +68,7 @@ export default function SignIn() {
           Password:
         </label>
         <input
-          className="text-black"
+          className="text-white"
           type="password" // This is for the browser to recognize that it should hide the autofill
           id="passKey"
           name="passKey"
@@ -78,13 +78,13 @@ export default function SignIn() {
           Confirm Password:
         </label>
         <input
-          className=" text-black"
+          className=" text-white"
           type="password"
           id="checkPassSame"
           name="checkPassSame"
         />
         <input
-          className="bg-lime-300 text-black"
+          className="bg-lime-300 text-white"
           type="submit"
           value="submit"
         ></input>
