@@ -1,44 +1,44 @@
 {
-    "name": "ib_productive",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev --turbopack",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint",
-        "cronJobs": ""
-    },
-    "dependencies": {
-        "@prisma/client": "^6.10.1",
-        "@prisma/extension-accelerate": "^2.0.1",
-        "@tailwindcss/postcss": "^4.1.11",
-        "check-password-strength": "^3.0.0",
-        "date-fns": "^4.1.0",
-        "dotenv": "^16.5.0",
-        "email-validator": "^2.0.4",
-        "jose": "^6.0.11",
-        "motion": "^12.23.12",
-        "next": "^15.3.3",
-        "node-cron": "^4.2.0",
-        "react": "^19.1.0",
-        "react-countdown-circle-timer": "^3.2.1",
-        "react-dom": "^19.1.0",
-        "resend": "^4.5.2",
-        "ts-node": "^10.9.2"
-    },
-    "devDependencies": {
-        "@eslint/eslintrc": "^3.3.1",
-        "@types/node": "^20.19.0",
-        "@types/react": "^19.1.8",
-        "@types/react-dom": "^19.1.6",
-        "daisyui": "^5.0.50",
-        "eslint": "^9.28.0",
-        "eslint-config-next": "15.1.8",
-        "postcss": "^8.5.5",
-        "prisma": "^6.10.1",
-        "tailwindcss": "^4.1.11",
-        "typescript": "^5.8.3"
-    },
-    "packageManager": "pnpm@8.12.1+sha1.aa961ffce9b6eaa56307d9b5ff7e984f25b7eb58"
+  "name": "ib_productive",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "cronJobs": ""
+  },
+  "dependencies": {
+    "@prisma/client": "^6.10.1",
+    "@prisma/extension-accelerate": "^2.0.1",
+    "@tailwindcss/postcss": "^4.1.11",
+    "check-password-strength": "^3.0.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
+    "email-validator": "^2.0.4",
+    "jose": "^6.0.11",
+    "motion": "^12.23.12",
+    "next": "^15.3.3",
+    "node-cron": "^4.2.0",
+    "react": "^19.1.0",
+    "react-countdown-circle-timer": "^3.2.1",
+    "react-dom": "^19.1.0",
+    "resend": "^4.5.2",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/node": "^20.19.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "daisyui": "^5.0.50",
+    "eslint": "^9.28.0",
+    "eslint-config-next": "15.1.8",
+    "postcss": "^8.5.5",
+    "prisma": "^6.10.1",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@8.12.1+sha1.aa961ffce9b6eaa56307d9b5ff7e984f25b7eb58"
 }
