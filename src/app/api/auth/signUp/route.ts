@@ -65,14 +65,17 @@ export async function POST(request: Request) {
 
   const verification_link = `${process.env['WEBSITE_URL']}/api/verifyEmail?key=${token}`;
   /* Save the verification token for the account in the prisma database */
-  await resend.emails.send({
-    from: 'IBProductive <onboarding@ibproductive.org>',
-    to: [res.email],
-    subject: 'IBProductive Verification Email',
-    html: `<h1>Welcome To IBProductive!</h1>
+  console.log(
+    await resend.emails.send({
+      from: 'IBProductive <onboarding@ibproductive.org>',
+      to: [res.email],
+      subject: 'IBProductive Verification Email',
+      html: `<h1>Welcome To IBProductive!</h1>
          <p>Here is your verification link:${verification_link}</p> <br> 
          <p>If you got this email without sending it yourself, please contact us.</p>`,
-  });
+    })
+  );
+
   createAccountVerificationToken(token, res.email, res.username, res.password);
 
   return new NextResponse('Verification email sent.');
