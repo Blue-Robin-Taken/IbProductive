@@ -55,3 +55,13 @@ EMAIL_API_KEY="EMAIL-API-KEY-HERE"
 WEBSITE_URL="WEBSITE-URL-HERE"
 JWT_SECRET="JWT-SECRET-HERE"
 ```
+
+## Production environment .env.production
+
+File: `.env.production`
+
+Variables:
+
+```
+DATABASE_URL="PRISMA-PRODUCTION-DATABASE-URL-HERE"
+```

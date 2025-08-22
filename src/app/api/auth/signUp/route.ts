@@ -31,7 +31,7 @@ interface responseType {
 export async function POST(request: Request) {
   const res: responseType = await request.json();
 
-  const hasAccount = await emailAccountExists(res.email);
+  let hasAccount = await emailAccountExists(res.email);
   if (hasAccount) {
     return new NextResponse('This email already exists.');
   }
@@ -65,7 +65,6 @@ export async function POST(request: Request) {
 
   const verification_link = `${process.env['WEBSITE_URL']}/api/verifyEmail?key=${token}`;
   /* Save the verification token for the account in the prisma database */
-  createAccountVerificationToken(token, res.email, res.username, res.password);
   await resend.emails.send({
     from: 'IBProductive <onboarding@ibproductive.org>',
     to: [res.email],
@@ -74,6 +73,7 @@ export async function POST(request: Request) {
          <p>Here is your verification link:${verification_link}</p> <br> 
          <p>If you got this email without sending it yourself, please contact us.</p>`,
   });
+  createAccountVerificationToken(token, res.email, res.username, res.password);
 
   return new NextResponse('Verification email sent.');
 }
