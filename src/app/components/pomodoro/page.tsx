@@ -89,7 +89,7 @@ export default function Pomodoro() {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col">
       <h1 className="text-5xl font-bold text-center">Pomodoro Timer</h1>
       <div className="flex flex-col text-white m-auto p-10 items-center">
         {/* The timer component */}
@@ -97,8 +97,10 @@ export default function Pomodoro() {
           <CountdownCircleTimer
             onComplete={() => {
               /* Goofy Audio */
-              // const ringtone = new Audio();
-              // ringtone.play();
+              const ringtone = new Audio(
+                '/alarmSounds/timer-terminer-342934.mp3'
+              );
+              ringtone.play();
 
               /* Refresh Animation */
               animate(
@@ -291,6 +293,16 @@ export default function Pomodoro() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col self-center w-2xl">
+        <h2 className="text-3xl font-bold text-left">Pomodoro Settings</h2>
+        <div>
+          {/* Input for the audio */}
+          <div className="flex flex-row gap-4 m-4">
+            <p>Timer Sound</p>
+            <input type="checkbox" />
           </div>
         </div>
       </div>
