@@ -65,87 +65,57 @@ export function GlobalTask(props: TaskProps) {
     const name = nameRef.current?.value;
     const description = descRef.current?.value;
 
-    if (name === "") {
+    // invalid submit
+    if (name === "" || typeof name == "undefined") {
       return false;
     }
 
-    const res = await fetch("/api/calendar/tasks", {
-      method: "POST",
-      body: JSON.stringify({
-        id: props.data.id,
-        name: props.data.name,
-        description: props.data.description,
-        dueDate: props.data.dueDate,
-        checkboxes: checklist,
-      }),
-    });
-
-    const resText = await res.text();
-    if (res.status != 200 || resText !== "") {
-      createInfoModal(
-        "Error " + res.status + ": " + resText,
-        <p>
-          {'There was an issue with editing the checklist on "' +
-            props.data.name +
-            '."'}
-        </p>
-      );
-    } else {
-      createToastEvent(
-        ToastAlertType.SUCCESS,
-        '"' + props.data.name + '" checklist was successfully updated.'
-      );
-      props.setStateTasks();
-    }
-
-    /* Admin Edit */
-    if (typeof name == "undefined") {
+    // checks if theres a change, as if theres none then there is no need for a modal
+    if (
+      name == props.data.name &&
+      description == props.data.description &&
+      dueDate.getTime() == new Date(props.data.dueDate).getTime()
+    ) {
       return true;
     }
 
-    if (
-      name != props.data.name ||
-      description != props.data.description ||
-      dueDate.getTime() != new Date(props.data.dueDate).getTime()
-    ) {
-      createConfirmModal(
-        <p>
-          {'You are about to edit "' +
-            props.data.name +
-            '" for a class, meaning that this task will also be edited for users.  Do you wish to continue?'}
-        </p>,
-        async () => {
-          const res = await fetch("/api/classes/tasks", {
-            method: "POST",
-            body: JSON.stringify({
-              taskId: props.data.id,
-              oldName: props.data.name,
-              newName: name,
-              description: description,
-              dueDate: dueDate,
-              checkboxes: checklist,
-            }),
-          });
-          const resText = await res.text();
-          if (res.status != 200 || resText !== "") {
-            createInfoModal(
-              "Error " + res.status + ": " + resText,
-              <p>
-                {'There was an issue with editing "' +
-                  props.data.name +
-                  '" for the class.'}
-              </p>
-            );
-          } else {
-            createToastEvent(
-              ToastAlertType.SUCCESS,
-              '"' + props.data.name + '" was successfully edited for the class.'
-            );
-            props.setStateTasks();
-          }
+    createConfirmModal(
+      <p>
+        {'You are about to edit "' +
+          props.data.name +
+          '" for a class, meaning that this task will also be edited for users.  Do you wish to continue?'}
+      </p>,
+      async () => {
+        const res = await fetch("/api/calendar/tasks", {
+          method: "POST",
+          body: JSON.stringify({
+            id: props.data.id,
+            name: name,
+            description: description,
+            dueDate: dueDate,
+            checkboxes: checklist,
+          }),
+        });
+        const resText = await res.text();
+        if (res.status != 200 || resText !== "") {
+          createInfoModal(
+            "Error " + res.status + ": " + resText,
+            <p>
+              {'There was an issue with editing "' +
+                props.data.name +
+                '" for the class.'}
+            </p>
+          );
+        } else {
+          createToastEvent(
+            ToastAlertType.SUCCESS,
+            '"' + props.data.name + '" was successfully edited for the class.'
+          );
+          props.setStateTasks();
         }
-      );
-    }
+      }
+    );
+
     return true;
   }
 

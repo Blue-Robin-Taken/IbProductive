@@ -1,5 +1,5 @@
-import { TaskCheckbox } from '@/app/components/calendar/tasks/Task';
-import prisma from '..';
+import { TaskCheckbox } from "@/app/components/calendar/tasks/Task";
+import prisma from "..";
 
 export type ClassData = {
   name: string;
@@ -13,7 +13,7 @@ export type UserData = {
 
 export async function getAllClasses(): Promise<ClassData[]> {
   const classes = await prisma.class.findMany();
-  return classes.map((i) => {
+  return classes.map((i: ClassData) => {
     return { name: i.name, id: i.id };
   });
 }

@@ -185,72 +185,7 @@ export default function TaskForm(props: TaskFormProps) {
   );
 }
 
-export function AddClientTask(setStateTasks: Function) {
-  async function handleSubmit(
-    nameRef: RefObject<HTMLInputElement | null>,
-    descRef: RefObject<HTMLInputElement | null>,
-    dueDate: Date,
-    checkboxes: TaskCheckbox[]
-  ): Promise<boolean> {
-    const name = nameRef.current?.value;
-    const description = descRef.current?.value;
-
-    if (name == "") {
-      return false;
-    }
-
-    /* Create the task */
-    let res = await fetch("/api/calendar/tasks", {
-      method: "POST",
-      body: JSON.stringify({
-        id: "",
-        name: name,
-        description: description,
-        dueDate: dueDate,
-        checkboxes: checkboxes,
-      }),
-    });
-
-    /* Response Handling */
-    let resText = await res.text();
-    if (res.status != 200 || resText !== "") {
-      createInfoModal(
-        "Error " + res.status + ": " + resText,
-        <p>{'There was an issue with creating "' + name + '."'}</p>
-      );
-    } else {
-      // successful create
-      createToastEvent(
-        ToastAlertType.SUCCESS,
-        '"' + name + '" successfully created.'
-      );
-      setStateTasks();
-    }
-    return true;
-  }
-
-  const event = new CustomEvent("add-modal", {
-    detail: {
-      body: (
-        <TaskForm
-          data={{
-            id: "",
-            dueDate: new Date(),
-            name: "New Task",
-            description: "",
-            checkboxes: [],
-          }}
-          onClose={() => {}}
-          onSubmit={handleSubmit}
-          onDelete={() => {}}
-        />
-      ),
-    },
-  });
-  document.dispatchEvent(event);
-}
-
-export function AddClassTask(setStateTasks: Function) {
+export function AddGlobalTask(setStateTasks: () => void) {
   async function confirm(
     name: string,
     desc: string,
@@ -261,12 +196,11 @@ export function AddClassTask(setStateTasks: Function) {
       return false;
     }
 
-    let res = await fetch("/api/classes/tasks", {
+    let res = await fetch("/api/calendar/tasks", {
       method: "POST",
       body: JSON.stringify({
-        taskId: "",
-        oldName: "",
-        newName: name,
+        id: "",
+        name: name,
         description: desc,
         dueDate: dueDate,
         checkboxes: checkboxes,

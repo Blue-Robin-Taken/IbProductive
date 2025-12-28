@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { getHolidays } from "./holidays/HolidayBackEnd";
 import "./calendar.css";
-import { AddClassTask, AddClientTask } from "./tasks/TaskForm";
+import { AddGlobalTask } from "./tasks/TaskForm";
 import { TaskData, GlobalTask } from "./tasks/Task";
 import {
   firstDayOnCal,
@@ -142,11 +142,8 @@ export default function Calender() {
 
   return (
     <div>
-      <button className="btn" onClick={() => AddClientTask(setStateTasks)}>
-        Add Personal Task
-      </button>
-      <button className="btn" onClick={() => AddClassTask(setStateTasks)}>
-        Add Class Task
+      <button className="btn" onClick={() => AddGlobalTask(setStateTasks)}>
+        Add Global Task
       </button>
       <div className="text-secondary-content flex justify-between p-5 my-3 bg-secondary">
         <button className="btn" onClick={prevMonth}>
