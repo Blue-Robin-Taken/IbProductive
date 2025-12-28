@@ -11,7 +11,7 @@ export default function Home() {
             <p className=" text-xl">We have the solution for you.</p>
           </div>
         </div>
-        <div className="flex flex-grow text-center justify-center m-10 align-middle">
+        <div className="flex grow text-center justify-center m-10 align-middle">
           <Link
             className="btn btn-primary p-8 text-4xl justify-center text-center align-middle"
             href="/workspace"
