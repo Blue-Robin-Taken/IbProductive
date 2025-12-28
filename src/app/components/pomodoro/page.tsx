@@ -4,15 +4,17 @@ import { useState, useRef } from 'react';
 // import { motion } from "motion/react";
 import { animate } from 'motion';
 
+type ColorHex = `#${string}`;
+
 export default function Pomodoro() {
+  // Timer useStates
   const [play, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [reset, setReset] = useState(0);
 
   const [currentCycle, setCurrentCycle] = useState<string>('Work Time');
 
-  // const [colorsTime, setColorsTime] = useState<number[]>();
-
+  // Timer Refs
   const minuteWorkRef = useRef(null);
   const secondWorkRef = useRef(null);
   const hourWorkRef = useRef(null);
@@ -21,8 +23,11 @@ export default function Pomodoro() {
   const secondBreakRef = useRef(null);
   const hourBreakRef = useRef(null);
 
-  // At top of your file:
-  type ColorHex = `#${string}`;
+  // Settings useStates
+  const [timerSoundOn, setTimerSoundOn] = useState(true);
+
+  // Settings Refs
+  const timerSoundRef = useRef(null);
 
   const colorsList: [ColorHex, ColorHex, ...ColorHex[]] = [
     '#00274D', // IB navy (index 0)
@@ -141,7 +146,7 @@ export default function Pomodoro() {
             size={300}
           >
             {({ remainingTime }) => (
-              <div className="text-center font-bold flex flex-col space-y-2 text-xl">
+              <div className="text-center font-bold flex flex-col gap-2 text-xl">
                 <p>{currentCycle}:</p>
                 <p>{secondsToHrMinS(remainingTime)}</p>
               </div>
@@ -197,11 +202,11 @@ export default function Pomodoro() {
             Skip Timer
           </button>
         </div>
-        <div className="flex flex-col space-y-4 m-auto mt-4 ml-16">
+        <div className="flex flex-col gap-4 m-auto mt-4 ml-16">
           <div className="flex flex-col">
             <div className="flex flex-row items-center m-4">
               <h2 className="text-3xl font-semibold">Work Time</h2>
-              <div className="flex flex-row space-x-4 ml-auto px-16">
+              <div className="flex flex-row gap-4 ml-auto px-16">
                 <div className="flex flex-row items-center font-bold m-auto">
                   <label htmlFor="hours" className="p-2">
                     Hours
@@ -248,7 +253,7 @@ export default function Pomodoro() {
             </div>
             <div className="flex flex-row items-center m-4">
               <h2 className="text-3xl font-semibold">Break Time</h2>
-              <div className="flex flex-row space-x-4 ml-auto px-16">
+              <div className="flex flex-row gap-4 ml-auto px-16">
                 <div className="flex flex-row items-center font-bold">
                   <label htmlFor="hours" className="p-2">
                     Hours
@@ -302,7 +307,7 @@ export default function Pomodoro() {
           {/* Input for the audio */}
           <div className="flex flex-row gap-4 m-4">
             <p>Timer Sound</p>
-            <input type="checkbox" />
+            <input ref={timerSoundRef} type="checkbox" />
           </div>
         </div>
       </div>
