@@ -30,10 +30,10 @@ type TaskProps = {
 
 export function GlobalTask(props: TaskProps) {
   async function handleDelete() {
-    const res = await fetch("/api/tasks", {
+    const res = await fetch("/api/calendar/tasks", {
       method: "DELETE",
       body: JSON.stringify({
-        taskName: props.data.name,
+        id: props.data.id,
       }),
     });
 
@@ -41,16 +41,12 @@ export function GlobalTask(props: TaskProps) {
     if (res.status != 200 || resText !== "") {
       createInfoModal(
         "Error " + res.status + ": " + resText,
-        <p>
-          {'There was an issue with deleting "' +
-            props.data.name +
-            '" for the class.'}
-        </p>
+        <p>{'There was an issue with deleting "' + props.data.name + '".'}</p>
       );
     } else {
       createToastEvent(
         ToastAlertType.SUCCESS,
-        '"' + props.data.name + '" was successfully deleted for the class.'
+        '"' + props.data.name + '" was successfully deleted.'
       );
       props.setStateTasks();
     }
@@ -109,7 +105,7 @@ export function GlobalTask(props: TaskProps) {
         } else {
           createToastEvent(
             ToastAlertType.SUCCESS,
-            '"' + props.data.name + '" was successfully edited for the class.'
+            '"' + props.data.name + '" was successfully edited.'
           );
           props.setStateTasks();
         }

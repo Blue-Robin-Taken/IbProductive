@@ -7,8 +7,7 @@ export async function addGlobalTask(
   name: string,
   description: string,
   dueDate: Date,
-  labels: string[],
-  bools: boolean[]
+  labels: string[]
 ) {
   await prisma.globalTask.create({
     data: {
@@ -16,7 +15,6 @@ export async function addGlobalTask(
       description,
       date: dueDate,
       labels,
-      bools,
     },
   });
 }
@@ -26,8 +24,7 @@ export async function editGlobalTask(
   name: string,
   description: string,
   dueDate: Date,
-  labels: string[],
-  bools: boolean[]
+  labels: string[]
 ) {
   await prisma.globalTask.update({
     where: { id: id },
@@ -36,7 +33,6 @@ export async function editGlobalTask(
       description,
       date: dueDate,
       labels,
-      bools,
     },
   });
 }
@@ -59,7 +55,7 @@ export async function getGlobalTasks(firstDate: number, lastDate: number) {
       checkboxes.push({
         id: j,
         label: i.labels[j],
-        bool: i.bools[j],
+        bool: false, // TODO: add checklist functionality, make it so that it checks whenever the task is pulled up?
       });
     }
 
@@ -77,10 +73,9 @@ export async function getGlobalTasks(firstDate: number, lastDate: number) {
   return dataPlural;
 }
 
-export async function deleteClientTask(username: string, id: string) {
-  await prisma.clientTask.delete({
+export async function deleteGlobalTask(id: string) {
+  await prisma.globalTask.delete({
     where: {
-      username: username,
       id: id,
     },
   });
