@@ -21,7 +21,7 @@ export default function RootLayout({
       <head></head>
       <body className="font-lato font-regular bg-black m-0 p-0 min-h-screen ">
         {/*Navbar*/}
-        <div className="p-5 m-0 text-4xl bg-gradient-to-r flex flex-row z-20 text-white">
+        <div className="p-5 m-0 text-4xl bg-linear-to-r flex flex-row z-20 text-white">
           <div className="space-x-8">
             <Link href="/">Home</Link>
             <Link href="/about">About</Link>
@@ -31,7 +31,7 @@ export default function RootLayout({
             <UserLayout />
           </div>
         </div>
-        <div className="z-0">{children}</div>
+        <div className="z-0 text-white">{children}</div>
         <ToastSystem />
         <ModalSystem />
       </body>
