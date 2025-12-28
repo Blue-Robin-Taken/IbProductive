@@ -146,7 +146,7 @@ export default function Pomodoro() {
             )}
           </CountdownCircleTimer>
         </div>
-        <div className="grid grid-rows-2 grid-cols-1 space-y-2 mt-4">
+        <div className="flex flex-row gap-4 m-8">
           <button
             onClick={() => {
               if (currentCycle == 'Work Time') {
