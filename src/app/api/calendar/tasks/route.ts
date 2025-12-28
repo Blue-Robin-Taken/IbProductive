@@ -5,8 +5,8 @@ import {
   getGlobalTasks,
   addGlobalTask,
   editGlobalTask,
-  deleteClientTask,
-} from "@/db/tasks/client_task";
+  deleteGlobalTask,
+} from "@/db/tasks/globalTask";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -73,8 +73,7 @@ export async function POST(request: Request) {
       reqJson.name,
       reqJson.description,
       new Date(reqJson.dueDate),
-      labels,
-      bools
+      labels
     );
     return new NextResponse();
   } else {
@@ -83,8 +82,7 @@ export async function POST(request: Request) {
       reqJson.name,
       reqJson.description,
       new Date(reqJson.dueDate),
-      labels,
-      bools
+      labels
     );
     return new NextResponse();
   }
@@ -97,10 +95,10 @@ interface DeleteRequest {
 export async function DELETE(request: Request) {
   const jsonReq: DeleteRequest = await request.json();
 
-  const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get("token")?.value;
-  const username = await getUsername(String(tokenCookie));
+  // const cookieStore = await cookies();
+  // const tokenCookie = cookieStore.get("token")?.value;
+  // const username = await getUsername(String(tokenCookie));
 
-  await deleteClientTask(username, jsonReq.id);
+  await deleteGlobalTask(jsonReq.id);
   return new Response();
 }

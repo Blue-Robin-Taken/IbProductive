@@ -170,6 +170,9 @@ export default function TaskForm(props: TaskFormProps) {
 
       <form method="dialog" className="modal-action">
         <button className="btn">Close</button>
+        <button className="btn" onClick={props.onDelete}>
+          Delete
+        </button>
         <button
           className="btn"
           onClick={(e) => {

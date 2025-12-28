@@ -41,7 +41,6 @@ model GlobalTask {
   description  String?
   date         DateTime
   labels       String[]
-  bools        Boolean[]
   classId      Int?
   Class        Class?    @relation(fields: [classId], references: [id])
 }
