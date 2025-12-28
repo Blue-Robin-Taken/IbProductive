@@ -27,9 +27,6 @@ export default function RootLayout({
             <Link href="/about">About</Link>
             <Link href="/workspace">Workspace</Link>
           </div>
-          <div className="ml-auto flex flex-row gap-8">
-            <UserLayout />
-          </div>
         </div>
         <div className="z-0 text-white">{children}</div>
         <ToastSystem />

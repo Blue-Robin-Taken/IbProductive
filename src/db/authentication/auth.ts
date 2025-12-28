@@ -11,6 +11,10 @@ export async function hashPassword(password: string): Promise<string> {
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   // Yes, it is synchronous... Might need to change this if we get more web traffic in the future.
   const passHash = `${buf.toString('hex')}.${salt}`;
+  
 
+
+
+  
   return passHash;
 }
