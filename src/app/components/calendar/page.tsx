@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { getHolidays } from './holidays/HolidayBackEnd';
-import './calendar.css';
-import { AddClassTask, AddClientTask } from './tasks/TaskForm';
-import { TaskData, ClientTask, ClassTask } from './tasks/Task';
+import React, { useEffect, useState } from "react";
+import { getHolidays } from "./holidays/HolidayBackEnd";
+import "./calendar.css";
+import { AddGlobalTask } from "./tasks/TaskForm";
+import { TaskData, GlobalTask } from "./tasks/Task";
 import {
   firstDayOnCal,
   getDayString,
   getMonthString,
   lastDayOnCal,
-} from '../../generic/time/time';
-import { ClassData } from '@/db/classes/class';
+} from "../../generic/time/time";
+import { ClassData } from "@/db/classes/class";
 
 const MS_IN_DAY: number = 86400000;
 
@@ -23,15 +23,15 @@ export default function Calender() {
 
   /* Caching */
   useEffect(() => {
-    const locClasses: string = String(localStorage.getItem('classesList'));
-    const allClassesParams = new URLSearchParams({ name: 'all' });
-    fetch('/api/classes?' + allClassesParams)
+    const locClasses: string = String(localStorage.getItem("classesList"));
+    const allClassesParams = new URLSearchParams({ name: "all" });
+    fetch("/api/classes?" + allClassesParams)
       .then((res) => {
         return res.json();
       })
       .then((json: { arr: ClassData[] }) => {
-        if (locClasses == 'null' || locClasses != JSON.stringify(json)) {
-          localStorage.setItem('classesList', JSON.stringify(json));
+        if (locClasses == "null" || locClasses != JSON.stringify(json)) {
+          localStorage.setItem("classesList", JSON.stringify(json));
         }
       });
   }, []);
@@ -46,9 +46,9 @@ export default function Calender() {
       end: String(end),
     });
 
-    const res = await fetch('/api/calendar/tasks?' + params);
+    const res = await fetch("/api/calendar/tasks?" + params);
     const json = await res.json();
-    const data: TaskData[] = json['taskArr' as keyof typeof json];
+    const data: TaskData[] = json["taskArr" as keyof typeof json];
 
     /* Updates Tasks */
     setTasks(data);
@@ -78,15 +78,15 @@ export default function Calender() {
   }
 
   function CalendarBox(timeInMS: number) {
-    let css: string = '';
+    let css: string = "";
     const timeAsDate: Date = new Date(timeInMS);
 
     if (timeAsDate.getMonth() !== month) {
       // prev month or next month
-      css = 'other-month';
+      css = "other-month";
     } else {
       // current month
-      css = 'current-month';
+      css = "current-month";
     }
 
     if (
@@ -94,7 +94,7 @@ export default function Calender() {
       timeAsDate.getMonth() === now.getMonth() &&
       timeAsDate.getDate() === now.getDate()
     ) {
-      css += '-today';
+      css += "-today";
     }
     return (
       <div key={timeInMS} className={css}>
@@ -118,15 +118,9 @@ export default function Calender() {
 
     const compArr = [];
     for (const task of taskArr) {
-      if (task.classId == null) {
-        compArr.push(
-          <ClientTask key={task.id} data={task} setStateTasks={setStateTasks} />
-        );
-      } else {
-        compArr.push(
-          <ClassTask key={task.id} data={task} setStateTasks={setStateTasks} />
-        );
-      }
+      compArr.push(
+        <GlobalTask key={task.id} data={task} setStateTasks={setStateTasks} />
+      );
     }
 
     return compArr;
@@ -148,11 +142,8 @@ export default function Calender() {
 
   return (
     <div>
-      <button className="btn" onClick={() => AddClientTask(setStateTasks)}>
-        Add Personal Task
-      </button>
-      <button className="btn" onClick={() => AddClassTask(setStateTasks)}>
-        Add Class Task
+      <button className="btn" onClick={() => AddGlobalTask(setStateTasks)}>
+        Add Global Task
       </button>
       <div className="text-secondary-content flex justify-between p-5 my-3 bg-secondary">
         <button className="btn" onClick={prevMonth}>

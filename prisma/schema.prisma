@@ -13,7 +13,6 @@ model User {
   passHash     String
   username     String         @unique
   isAdmin      Boolean        @default(false)
-  clientTasks  ClientTask[]
   UsersInClass UsersInClass[]
 
   @@unique([id, username])
@@ -22,7 +21,7 @@ model User {
 model Class {
   id           Int            @id @default(autoincrement())
   name         String         @unique
-  tasks        ClientTask[]
+  tasks        GlobalTask[]
   UsersInClass UsersInClass[]
 }
 
@@ -36,21 +35,15 @@ model UsersInClass {
   @@id([classId, userId])
 }
 
-model ClientTask {
-  username     String
+model GlobalTask {
   id           String    @id @default(cuid())
   name         String
   description  String?
   date         DateTime
   labels       String[]
   bools        Boolean[]
-  nameEditable Boolean
-  descEditable Boolean
-  dateEditable Boolean
-  isDeletable  Boolean
   classId      Int?
   Class        Class?    @relation(fields: [classId], references: [id])
-  user         User      @relation(fields: [username], references: [username])
 }
 
 model VerificationToken {

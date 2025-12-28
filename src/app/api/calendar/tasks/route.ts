@@ -1,14 +1,14 @@
-import { TaskCheckbox } from '@/app/components/calendar/tasks/Task';
+import { TaskCheckbox } from "@/app/components/calendar/tasks/Task";
 // import { TaskFormEditable } from "@/app/components/calendar/tasks/TaskForm";
-import { getUsername } from '@/db/authentication/jwtAuth';
+import { getUsername } from "@/db/authentication/jwtAuth";
 import {
-  getTasksFromPrisma,
-  addClientTask,
-  editClientTask,
+  getGlobalTasks,
+  addGlobalTask,
+  editGlobalTask,
   deleteClientTask,
-} from '@/db/tasks/client_task';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+} from "@/db/tasks/client_task";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   /* Search Params */
@@ -20,17 +20,16 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const params = new URLSearchParams(url.search);
-  const start = String(params.get('start'));
-  const end = String(params.get('end'));
+  const start = String(params.get("start"));
+  const end = String(params.get("end"));
 
   const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get('token')?.value;
-  const username = await getUsername(String(tokenCookie));
+  const tokenCookie = cookieStore.get("token")?.value;
+  // const username = await getUsername(String(tokenCookie));
 
-  if (end === '') {
+  if (end === "") {
     // Simple
-    const res = await getTasksFromPrisma(
-      username,
+    const res = await getGlobalTasks(
       Number.parseInt(start),
       Number.parseInt(start)
     );
@@ -38,8 +37,7 @@ export async function GET(request: Request) {
   }
 
   // Complex
-  const res = await getTasksFromPrisma(
-    username,
+  const res = await getGlobalTasks(
     Number.parseInt(start),
     Number.parseInt(end)
   );
@@ -67,12 +65,11 @@ export async function POST(request: Request) {
   }
 
   const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get('token')?.value;
-  const username = await getUsername(String(tokenCookie));
+  const tokenCookie = cookieStore.get("token")?.value;
+  // const username = await getUsername(String(tokenCookie));
 
-  if (reqJson.id === '') {
-    await addClientTask(
-      username,
+  if (reqJson.id === "") {
+    await addGlobalTask(
       reqJson.name,
       reqJson.description,
       new Date(reqJson.dueDate),
@@ -81,8 +78,7 @@ export async function POST(request: Request) {
     );
     return new NextResponse();
   } else {
-    await editClientTask(
-      username,
+    await editGlobalTask(
       reqJson.id,
       reqJson.name,
       reqJson.description,
@@ -102,7 +98,7 @@ export async function DELETE(request: Request) {
   const jsonReq: DeleteRequest = await request.json();
 
   const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get('token')?.value;
+  const tokenCookie = cookieStore.get("token")?.value;
   const username = await getUsername(String(tokenCookie));
 
   await deleteClientTask(username, jsonReq.id);

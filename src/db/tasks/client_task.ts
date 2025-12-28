@@ -1,34 +1,27 @@
-import { TaskCheckbox, TaskData } from '@/app/components/calendar/tasks/Task';
-import { MS_IN_DAY } from '@/app/generic/time/time';
-import prisma from '..';
+import { TaskCheckbox, TaskData } from "@/app/components/calendar/tasks/Task";
+import { MS_IN_DAY } from "@/app/generic/time/time";
+import prisma from "..";
 // import { TaskFormEditable } from "@/app/components/calendar/tasks/TaskForm";
 
-export async function addClientTask(
-  username: string,
+export async function addGlobalTask(
   name: string,
   description: string,
   dueDate: Date,
   labels: string[],
   bools: boolean[]
 ) {
-  await prisma.clientTask.create({
+  await prisma.globalTask.create({
     data: {
-      username: username,
       name,
       description,
       date: dueDate,
       labels,
       bools,
-      nameEditable: true,
-      descEditable: true,
-      dateEditable: true,
-      isDeletable: true,
     },
   });
 }
 
-export async function editClientTask(
-  username: string,
+export async function editGlobalTask(
   id: string,
   name: string,
   description: string,
@@ -36,8 +29,8 @@ export async function editClientTask(
   labels: string[],
   bools: boolean[]
 ) {
-  await prisma.clientTask.update({
-    where: { username: username, id: id },
+  await prisma.globalTask.update({
+    where: { id: id },
     data: {
       name,
       description,
@@ -48,14 +41,9 @@ export async function editClientTask(
   });
 }
 
-export async function getTasksFromPrisma(
-  username: string,
-  firstDate: number,
-  lastDate: number
-) {
-  const tasks = await prisma.clientTask.findMany({
+export async function getGlobalTasks(firstDate: number, lastDate: number) {
+  const tasks = await prisma.globalTask.findMany({
     where: {
-      username: username,
       date: {
         gte: new Date(firstDate),
         lte: new Date(lastDate + MS_IN_DAY - 1),
@@ -79,15 +67,8 @@ export async function getTasksFromPrisma(
       id: i.id,
       dueDate: i.date,
       name: i.name,
-      description: i.description == null ? '' : i.description,
+      description: i.description == null ? "" : i.description,
       checkboxes: checkboxes,
-      editables: {
-        nameEditable: i.nameEditable,
-        descEditable: i.descEditable,
-        dueEditable: i.dateEditable,
-        deletable: i.isDeletable,
-      },
-      classId: i.classId,
     };
 
     dataPlural.push(taskData);
